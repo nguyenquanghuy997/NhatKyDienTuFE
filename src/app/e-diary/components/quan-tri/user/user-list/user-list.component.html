@@ -1,0 +1,307 @@
+<app-error-page
+  [isNotPermission]="
+    lstFunctionCode && !lstFunctionCode?.includes(FunctionCode.VIEW)
+  "
+></app-error-page>
+<div
+  *ngIf="lstFunctionCode && lstFunctionCode.includes(FunctionCode.VIEW)"
+  class="card"
+>
+  <!-- <div class="card-header">
+    <h4 class="card-title">Quản trị người dùng</h4>
+  </div> -->
+  <div class="card-body">
+    <div class="row m-b-5">
+      <div class="col-lg-8">
+        <form [formGroup]="searchForm">
+          <div class="form-group row">
+            <div class="col-md-3">
+              <label for="searchUsername">Tài khoản</label>
+              <input
+                class="form-control"
+                type="text"
+                placeholder="Tài khoản"
+                formControlName="searchUsername"
+              />
+            </div>
+
+            <div class="col-md-3">
+              <label for="searchNameCode">Tên</label>
+              <input
+                class="form-control"
+                type="text"
+                placeholder="Tên"
+                formControlName="searchName"
+              />
+            </div>
+
+            <div class="col-md-3">
+              <label for="searchStatus">Trạng thái</label>
+              <select
+                class="custom-select"
+                id="searchStatus"
+                formControlName="searchStatus"
+              >
+                <option [ngValue]="null">Tất cả</option>
+                <option [ngValue]="true">Hoạt động</option>
+                <option [ngValue]="false">Không hoạt động</option>
+              </select>
+            </div>
+
+            <div class="col-md-3 d-flex align-items-end">
+              <button class="btn btn-primary" (click)="onSearch()">
+                <i class="anticon anticon-search m-r-5"></i>
+              </button>
+
+              <a
+                data-toggle="collapse"
+                href="#collapseExample"
+                role="button"
+                aria-expanded="false"
+                aria-controls="collapseExample"
+                class="advanced m-l-10"
+              >
+                Tìm kiếm nâng cao <i class="fa fa-angle-down"></i>
+              </a>
+            </div>
+          </div>
+          <div class="mt-1">
+            <div class="collapse" id="collapseExample">
+              <div class="form-group row">
+                <div class="col-md-3">
+                  <label for="selectGender" class="form-label">Giới tính</label>
+                  <select
+                    class="form-select form-control responsive"
+                    aria-label=".form-select-lg"
+                    id="selectGender"
+                    formControlName="genderSearch"
+                    style="width: 100%"
+                  >
+                    <option selected value="null">Tất cả</option>
+                    <option [ngValue]="1" selected>Nam</option>
+                    <option [ngValue]="2">Nữ</option>
+                    <option [ngValue]="3">Khác</option>
+                  </select>
+                </div>
+
+                <div class="col-md-3">
+                  <label for="startEndDate">Ngày sinh</label>
+                  <input
+                    placeholder="Từ ngày - đến ngày"
+                    class="form-control"
+                    [bsConfig]="bsConfig"
+                    bsDaterangepicker
+                    formControlName="rangeDate"
+                  />
+                </div>
+
+                <div class="col-md-3">
+                  <label for="RoleId">Vai trò</label>
+                  <ng-select
+                    [searchable]="true"
+                    dropdownPosition="bottom"
+                    id="RoleId"
+                    formControlName="RoleId"
+                    placeholder="Vai trò"
+                  >
+                    <ng-option
+                      *ngFor="let item of lstRoleSearch"
+                      [value]="item.Id"
+                    >
+                      {{ item.Name }}
+                    </ng-option>
+                  </ng-select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div
+        class="col-lg-4 text-right align-top"
+        *ngIf="lstFunctionCode.includes(FunctionCode.CREATE)"
+      >
+        <button
+          class="btn btn-primary"
+          (click)="onOpenModalCreate()"
+        >
+          <i class="anticon anticon-plus-circle m-r-5"></i>
+          <span>Thêm mới</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="dataTables_wrapper dt-bootstrap4 no-footer">
+      <div class="table-responsive">
+        <table class="table table-hover table-bordered">
+          <thead>
+            <tr>
+              <th class="text-center">STT</th>
+              <th class="text-left">Tên đăng nhập</th>
+              <th class="text-left">Tên nhân viên</th>
+              <th class="text-left">Email</th>
+              <th class="text-center">Giới tính</th>
+              <th class="text-center">Ngày sinh</th>
+              <th class="text-center">Trạng thái</th>
+              <th class="text-left">Ghi chú</th>
+              <th class="text-center">Tác vụ</th>
+            </tr>
+          </thead>
+          <tbody *ngIf="listAccount.length != 0">
+            <tr *ngFor="let account of listAccount; let indexOfelement = index">
+              <td>{{ (pageIndex - 1) * pageSize + indexOfelement + 1 }}</td>
+              <td
+                style="
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                  max-width: 200px;
+                  white-space: pre-wrap;
+                "
+              >
+                <a
+                  [href]="'javascript:void(' + account.Id + ')'"
+                  class="text-primary"
+                  (click)="onOpenModalDisplay(account.Id)"
+                >
+                  {{ account.Username }}</a
+                >
+              </td>
+              <td
+                style="
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                  max-width: 200px;
+                  white-space: pre-wrap;
+                "
+              >
+                {{ account.Name }}
+              </td>
+              <td class="text-left">
+                {{ account.Email }}
+              </td>
+              <td class="text-center">
+                {{ DicGenderDesc.get(account.Gender) }}
+              </td>
+              <td class="text-center">
+                {{ account.DateOfBirth | date : "dd/MM/yyyy" }}
+              </td>
+
+              <td class="text-center">
+                <div *ngIf="account.IsActive">
+                  <span class="badge badge-pill badge-primary font-weight-bold"
+                    >Hoạt động</span
+                  >
+                </div>
+                <div *ngIf="!account.IsActive">
+                  <span
+                    class="badge badge-pill badge-secondary font-weight-bold"
+                    >Không hoạt động</span
+                  >
+                </div>
+              </td>
+              <td
+                style="
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                  max-width: 200px;
+                  white-space: pre-wrap;
+                "
+              >
+                {{ account.Note }}
+              </td>
+              <td class="text-center">
+                <button
+                  class="btn btn-icon btn-hover btn-sm btn-rounded pull-right"
+                  data-toggle="tooltip"
+                  data-placement="top"
+                  title="Đổi mật khẩu"
+                  *ngIf="lstFunctionCode.includes(FunctionCode.EDIT)"
+                  (click)="onOpenModalChangePass(account.Id)"
+                >
+                  <!-- <i class="anticon anticon-key"></i> -->
+                  <i class="anticon anticon-lock"></i>
+                </button>
+
+                <button
+                  class="btn btn-icon btn-hover btn-sm btn-rounded pull-right"
+                  data-toggle="tooltip"
+                  data-placement="top"
+                  title="Chỉnh sửa"
+                  *ngIf="lstFunctionCode.includes(FunctionCode.EDIT)"
+                  (click)="onOpenModalUpdate(account.Id)"
+                >
+                  <i class="anticon anticon-edit"></i>
+                </button>
+
+                <button
+                  class="btn btn-icon btn-hover btn-sm btn-rounded"
+                  data-toggle="tooltip"
+                  data-placement="top"
+                  title="Xóa"
+                  *ngIf="lstFunctionCode.includes(FunctionCode.DELETE)"
+                  (click)="onConfirmDel(account)"
+                >
+                  <i class="anticon anticon-delete"></i>
+                </button>
+
+                <button
+                  class="btn btn-icon btn-hover btn-sm btn-rounded pull-right"
+                  data-toggle="tooltip"
+                  data-placement="top"
+                  title="Xem thông tin bảo mật"
+                  *ngIf="lstFunctionCode.includes(FunctionCode.VIEWSECRET)"
+                  (click)="onOpenModalViewSecret(account)"
+                >
+                  <i class="anticon anticon-eye"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <app-pagination
+        [pageIndex]="pageIndex"
+        [totalItem]="totalItem"
+        [pageSize]="pageSize"
+        [pageCount]="pageCount"
+        (onChangePagination)="changePagination($event)"
+      >
+      </app-pagination>
+      <app-nodata-info [totalItem]="totalItem"> </app-nodata-info>
+    </div>
+  </div>
+</div>
+
+<app-user-modal
+  #popup
+  [model]="respone"
+  [isVisible]="showpopup"
+  [functionCode]="functionCode"
+  [lstFunctionCode]="lstFunctionCodePopup"
+  (onSubmitModal)="onSubmitModal($event)"
+  (onHideModal)="onHideModal()"
+  (onEditModal)="onEditModal($event)"
+  (onDeleteModal)="onDeleteModal($event)"
+>
+</app-user-modal>
+
+<app-user-modal-change-pass
+  #popupChangePass
+  [model]="responePAWD"
+  *ngIf="showpopupPAWD"
+  (onSubmitModal)="submitModalPAWD($event)"
+  (onHideModal)="hideModalPAWD()"
+>
+</app-user-modal-change-pass>
+
+<app-user-modal-view-secretkey
+  #popupViewSecret
+  [model]="respone"
+></app-user-modal-view-secretkey>
+
+<!-- <div
+  *ngIf="showpopupCRUD || showpopupPAWD"
+  class="modal-backdrop fade show"
+></div> -->

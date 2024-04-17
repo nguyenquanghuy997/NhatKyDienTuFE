@@ -1,0 +1,116 @@
+<app-error-page [isNotPermission]="
+    lstFunctionCode && !lstFunctionCode?.includes(FunctionCode.VIEW)
+  "></app-error-page>
+<div *ngIf="lstFunctionCode && lstFunctionCode.includes(FunctionCode.VIEW)" class="card">
+  <div *ngIf="loading">
+    <div class="loading-overlay">
+      <div class="loading-spinner"></div>
+    </div>
+  </div>
+  <!-- Filter - BEGIN -->
+  <div class="card-body">
+    <div class="row m-b-5">
+      <div class="col-lg-8">
+        <form nz-form [formGroup]="searchForm" (ngSubmit)="onSearchData()">
+          <div class="form-group row">
+            <div class="col-md-3">
+              <label for="code">Loại ca trực</label>
+              <ng-select [searchable]="true" [clearable]="false" formControlName="ShiftCategoryId" id="ShiftCategoryId"
+                (ngModelChange)="changeShiftCategory()" placeholder="Chọn loại ca trực"
+                dropdownPosition="bottom"
+                notFoundText="{{ ngSelectMessage.NotFound }}" [appendTo]="'body'">
+                <ng-option *ngFor="let item of lstShiftCategory" [value]="item.Id">
+                  {{ item.Name }}
+                </ng-option>
+              </ng-select>
+            </div>
+            <div class="col-md-3">
+              <label for="rangeDate">Thời gian</label>
+              <div class="input-affix">
+                <i class="prefix-icon anticon anticon-calendar"></i>
+                <input type="text" placeholder="Từ ngày - đến ngày" class="form-control" bsDatepicker
+                  [bsConfig]="{minMode: 'month', dateInputFormat: 'MM/YYYY'}" [bsValue]="bsValue"
+                  (bsValueChange)="changeDate($event)" />
+              </div>
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+              <button class="btn btn-primary">
+                <i class="anticon anticon-search"></i>
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="col-lg-4 form-group" *ngIf="lstFunctionCode.includes(FunctionCode.CREATE)">
+        <div class="h-100 d-flex align-items-end justify-content-end">
+          <button class="btn btn-primary" (click)="onOpenModalCreate()" data-toggle="modal" data-target="#ShiftModal">
+            <i class="anticon anticon-plus-circle m-r-5"></i>
+            <span>Thêm mới</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- Filter - END -->
+
+    <!-- Table - BEGIN -->
+    <h3>Lịch {{shiftCategoryItem.Name}}</h3>
+    <full-calendar #fullcalendar [options]="calendarOptions"></full-calendar>
+
+
+    <!-- <h3 class="m-t-10">Danh sách {{shiftCategoryItem.Name}}</h3>
+    <div class="dataTables_wrapper dt-bootstrap4 no-footer">
+      <div class="table-responsive">
+        <table id="dtDynamicVerticalScroll" class="table table-hover table-bordered e-commerce-table">
+          <thead>
+            <tr>
+              <th class="text-center align-middle" [width]="'30px'">STT</th>
+              <th class="text-left align-middle" [width]="'25%'">Thời gian</th>
+              <th class="text-left align-middle">Ca trực</th>
+              <th class="text-center align-middle" [width]="'95px'">Tác vụ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of lstItemPagination; let indexOfelement = index">
+              <td class="text-center" *ngIf="item.ChildFirst" [attr.rowspan]="item.ChildNumber">
+                {{ (pageIndex - 1) * pageSize + indexOfelement + 1 }}
+              </td>
+              <td class="text-left" *ngIf="item.ChildFirst" [attr.rowspan]="item.ChildNumber">
+                <a class="text-primary" (click)="onOpenModalDisplay(item.ShiftEffectivePeriodId, item.StartDTG, false)" style="cursor: pointer;">
+                  {{ item.StartDTGString }}
+                </a>
+              </td>
+              <td class="text-left">
+                {{ item.ShiftCategoryName }} > {{item.ShiftName}} ({{item.StartDTG | date : 'HH:mm'}} -
+                {{item.EndDTG | date : 'HH:mm'}})
+              </td>
+              <td class="text-center" *ngIf="item.ChildFirst" [attr.rowspan]="item.ChildNumber">
+                <button class="btn btn-icon btn-hover btn-sm btn-rounded pull-right"
+                  *ngIf="lstFunctionCode.includes(FunctionCode.EDIT)" (click)="onOpenModalDisplay(item.ShiftEffectivePeriodId, item.StartDTG, true)"
+                  data-toggle="tooltip" title="Sửa">
+                  <i class="anticon anticon-edit"></i>
+                </button>
+                <button class="btn btn-icon btn-hover btn-sm btn-rounded" data-toggle="tooltip" title="Xóa"
+                  *ngIf="lstFunctionCode.includes(FunctionCode.DELETE)" (click)="onDelete(item)">
+                  <i class="anticon anticon-delete"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <app-pagination [pageIndex]="pageIndex" [totalItem]="totalItem" [pageSize]="pageSize" [pageCount]="pageCount"
+        (onChangePagination)="onChangePagination($event)">
+      </app-pagination>
+      <app-nodata-info [totalItem]="totalItem"> </app-nodata-info>
+    </div> -->
+    <!-- Table - END -->
+  </div>
+
+  <app-shift-schedule-modal #popup [model]="popupItem" [functionCode]="functionCode"
+    [lstFunctionCode]="lstFunctionCodePopup" (onSubmitModal)="onSubmitModal($event)" (onSwitchEdit)="onSwitchEdit()"
+    (onConfirmDel)="onDeleteModal($event)" [shiftCategoryId]="searchForm.controls.ShiftCategoryId.value"
+    [organizationId]="shiftCategoryItem.OrganizationId">
+  </app-shift-schedule-modal>
+
+</div>

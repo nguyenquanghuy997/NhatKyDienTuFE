@@ -1,0 +1,16 @@
+<app-error-page
+  [isNotPermission]="
+    lstFunctionCode && !lstFunctionCode?.includes(FunctionCode.VIEW)
+  "
+></app-error-page>
+<ng-container
+  *ngIf="lstFunctionCode && lstFunctionCode?.includes(FunctionCode.VIEW)"
+>
+  <!-- <app-truc-ca-addnew #trucCa *ngIf="refTypeModel?.ShiftCategoryId"></app-truc-ca-addnew> -->
+
+  <app-phieu-lenh-addnew
+    #phieuLenh
+    *ngIf="refTypeModel && !refTypeModel.ShiftCategoryId"
+    [RefTypeModel]="refTypeModel"
+  ></app-phieu-lenh-addnew>
+</ng-container>

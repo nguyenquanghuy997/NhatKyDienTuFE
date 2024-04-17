@@ -1,0 +1,533 @@
+<div class="modal fade show" id="GiaoNhanCaModal">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header justify-content-between align-items-center">
+        <h5 class="modal-title">Giao nhận ca</h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          (click)="onHide()"
+        >
+          <i class="anticon anticon-close"></i>
+        </button>
+      </div>
+      <div class="modal-body scrollable">
+        <form
+          [formGroup]="popupForm"
+          (ngSubmit)="onSubmit()"
+          [attr.class]="
+            functionCode == FunctionCode.DISPLAY ? 'modalDetail' : undefined
+          "
+        >
+          <div class="row">
+            <div class="col-md-6 border-right">
+              <label class="d-flex font-weight-bold">Ca hiện tại</label>
+              <div class="form-row">
+                <div class="form-group col-6">
+                  <label>Tên ca trực</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    readonly
+                    formControlName="ShiftNameCurr"
+                  />
+                </div>
+                <div class="form-group col-6">
+                  <label>Thời gian ca trực</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    readonly
+                    value="{{
+                      f.StartDTGCurr.value | date : 'dd/MM/YYYY HH:mm'
+                    }} - {{ f.EndDTGCurr.value | date : 'HH:mm' }}"
+                  />
+                </div>
+              </div>
+              <div class="form-group form-row">
+                <div class="col-12">
+                  <label>Ghi chú</label>
+                  <textarea
+                    id="NoteCurr"
+                    rows="2"
+                    class="form-control"
+                    readonly
+                    formControlName="NoteCurr"
+                    [ngClass]="{
+                      'is-invalid':
+                        f.Note.errors && (f.Note.touched || f.Note.dirty)
+                    }"
+                  ></textarea>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group col-md-12 m-b-0">
+                  <label class="d-flex">Thành viên ca trực hiện tại </label>
+                  <div class="dataTables_wrapper dt-bootstrap4 no-footer">
+                    <div class="table-responsive">
+                      <ng-container formArrayName="SysShiftMemberCurrentList">
+                        <table
+                          id="dtDynamicVerticalScroll"
+                          class="table table-hover table-bordered e-commerce-table"
+                        >
+                          <thead>
+                            <tr>
+                              <th class="text-left align-middle">Chức danh</th>
+                              <th class="text-left align-middle">Nghiệp vụ</th>
+                              <th class="text-center align-middle">
+                                Trạng thái
+                              </th>
+                              <th class="text-left align-middle">Thành viên</th>
+                              <th
+                                class="text-center align-middle"
+                                [width]="'100px'"
+                              >
+                                {{
+                                  RefTypeModel.HasOTP ? "Mã TOTP" : "Mật khẩu"
+                                }}
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody *ngIf="model">
+                            <ng-container
+                              *ngFor="
+                                let item of SysShiftMemberCurrentList.controls;
+                                let i = index
+                              "
+                              [formGroupName]="i"
+                            >
+                              <tr
+                                *ngFor="
+                                  let refType of model.Members[i].RefTypes;
+                                  let iRefType = index
+                                "
+                              >
+                                <td
+                                  *ngIf="iRefType === 0"
+                                  [attr.rowspan]="
+                                    model.Members[i].RefTypes.length
+                                  "
+                                >
+                                  {{
+                                    SysShiftMemberCurrentList.controls[i]
+                                      .controls.JobTitleName.value
+                                  }}
+                                </td>
+                                <td>
+                                  {{ refType.Name }}
+                                </td>
+                                <td>
+                                  <span
+                                    [class]="
+                                      DicStatusStyle_OnShiftDuty.get(
+                                        refType.StatusDutyShift
+                                      )
+                                    "
+                                  >
+                                    {{
+                                      DicStatusDesc_OnShiftDuty.get(
+                                        refType.StatusDutyShift
+                                      )
+                                    }}
+                                  </span>
+                                </td>
+                                <td
+                                  *ngIf="iRefType === 0"
+                                  [attr.rowspan]="
+                                    model.Members[i].RefTypes.length
+                                  "
+                                >
+                                  {{
+                                    SysShiftMemberCurrentList.controls[i]
+                                      .controls.Username.value
+                                  }}
+                                  -
+                                  {{
+                                    SysShiftMemberCurrentList.controls[i]
+                                      .controls.User_Name.value
+                                  }}
+                                </td>
+                                <td
+                                  class="p-1"
+                                  *ngIf="iRefType === 0"
+                                  [attr.rowspan]="
+                                    model.Members[i].RefTypes.length
+                                  "
+                                >
+                                  <input
+                                    *ngIf="
+                                      SysShiftMemberCurrentList.controls[i]
+                                        .controls.StatusDutyShift.value ==
+                                      StatusDutyShift.DaGiaoCa
+                                    "
+                                    [type]="
+                                      RefTypeModel.HasOTP ? 'text' : 'password'
+                                    "
+                                    [placeholder]="
+                                      RefTypeModel.HasOTP ? 'TOTP' : 'Mật khẩu'
+                                    "
+                                    class="w-100 form-control"
+                                    readonly
+                                  />
+                                  <input
+                                    *ngIf="
+                                      SysShiftMemberCurrentList.controls[i]
+                                        .controls.StatusDutyShift.value !=
+                                      StatusDutyShift.DaGiaoCa
+                                    "
+                                    [type]="
+                                      RefTypeModel.HasOTP ? 'text' : 'password'
+                                    "
+                                    [placeholder]="
+                                      RefTypeModel.HasOTP ? 'TOTP' : 'Mật khẩu'
+                                    "
+                                    class="w-100 form-control"
+                                    maxlength="100"
+                                    formControlName="TOTP"
+                                    [attr.readonly]="
+                                      functionCode != FunctionCode.GiaoNhanCa
+                                        ? true
+                                        : undefined
+                                    "
+                                    [ngClass]="{
+                                      'is-invalid':
+                                        SysShiftMemberCurrentList.controls[i]
+                                          .controls.TOTP.errors &&
+                                        (SysShiftMemberCurrentList.controls[i]
+                                          .controls.TOTP.touched ||
+                                          SysShiftMemberCurrentList.controls[i]
+                                            .controls.TOTP.dirty)
+                                    }"
+                                  />
+                                  <div
+                                    *ngIf="
+                                      SysShiftMemberCurrentList.controls[i]
+                                        .controls.TOTP.errors &&
+                                      (SysShiftMemberCurrentList.controls[i]
+                                        .controls.TOTP.touched ||
+                                        SysShiftMemberCurrentList.controls[i]
+                                          .controls.TOTP.dirty)
+                                    "
+                                    class="invalid-feedback"
+                                  >
+                                    <div
+                                      *ngIf="
+                                        SysShiftMemberCurrentList.controls[i]
+                                          .controls.TOTP.errors.required
+                                      "
+                                    >
+                                      Mật khẩu không được trống
+                                    </div>
+                                    <div
+                                      *ngIf="
+                                        SysShiftMemberCurrentList.controls[i]
+                                          .controls.TOTP.errors.maxLength
+                                      "
+                                    >
+                                      Mật khẩu không quá 100 ký tự
+                                    </div>
+                                  </div>
+                                </td>
+                              </tr>
+                            </ng-container>
+                          </tbody>
+                        </table>
+                      </ng-container>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- thông tin ca tiếp theo-->
+            <div class="col-md-6 border-left">
+              <label class="d-flex font-weight-bold">Ca tiếp theo</label>
+              <div class="form-row">
+                <div class="form-group col-6">
+                  <label>Tên ca trực</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    readonly
+                    formControlName="ShiftName"
+                  />
+                </div>
+                <div class="form-group col-6">
+                  <label>Thời gian ca trực</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    readonly
+                    formControlName="StartDTG"
+                    value="{{
+                      f.StartDTG.value | date : 'dd/MM/YYYY HH:mm'
+                    }} - {{ f.EndDTG.value | date : 'HH:mm' }}"
+                  />
+                </div>
+              </div>
+              <div class="form-group form-row">
+                <div class="col-12">
+                  <label>Ghi chú</label>
+                  <textarea
+                    id="Note"
+                    rows="2"
+                    formControlName="Note"
+                    class="form-control"
+                    id="Note"
+                    placeholder="Ghi chú"
+                    maxlength="1000"
+                    [ngClass]="{
+                      'is-invalid':
+                        f.Note.errors && (f.Note.touched || f.Note.dirty)
+                    }"
+                  ></textarea>
+                  <div
+                    *ngIf="f.Note.errors && (f.Note.touched || f.Note.dirty)"
+                    class="invalid-feedback"
+                  >
+                    <div *ngIf="f.Note.errors?.[maxlength]">
+                      Tối đa 1000 ký tự
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group col-md-12 m-b-0">
+                  <label class="d-flex"
+                    >Thành viên ca trực tiếp theo
+                    <span class="text-danger">*</span>
+                    <div
+                      *ngIf="
+                        f.SysShiftMemberNextList.errors &&
+                        (f.SysShiftMemberNextList.touched ||
+                          f.SysShiftMemberNextList.dirty)
+                      "
+                      class="m-r-10 error-feedback"
+                    >
+                      <div *ngIf="f.SysShiftMemberNextList.errors.duplicate">
+                        Dữ liệu thành phần trong ca không được trùng nhau
+                      </div>
+                    </div>
+                  </label>
+                  <div class="dataTables_wrapper dt-bootstrap4 no-footer">
+                    <div class="table-responsive">
+                      <ng-container formArrayName="SysShiftMemberNextList">
+                        <table
+                          id="dtDynamicVerticalScroll"
+                          class="table table-hover table-bordered e-commerce-table"
+                        >
+                          <thead>
+                            <tr>
+                              <th class="text-left align-middle">Chức danh</th>
+                              <th class="text-left align-middle">Nghiệp vụ</th>
+                              <!-- <th class="text-center align-middle">
+                                Trạng thái
+                              </th> -->
+                              <th class="text-left align-middle">Thành viên</th>
+                              <th
+                                class="text-center align-middle"
+                                [width]="'100px'"
+                              >
+                                {{
+                                  RefTypeModel.HasOTP ? "Mã TOTP" : "Mật khẩu"
+                                }}
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody
+                            *ngIf="
+                              model &&
+                              model.ProcessFormNext &&
+                              model.ProcessFormNext.Members
+                            "
+                          >
+                            <ng-container
+                              *ngFor="
+                                let item of SysShiftMemberNextList.controls;
+                                let i = index
+                              "
+                              [formGroupName]="i"
+                            >
+                              <tr
+                                *ngFor="
+                                  let refTypeNext of model.ProcessFormNext
+                                    .Members[i].RefTypes;
+                                  let iRefTypeNext = index
+                                "
+                              >
+                                <td
+                                  *ngIf="iRefTypeNext === 0"
+                                  [attr.rowspan]="
+                                    model.ProcessFormNext.Members[i].RefTypes
+                                      .length
+                                  "
+                                >
+                                  {{
+                                    SysShiftMemberNextList.controls[i].controls
+                                      .JobTitleName.value
+                                  }}
+                                </td>
+                                <td>
+                                  {{ refTypeNext.Name }}
+                                </td>
+                                <td
+                                  class="p-1"
+                                  *ngIf="iRefTypeNext === 0"
+                                  [attr.rowspan]="
+                                    model.ProcessFormNext.Members[i].RefTypes
+                                      .length
+                                  "
+                                >
+                                  <ng-select
+                                    formControlName="UserId"
+                                    [searchable]="true"
+                                    placeholder="Chọn người dùng"
+                                    dropdownPosition="bottom"
+                                    notFoundText="{{
+                                      ngSelectMessage.NotFound
+                                    }}"
+                                    [appendTo]="'body'"
+                                    [ngClass]="{
+                                      'is-invalid':
+                                        SysShiftMemberNextList.controls[i]
+                                          .controls.UserId.errors &&
+                                        (SysShiftMemberNextList.controls[i]
+                                          .controls.UserId.touched ||
+                                          SysShiftMemberNextList.controls[i]
+                                            .controls.UserId.dirty)
+                                    }"
+                                    [readonly]="
+                                      functionCode == FunctionCode.DISPLAY ||
+                                      !SysShiftMemberNextList.controls[i]
+                                        .controls.UserId.validator ||
+                                      SysShiftMemberNextList.controls[i]
+                                        ?.controls?.StatusDutyShift?.value ===
+                                        StatusDutyShift.DaGiaoCa
+                                        ? true
+                                        : undefined
+                                    "
+                                  >
+                                    <ng-option
+                                      *ngFor="let user of lstUser"
+                                      [value]="user.Id"
+                                    >
+                                      {{ user.Username }} - {{ user.Name }}
+                                    </ng-option>
+                                  </ng-select>
+
+                                  <div
+                                    *ngIf="
+                                      SysShiftMemberNextList.controls[i]
+                                        .controls.UserId.errors &&
+                                      (SysShiftMemberNextList.controls[i]
+                                        .controls.UserId.touched ||
+                                        SysShiftMemberNextList.controls[i]
+                                          .controls.UserId.dirty)
+                                    "
+                                    class="error-feedback"
+                                  >
+                                    <div
+                                      *ngIf="
+                                        SysShiftMemberNextList.controls[i]
+                                          .controls.UserId.errors.required
+                                      "
+                                    >
+                                      Thành viên không được trống
+                                    </div>
+                                  </div>
+                                </td>
+                                <td
+                                  class="p-1"
+                                  *ngIf="iRefTypeNext === 0"
+                                  [attr.rowspan]="
+                                    model.ProcessFormNext.Members[i].RefTypes
+                                      .length
+                                  "
+                                >
+                                  <input
+                                    [type]="
+                                      RefTypeModel.HasOTP ? 'text' : 'password'
+                                    "
+                                    [placeholder]="
+                                      RefTypeModel.HasOTP ? 'TOTP' : 'Mật khẩu'
+                                    "
+                                    class="w-100 form-control"
+                                    maxlength="100"
+                                    formControlName="TOTP"
+                                    [ngClass]="{
+                                      'is-invalid':
+                                        SysShiftMemberNextList.controls[i]
+                                          .controls.TOTP.errors &&
+                                        (SysShiftMemberNextList.controls[i]
+                                          .controls.TOTP.touched ||
+                                          SysShiftMemberNextList.controls[i]
+                                            .controls.TOTP.dirty)
+                                    }"
+                                    [readonly]="
+                                      SysShiftMemberNextList.controls[i]
+                                        ?.controls?.StatusDutyShift?.value ===
+                                      StatusDutyShift.DaGiaoCa
+                                    "
+                                  />
+                                  <div
+                                    *ngIf="
+                                      SysShiftMemberNextList.controls[i]
+                                        .controls.TOTP.errors &&
+                                      (SysShiftMemberNextList.controls[i]
+                                        .controls.TOTP.touched ||
+                                        SysShiftMemberNextList.controls[i]
+                                          .controls.TOTP.dirty)
+                                    "
+                                    class="invalid-feedback"
+                                  >
+                                    <div
+                                      *ngIf="
+                                        SysShiftMemberNextList.controls[i]
+                                          .controls.TOTP.errors.required
+                                      "
+                                    >
+                                      Mật khẩu không được trống
+                                    </div>
+                                    <div
+                                      *ngIf="
+                                        SysShiftMemberNextList.controls[i]
+                                          .controls.TOTP.errors.maxLength
+                                      "
+                                    >
+                                      Mật khẩu không quá 100 ký tự
+                                    </div>
+                                  </div>
+                                </td>
+                              </tr>
+                            </ng-container>
+                          </tbody>
+                        </table>
+                      </ng-container>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- end thông tin ca tiếp theo-->
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button
+          type="submit"
+          *ngIf="
+            lstFunctionCode &&
+            lstFunctionCode.includes(functionCode) &&
+            functionCode == FunctionCode.GiaoNhanCa
+          "
+          class="btn btn-primary"
+          (click)="onSubmit()"
+        >
+          Xác nhận
+        </button>
+        <button (click)="onHide()" class="btn btn-secondary">Đóng</button>
+      </div>
+    </div>
+  </div>
+</div>

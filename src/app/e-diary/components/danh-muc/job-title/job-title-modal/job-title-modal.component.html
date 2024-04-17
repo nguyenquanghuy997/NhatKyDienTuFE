@@ -1,0 +1,95 @@
+<div class="modal fade show" id="ShiftCategoryModal">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header justify-content-between align-items-center">
+        <h5 class="modal-title">
+          {{
+            functionCode == FunctionCode.CREATE ||
+            functionCode == FunctionCode.EDIT
+              ? !model.Id
+                ? "Thêm mới "
+                : "Cập nhật "
+              : "Chi tiết "
+          }}
+          chức danh
+        </h5>
+        <button type="button" class="close" data-dismiss="modal" (click)="onHide()">
+          <i class="anticon anticon-close"></i>
+        </button>
+      </div>
+      <div class="modal-body scrollable">
+        <form [formGroup]="popupForm" (ngSubmit)="onSubmit()">
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="Name">Tên <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="Name" maxlength="100" placeholder="Nhập tên"
+                formControlName="Name" [attr.readonly]="
+                  functionCode == FunctionCode.DISPLAY ? true : null
+                " [ngClass]="{
+                  'is-invalid':
+                    f.Name.errors && (f.Name.touched || f.Name.dirty)
+                }" required />
+              <div *ngIf="f.Name.errors && (f.Name.touched || f.Name.dirty)" class="invalid-feedback">
+                <div *ngIf="f.Name.errors.required">Tên không được trống</div>
+                <div *ngIf="f.Name.errors.maxLength">Tên không quá 100 ký tự</div>
+              </div>
+            </div>
+            <div class="form-group col-md-6">
+              <label for="IsActive">Trạng thái</label>
+              <ng-select formControlName="IsActive" dropdownPosition="bottom" id="IsActive" placeholder="Chọn trạng thái" [appendTo]="'body'"
+                [clearable]="false" [readonly]="
+                  functionCode == FunctionCode.DISPLAY ? true : false
+                ">
+                <ng-option [value]="true">
+                  Hoạt động
+                </ng-option>
+                <ng-option [value]="false">
+                  Không hoạt động
+                </ng-option>
+              </ng-select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-12">
+              <label for="Note" class="form-label">Ghi chú</label>
+              <textarea rows="2" formControlName="Note" class="form-control" id="Note" placeholder="Ghi chú"
+                maxlength="1000" [attr.readonly]="
+                  functionCode == FunctionCode.DISPLAY ? true : null
+                " [ngClass]="{
+                  'is-invalid':
+                    f.Note.errors && (f.Note.touched || f.Note.dirty)
+                }"></textarea>
+              <div *ngIf="f.Note.errors && (f.Note.touched || f.Note.dirty)" class="invalid-feedback">
+                <div *ngIf="f.Note.errors?.[maxlength]">Tối đa 1000 ký tự</div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button *ngIf="
+            lstFunctionCode &&
+            lstFunctionCode.includes(FunctionCode.EDIT) &&
+            functionCode == FunctionCode.DISPLAY
+          " class="btn btn-primary" (click)="onEdit()">
+          Sửa
+        </button>
+        <button *ngIf="
+            lstFunctionCode &&
+            lstFunctionCode.includes(FunctionCode.DELETE) &&
+            functionCode == FunctionCode.DISPLAY
+          " class="btn btn-danger btn-delete-left" (click)="onDelete()">
+          Xóa
+        </button>
+        <button type="submit"
+          *ngIf="lstFunctionCode && lstFunctionCode.includes(functionCode) && functionCode != FunctionCode.DISPLAY"
+          class="btn btn-primary" (click)="onSubmit()">
+          Lưu
+        </button>
+        <button (click)="onHide()" class="btn btn-secondary">
+          Đóng
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

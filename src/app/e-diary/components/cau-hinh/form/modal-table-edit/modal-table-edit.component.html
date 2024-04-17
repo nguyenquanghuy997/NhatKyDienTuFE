@@ -1,0 +1,61 @@
+<div [class]="'modal' + (isVisible ? ' fade show' : '')" id="modalTableEdit" [style]="isVisible ? 'block' : 'none'">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header justify-content-between align-items-center">
+        <h5 class="modal-title">Thông tin table: {{ identity }}</h5>
+        <button type="button" class="close" data-dismiss="modal" (click)="hideModal()">
+          <i class="anticon anticon-close"></i>
+        </button>
+      </div>
+      <div class="modal-body scrollable">
+        <form [formGroup]="reactiveForm_" (ngSubmit)="onSubmit()" id="formTableEdit">
+          <div class="form-group">
+            <label for="select_TypeTableEdit" class="form-label">Kiểu table</label>
+            <select class="form-select form-control responsive" id="select_TypeTableEdit" aria-label=".form-select-lg"
+              style="width: 100%" placeholder="Chọn kiểu table" formControlName="Type" [ngClass]=" { 'is-invalid' :
+              (f.Type.touched || f.Type.dirty) && f.Type.errors }">
+              <option *ngFor="let item of LtsClassCSS" [value]="item">
+                {{ classCSSTableMapping[item] }}
+              </option>
+            </select>
+            <div>
+              <small><i>Chọn dạng hiển thị bảng ứng với vị trí của bảng</i></small>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="select_AlignTableEdit" class="form-label">Kiểu căn lề</label>
+            <select class="form-select form-control responsive" id="select_AlignTableEdit" aria-label=".form-select-lg"
+              style="width: 100%" [ngClass]="{
+                'is-invalid':
+                  (f.Align.touched || f.Align.dirty) && f.Align.errors
+              }" placeholder="Chọn kiểu căn lề" formControlName="Align">
+              <option *ngFor="let item of LtsClassAlignCSS" [value]="item">
+                {{ classCSSAlignTableMapping[item] }}
+              </option>
+            </select>
+            <div>
+              <small><i>Chọn kiểu căn lề cho nội dung hiển thị trong bảng</i></small>
+            </div>
+          </div>
+          <input hidden id="identityTableModal" />
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button *ngIf="hasElementCoppy" type="button" (click)="PasteDataModal()" class="btn btn-success">
+          <i class="anticon anticon-snippets"></i>
+          Paste
+        </button>
+        <button type="button" (click)="CoppyDataModal()" class="btn btn-success">
+          <i class="anticon anticon-copy"></i>
+          Coppy
+        </button>
+        <button [disabled]="!reactiveForm_.valid" type="submit" class="btn btn-primary" (click)="onSubmit()">
+          Lưu
+        </button>
+        <button (click)="hideModal()" id="closeModalButtonTable" class="btn btn-secondary" data-dismiss="modal">
+          Đóng
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,163 @@
+<app-error-page
+  [isNotPermission]="
+    lstFunctionCode && !lstFunctionCode?.includes(FunctionCode.VIEW)
+  "
+></app-error-page>
+<div
+  *ngIf="lstFunctionCode && lstFunctionCode.includes(FunctionCode.VIEW)"
+  class="card"
+>
+  <div *ngIf="loading">
+    <div class="loading-overlay">
+      <div class="loading-spinner"></div>
+    </div>
+  </div>
+  <div class="card-body">
+    <!-- Search -->
+    <div class="row m-b-5">
+      <div class="col-lg-8">
+        <div class="form-group row">
+          <div class="col-md-3">
+            <label for="PhamVi">Phạm vi</label>
+            <ng-select
+              [searchable]="true"
+              dropdownPosition="bottom"
+              placeholder="Chọn phạm vi"
+              notFoundText="{{ ngSelectMessage.NotFound }}"
+              [appendTo]="'body'"
+              [(ngModel)]="phamVi"
+              (change)="onChangePhamVi()"
+              id="PhamVi"
+            >
+              <ng-option [value]="phamVi_Role"> Theo vai trò </ng-option>
+              <ng-option [value]="phamVi_User"> Theo người dùng </ng-option>
+            </ng-select>
+          </div>
+
+          <div class="col-md-3" *ngIf="phamVi == phamVi_Role">
+            <label for="roleId">Vai trò</label>
+            <ng-select
+              [searchable]="true"
+              dropdownPosition="bottom"
+              placeholder="Chọn quyền dữ liệu"
+              notFoundText="{{ ngSelectMessage.NotFound }}"
+              [appendTo]="'body'"
+              [(ngModel)]="roleId"
+              (change)="onChangeRole()"
+              id="roleId"
+            >
+              <ng-option *ngFor="let item of lstRole" [value]="item.Id">
+                {{ item.Name }}
+              </ng-option>
+            </ng-select>
+          </div>
+
+          <div class="col-md-3" *ngIf="phamVi == phamVi_User">
+            <label for="userId">Người dùng </label>
+            <ng-select
+              [searchable]="true"
+              dropdownPosition="bottom"
+              placeholder="Chọn người dùng"
+              notFoundText="{{ ngSelectMessage.NotFound }}"
+              [appendTo]="'body'"
+              [(ngModel)]="userId"
+              (change)="onChangeUser()"
+              id="userId"
+            >
+              <ng-option *ngFor="let item of lstUser" [value]="item.Id">
+                {{ item.Name }}
+              </ng-option>
+            </ng-select>
+          </div>
+
+          <div class="col-md-3 d-flex align-items-end">
+            <button class="btn btn-primary" (click)="onSearchData()">
+              <i class="anticon anticon-search m-r-5"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div
+        class="col-lg-4 form-group"
+        *ngIf="lstFunctionCode.includes(FunctionCode.EDIT)"
+      >
+        <div class="h-100 d-flex align-items-end justify-content-end">
+          <button
+            class="btn btn-primary"
+            data-toggle="tooltip"
+            data-placement="top"
+            title="Lưu"
+            (click)="onSaveData()"
+          >
+            <i class="anticon anticon-save"></i>
+            <span> Lưu</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <!--// -->
+
+    <!-- Tree - BEGIN -->
+    <!-- Tree - Header - BEGIN -->
+    <div class="accordion">
+      <div class="card">
+        <div class="card-header">
+          <div class="m-l-20">
+            <div class="form-row m-t-10 m-b-10">
+              <!-- Index -->
+              <div class="form-group m-b-0" style="width: 200px">
+                <div class="form-control border-0 m-l-5">
+                  <dt>STT</dt>
+                </div>
+              </div>
+
+              <!-- Tên feature / function -->
+              <div class="form-group col-md-4 m-b-0">
+                <span class="form-control border-0">
+                  <dt>Chức năng</dt>
+                </span>
+              </div>
+
+              <!-- Chọn Rule -->
+              <div class="form-group col-md-4 m-b-0">
+                <span class="form-control border-0">
+                  <dt>Quyền dữ liệu</dt>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Tree - Header - END -->
+
+    <!-- Tree - Body - BEGIN -->
+    <div class="accordion">
+      <div
+        class="card"
+        *ngFor="let item of lstItemTree; let indexOfelement = index"
+      >
+        <!-- call component -->
+        <app-permission-tree
+          [model]="item"
+          [sourceModel]="lstItemTree"
+          [lstRule]="lstRule"
+          class="card-header"
+          [STT]="indexOfelement + 1"
+          (onShowModalRule)="onShowModalRule($event)"
+        ></app-permission-tree>
+      </div>
+    </div>
+    <!-- Tree - Body - END -->
+    <!-- Tree - END -->
+  </div>
+
+  <!-- Popup - BEGIN -->
+  <app-rule-modal
+    #popupRuleInfo
+    [model]="popupRule"
+    [functionCode]="popupFunctionCode"
+    [lstFunctionCode]="popupPermissionFunctionCodes"
+  ></app-rule-modal>
+  <!-- Popup - END -->
+</div>

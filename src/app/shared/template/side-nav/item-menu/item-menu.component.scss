@@ -1,0 +1,31 @@
+.nav-item a {
+  position: relative;
+  display: block;
+  padding: 10px 15px;
+  white-space: nowrap;
+}
+
+.nav-item.dropdown ul.dropdown-menu {
+  position: relative;
+  width: 100%;
+  box-shadow: none;
+  border: 0px;
+  border-radius: 0;
+  padding-top: 0px;
+  background-color: transparent;
+  float: none;
+}
+
+.nav-item.dropdown ul.dropdown-menu li a {
+  padding: 10px 15px;
+  padding-left: 60px;
+}
+
+.nav-item.dropdown.open>.dropdown-menu .dropdown-menu li {
+  padding-left: 20px;
+}
+
+.title {
+  white-space: normal;
+  display: inline-block;
+}

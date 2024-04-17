@@ -1,0 +1,81 @@
+<perfect-scrollbar class="side-nav" sideNav>
+  <div class="side-nav-inner">
+    <ul
+      class="side-nav-menu scrollable ps-theme-default"
+      [ngClass]="{
+        'is-folded': isFolded,
+        'is-side-nav-dark': isSideNavDark
+      }"
+    >
+      <app-item-menu [menuItems]="menuItems"></app-item-menu>
+      <!-- <li [ngClass]="item.SubFeature.length > 0 ? 'nav-item dropdown':'nav-item alone'"
+                *ngFor="let item of menuItems"
+                [routerLinkActive]="item.SubFeature.length > 0 ? 'open' : 'active'"
+                [routerLinkActiveOptions]="{exact: true}">
+                <a href="javascript:void(0);" class="dropdown-toggle" *ngIf="item.SubFeature.length > 0">
+                    <span class="icon-holder">
+                        <i class="m-r-10" [ngClass]="['outline' , item.Icon == null ? '' : item.Icon]"></i>
+                    </span>
+                    <span class="title">{{item.Name}}</span>
+                    <span class="arrow">
+                        <i class="arrow-icon"></i>
+                    </span>
+                </a>
+                <a [routerLink]="item.Url" (click)="closeMobileMenu()" *ngIf="item.SubFeature.length === 0">
+                    <span class="icon-holder">
+                        <i class="m-r-10" [ngClass]="['outline' , item.Icon == null ? '' : item.Icon]"></i>
+                    </span>
+                    <span class="title">{{item.Name}}</span>
+                </a>
+
+                <ul class="dropdown-menu" *ngIf="item.SubFeature.length > 0">
+                    <li [ngClass]="subItem.SubFeature.length > 0?'nav-item dropdown':'nav-item'"
+                        *ngFor="let subItem of item.SubFeature"
+                        [routerLinkActive]="subItem.SubFeature.length > 0 ? 'open' : 'active'"
+                        [routerLinkActiveOptions]="{exact: true}">
+                        <a href="javascript:void(0);" class="dropdown-toggle" *ngIf="subItem.SubFeature.length > 0">
+                            <i class="m-r-10" [ngClass]="['outline' , item.Icon == null ? '' : item.Icon]"></i>
+
+                            <span class="title">{{subItem.Name}}</span>
+                            <span class="arrow">
+                                <i class="arrow-icon"></i>
+                            </span>
+                        </a>
+                        <a [routerLink]="subItem.Url" (click)="closeMobileMenu()" *ngIf="subItem.SubFeature.length === 0">
+                            <i class="m-r-10" [ngClass]="['outline' , subItem.Icon == null ? '' : subItem.Icon]"></i>
+                            <span class="title">{{subItem.Name}}</span>
+                        </a>
+
+                        <ul class="dropdown-menu" *ngIf="subItem.SubFeature.length > 0">
+                            <li [ngClass]="subItem.SubFeature.length > 0?'nav-item dropdown open':'nav-item'"
+                                *ngFor="let subItem of subItem.SubFeature" routerLinkActive="active"
+                                [routerLinkActiveOptions]="{exact: true}">
+
+                                //<a [routerLink]="subItem.Url" *ngIf="subItem.SubFeature.length > 0">
+                                    //{{subItem.Name}}
+                                //</a>
+                                //<a [routerLink]="subItem.Url" (click)="closeMobileMenu()" *ngIf="subItem.SubFeature.length === 0">
+                                  //{{subItem.Name}}
+                                //</a>
+
+                                <a href="javascript:void(0);" class="dropdown-toggle" *ngIf="subItem.SubFeature.length > 0">
+                                    <i class="m-r-10" [ngClass]="['outline' , subItem.Icon == null ? '' : subItem.Icon]"></i>
+
+                                    <span class="title">{{subItem.Name}}</span>
+                                    <span class="arrow">
+                                        <i class="arrow-icon"></i>
+                                    </span>
+                                </a>
+                                <a [routerLink]="subItem.Url" (click)="closeMobileMenu()" *ngIf="subItem.SubFeature.length === 0">
+                                    <i class="m-r-10" [ngClass]="['outline' , subItem.Icon == null ? '' : subItem.Icon]"></i>
+                                    <span class="title">{{subItem.Name}}</span>
+                                </a>
+
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </li> -->
+    </ul>
+  </div>
+</perfect-scrollbar>

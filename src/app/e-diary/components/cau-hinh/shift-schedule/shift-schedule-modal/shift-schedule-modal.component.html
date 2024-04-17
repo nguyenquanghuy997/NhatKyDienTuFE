@@ -1,0 +1,349 @@
+<div class="modal fade show" id="ShiftScheduleModal">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header justify-content-between align-items-center">
+        <h5 class="modal-title">
+          {{
+            functionCode == FunctionCode.CREATE ||
+            functionCode == FunctionCode.EDIT
+              ? !model.Id
+                ? "Thêm mới "
+                : "Cập nhật "
+              : "Chi tiết "
+          }}
+          lịch trực ca ngày
+          <span *ngIf="f.RangeTime.value">{{
+            functionCode == FunctionCode.CREATE
+              ? (f.RangeTime.value[0] | date : "dd/MM/YYYY") +
+                "  - " +
+                (f.RangeTime.value[1] | date : "dd/MM/YYYY")
+              : (f.RangeTime.value | date : "dd/MM/YYYY")
+          }}</span>
+        </h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          (click)="onHide()"
+        >
+          <i class="anticon anticon-close"></i>
+        </button>
+      </div>
+      <div class="modal-body scrollable">
+        <form
+          [formGroup]="popupForm"
+          (ngSubmit)="onSubmit()"
+          [attr.class]="
+            functionCode == FunctionCode.DISPLAY ? 'modalDetail' : undefined
+          "
+        >
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="RangeTime"
+                >Ngày áp dụng <span class="text-danger">*</span></label
+              >
+              <div class="input-affix">
+                <i class="prefix-icon anticon anticon-calendar"></i>
+                <input
+                  type="text"
+                  placeholder="Ngày áp dụng"
+                  class="form-control"
+                  *ngIf="functionCode == FunctionCode.CREATE"
+                  bsDaterangepicker
+                  [bsConfig]="datePickerConfig"
+                  formControlName="RangeTime"
+                  (ngModelChange)="changeRangeTime()"
+                  [ngClass]="{
+                    'is-invalid':
+                      f.RangeTime.errors &&
+                      (f.RangeTime.touched || f.RangeTime.dirty)
+                  }"
+                />
+                <input
+                  type="text"
+                  placeholder="Ngày áp dụng"
+                  class="form-control"
+                  *ngIf="functionCode == FunctionCode.EDIT"
+                  (ngModelChange)="changeRangeTime()"
+                  bsDatepicker
+                  [bsConfig]="datePickerConfig"
+                  formControlName="RangeTime"
+                  [ngClass]="{
+                    'is-invalid':
+                      f.RangeTime.errors &&
+                      (f.RangeTime.touched || f.RangeTime.dirty)
+                  }"
+                />
+                <input
+                  type="text"
+                  placeholder="Ngày áp dụng"
+                  class="form-control"
+                  disabled
+                  *ngIf="functionCode == FunctionCode.DISPLAY"
+                  value="{{ f.RangeTime.value | date : 'dd/MM/YYYY' }}"
+                />
+              </div>
+              <div
+                *ngIf="
+                  f.RangeTime.errors &&
+                  (f.RangeTime.touched || f.RangeTime.dirty)
+                "
+                class="error-feedback"
+              >
+                <div *ngIf="f.RangeTime.errors.required">
+                  Ngày áp dụng không được trống
+                </div>
+              </div>
+            </div>
+            <div class="form-group col-md-6">
+              <label for="ShiftEffectivePeriodId"
+                >Mẫu ca trực <span class="text-danger">*</span></label
+              >
+              <ng-select
+                [searchable]="true"
+                dropdownPosition="bottom"
+                formControlName="ShiftEffectivePeriodId"
+                id="ShiftEffectivePeriodId"
+                placeholder="Chọn mẫu ca trực"
+                notFoundText="{{ ngSelectMessage.NotFound }}"
+                [appendTo]="'body'"
+                (change)="onChangeSelect($event)"
+                *ngIf="functionCode != FunctionCode.DISPLAY"
+                [ngClass]="{
+                  'is-invalid':
+                    f.ShiftEffectivePeriodId.errors &&
+                    (f.ShiftEffectivePeriodId.touched ||
+                      f.ShiftEffectivePeriodId.dirty)
+                }"
+              >
+                <ng-option
+                  *ngFor="let item of lstShiftEffective"
+                  [value]="item.Id"
+                >
+                  {{ item.Name }}
+                </ng-option>
+              </ng-select>
+              <input
+                type="text"
+                class="form-control"
+                formControlName="ShiftEffectivePeriodName"
+                *ngIf="functionCode == FunctionCode.DISPLAY"
+                readonly
+              />
+              <div
+                *ngIf="
+                  f.ShiftEffectivePeriodId.errors &&
+                  (f.ShiftEffectivePeriodId.touched ||
+                    f.ShiftEffectivePeriodId.dirty)
+                "
+                class="error-feedback"
+              >
+                <div *ngIf="f.ShiftEffectivePeriodId.errors.required">
+                  Mẫu ca trực không được trống
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-12">
+              <label class="d-flex"
+                >Thành phần ca trực <span class="text-danger">*</span>
+                <div
+                  *ngIf="
+                    f.ShiftScheduleMembers.errors &&
+                    (f.ShiftScheduleMembers.touched ||
+                      f.ShiftScheduleMembers.dirty)
+                  "
+                  class="m-r-10 error-feedback"
+                >
+                  <div *ngIf="f.ShiftScheduleMembers.errors.duplicate">
+                    Dữ liệu thành phần trong ca không được trùng nhau
+                  </div>
+                </div>
+              </label>
+              <div class="dataTables_wrapper dt-bootstrap4 no-footer">
+                <div class="table-responsive">
+                  <ng-container formArrayName="ShiftScheduleMembers">
+                    <table
+                      id="dtDynamicVerticalScroll"
+                      class="table table-hover table-bordered e-commerce-table"
+                    >
+                      <thead>
+                        <tr>
+                          <!-- <th class="text-center align-middle" [width]="'5%'">
+                          STT
+                        </th> -->
+                          <th class="text-center align-middle" [width]="'20%'">
+                            Ca trực
+                          </th>
+                          <th class="text-left align-middle" [width]="'20%'">
+                            Chức danh
+                          </th>
+                          <th class="text-left align-middle" [width]="'35%'">
+                            Thành viên
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr
+                          *ngFor="
+                            let item of shiftSchedules.controls;
+                            let i = index
+                          "
+                          [formGroupName]="i"
+                        >
+                          <!-- <td *ngIf="
+                              shiftSchedules.controls[i].controls.ChildFirst
+                                .value
+                            " [attr.rowspan]="
+                              shiftSchedules.controls[i].controls.ChildNumber
+                                .value
+                            " class="text-center">
+                          {{
+                              shiftSchedules.controls[i].controls.index.value +
+                                1
+                            }}
+                        </td> -->
+                          <td
+                            *ngIf="
+                              shiftSchedules.controls[i].controls.ChildFirst
+                                .value
+                            "
+                            [attr.rowspan]="
+                              shiftSchedules.controls[i].controls.ChildNumber
+                                .value
+                            "
+                          >
+                            {{
+                              shiftSchedules.controls[i].controls.ShiftName
+                                .value
+                            }}
+                            <br />
+                            {{
+                              shiftSchedules.controls[i].controls.StartDTG.value
+                                | date : "HH:mm"
+                            }}
+                            -
+                            {{
+                              shiftSchedules.controls[i].controls.EndDTG.value
+                                | date : "HH:mm"
+                            }}
+                          </td>
+                          <td>
+                            {{
+                              shiftSchedules.controls[i].controls.JobTitleName
+                                .value
+                            }}
+                          </td>
+                          <td>
+                            <ng-select
+                              formControlName="UserId"
+                              dropdownPosition="bottom"
+                              dropdownPosition="bottom"
+                              [searchable]="true"
+                              placeholder="Chọn thành viên"
+                              notFoundText="{{ ngSelectMessage.NotFound }}"
+                              [appendTo]="'body'"
+                              [ngClass]="{
+                                'is-invalid':
+                                  shiftSchedules.controls[i].controls.UserId
+                                    .errors &&
+                                  (shiftSchedules.controls[i].controls.UserId
+                                    .touched ||
+                                    shiftSchedules.controls[i].controls.UserId
+                                      .dirty)
+                              }"
+                              *ngIf="functionCode != FunctionCode.DISPLAY"
+                              [readonly]="
+                                !shiftSchedules.controls[i].controls.UserId
+                                  .validator
+                                  ? true
+                                  : undefined
+                              "
+                            >
+                              <ng-option
+                                *ngFor="let user of lstUser"
+                                [value]="user.Id"
+                              >
+                                {{ user.Username }} - {{ user.Name }}
+                              </ng-option>
+                            </ng-select>
+                            <input
+                              type="text"
+                              class="form-control"
+                              formControlName="Username"
+                              *ngIf="functionCode == FunctionCode.DISPLAY"
+                              readonly
+                            />
+                            <div
+                              *ngIf="
+                                shiftSchedules.controls[i].controls.UserId
+                                  .errors &&
+                                (shiftSchedules.controls[i].controls.UserId
+                                  .touched ||
+                                  shiftSchedules.controls[i].controls.UserId
+                                    .dirty)
+                              "
+                              class="error-feedback"
+                            >
+                              <div
+                                *ngIf="
+                                  shiftSchedules.controls[i].controls.UserId
+                                    .errors.required
+                                "
+                              >
+                                Thành viên không được trống
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </ng-container>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button
+          *ngIf="
+            lstFunctionCode &&
+            lstFunctionCode.includes(FunctionCode.DELETE) &&
+            functionCode == FunctionCode.DISPLAY
+          "
+          class="btn btn-danger btn-delete-left"
+          (click)="onDelete()"
+        >
+          Xóa
+        </button>
+        <button
+          *ngIf="
+            lstFunctionCode &&
+            invalidTime &&
+            lstFunctionCode.includes(FunctionCode.EDIT) &&
+            functionCode == FunctionCode.DISPLAY
+          "
+          class="btn btn-primary"
+          (click)="onEdit()"
+        >
+          Sửa
+        </button>
+        <button
+          type="submit"
+          *ngIf="
+            lstFunctionCode &&
+            lstFunctionCode.includes(functionCode) &&
+            functionCode != FunctionCode.DISPLAY
+          "
+          class="btn btn-primary"
+          (click)="onSubmit()"
+        >
+          Lưu
+        </button>
+        <button (click)="onHide()" class="btn btn-secondary">Đóng</button>
+      </div>
+    </div>
+  </div>
+</div>

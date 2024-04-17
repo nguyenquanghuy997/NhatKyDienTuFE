@@ -1,0 +1,137 @@
+<app-error-page
+  [isNotPermission]="
+    lstFunctionCode && !lstFunctionCode?.includes(FunctionCode.VIEW)
+  "
+></app-error-page>
+
+<div
+  *ngIf="lstFunctionCode && lstFunctionCode.includes(FunctionCode.VIEW)"
+  class="card"
+>
+  <div class="card-body">
+    <!-- Filter - BEGIN -->
+    <div class="row m-b-5">
+      <div class="col-lg-8">
+        <form nz-form [formGroup]="searchForm" (ngSubmit)="onSearchData(1)">
+          <div class="form-group row">
+            <div class="col-md-3">
+              <label for="Username">Tên nhân viên</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Tên nhân viên"
+                id="Username"
+                formControlName="Username"
+              />
+            </div>
+            <div class="col-md-3">
+              <label for="FeatureName">Đối tượng</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Đối tượng"
+                id="FeatureName"
+                formControlName="FeatureName"
+              />
+            </div>
+            <div class="col-md-3">
+              <label for="rangeDate">Thời gian</label>
+              <input
+                placeholder="Từ ngày - đến ngày"
+                class="form-control"
+                [bsConfig]="bsConfig"
+                bsDaterangepicker
+                formControlName="rangeDate"
+              />
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+              <button class="btn btn-primary">
+                <i class="anticon anticon-search m-r-5"></i>
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+    <!-- Filter - END -->
+
+    <!-- Table - BEGIN -->
+    <div class="dataTables_wrapper dt-bootstrap4 no-footer">
+      <div class="table-responsive">
+        <div *ngIf="loading;">
+          <div class="loading-overlay">
+            <div class="loading-spinner"></div>
+          </div>
+        </div>
+        <table
+          id="dtDynamicVerticalScroll"
+          class="table table-hover table-bordered e-commerce-table"
+        >
+          <thead>
+            <tr>
+              <th class="text-center align-middle" [width]="'5%'">STT</th>
+              <th class="text-center align-middle" [width]="'10%'">
+                Thời gian
+              </th>
+              <th class="text-left align-middle" [width]="'15%'">
+                Tên nhân viên
+              </th>
+              <th class="text-left align-middle" [width]="'10%'">Đối tượng</th>
+              <th class="text-left align-middle" [width]="'10%'">Thao tác</th>
+              <th class="text-left align-middle" [width]="'20%'">Đường dẫn</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of lstItem; let indexOfelement = index">
+              <td class="text-center">
+                {{ (pageIndex - 1) * pageSize + indexOfelement + 1 }}
+              </td>
+              <td class="text-left" style="white-space: pre-wrap">
+                {{ item.ActionTime | date : "dd/MM/yyyy HH:mm:ss" }}
+              </td>
+              <td class="text-left">
+                <a
+                  href="javascript:void({{ item.Id }})"
+                  class="text-primary"
+                  (click)="onOpenModalDisplay(item.Id)"
+                >
+                  {{ item.Username }}
+                </a>
+              </td>
+              <td class="text-left">
+                {{ item.FeatureName }}
+              </td>
+              <td class="text-left">
+                {{ item.FunctionCode }} - {{ item.FunctionName }}
+              </td>
+              <td class="text-left" style="white-space: pre-wrap">
+                {{ item.ActionPath }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Paging - BEGIN -->
+      <app-pagination
+        [pageIndex]="pageIndex"
+        [totalItem]="totalItem"
+        [pageSize]="pageSize"
+        [pageCount]="pageCount"
+        (onChangePagination)="onChangePagination($event)"
+      >
+      </app-pagination>
+      <!-- Paging - END -->
+      <app-nodata-info [totalItem]="totalItem"> </app-nodata-info>
+    </div>
+    <!-- Table - END -->
+  </div>
+</div>
+<app-user-log-modal
+  #popup
+  [model]="respone"
+  [functionCode]="functionCode"
+  [lstFunctionCode]="lstFunctionCodePopup"
+  (onHideModal)="onHideModal()"
+>
+</app-user-log-modal>

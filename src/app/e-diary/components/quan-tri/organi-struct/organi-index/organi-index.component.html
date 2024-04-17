@@ -1,0 +1,138 @@
+<app-error-page
+  [isNotPermission]="
+    lstFunctionCode && !lstFunctionCode?.includes(FunctionCode.VIEW)
+  "
+></app-error-page>
+<div
+  *ngIf="lstFunctionCode && lstFunctionCode.includes(FunctionCode.VIEW)"
+  class="card"
+>
+  <div *ngIf="loading">
+    <div class="loading-overlay">
+      <div class="loading-spinner"></div>
+    </div>
+  </div>
+  <div class="card-body">
+    <!-- Search -->
+    <div class="row m-b-5">
+      <div class="col-lg-8">
+        <form [formGroup]="searchForm">
+          <div class="form-group row">
+            <div class="col-md-3">
+              <label for="Name">Tên</label>
+              <input
+                class="form-control"
+                type="text"
+                placeholder="Tên phòng ban"
+                formControlName="Name"
+              />
+            </div>
+
+            <div class="col-md-3">
+              <label for="User_Name">Tên nhân viên</label>
+              <input
+                class="form-control"
+                type="text"
+                placeholder="Tên nhân viên"
+                formControlName="User_Name"
+              />
+            </div>
+
+            <div class="col-md-3">
+              <label for="IsActive">Trạng thái</label>
+              <select
+                id="IsActive"
+                formControlName="IsActive"
+                class="form-control"
+              >
+                <option selected value="null">Tất cả</option>
+                <option [ngValue]="true">Hoạt động</option>
+                <option [ngValue]="false">Không hoạt động</option>
+              </select>
+            </div>
+
+            <div class="col-md-3 d-flex align-items-end">
+              <button class="btn btn-primary" (click)="onSearch()">
+                <i class="anticon anticon-search m-r-5"></i>
+              </button>
+
+              <a
+                data-toggle="collapse"
+                href="#collapseExample"
+                role="button"
+                aria-expanded="false"
+                aria-controls="collapseExample"
+                class="advanced m-l-10"
+              >
+                Tìm kiếm nâng cao <i class="fa fa-angle-down"></i>
+              </a>
+            </div>
+          </div>
+          <div class="mt-1">
+            <div class="collapse" id="collapseExample">
+              <div class="form-group row">
+                <div class="col-md-3">
+                  <label for="searchNameCode">Tên đăng nhập</label>
+                  <input
+                    class="form-control"
+                    type="text"
+                    placeholder="Tên đăng nhập"
+                    formControlName="UserLogin"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="col-lg-4 text-right align-top">
+        <button class="btn btn-primary" (click)="onOpenModalCreate()">
+          <i class="anticon anticon-plus-circle m-r-5"></i>
+          <span>Thêm mới</span>
+        </button>
+      </div>
+    </div>
+    <!--// -->
+    <div class="">
+      <div class="row" *ngIf="totalItem > 0">
+        <div class="col-md-3 bg-light customBuildTree">
+          <!-- Tree - Body - BEGIN -->
+          <div class="accordion containerCard">
+            <div
+              class="card"
+              *ngFor="let item of lstOrg; let indexOfelement = index"
+            >
+              <!-- call component -->
+              <app-organi-list
+                [model]="item"
+                (onSetItemDetail)="onReceitItemDetail($event)"
+                class="card-header"
+              >
+              </app-organi-list>
+            </div>
+          </div>
+          <!-- Tree - Body - END -->
+          <!-- Tree - END -->
+        </div>
+        <div class="col-md-9 containerDetail">
+          <app-organi-detail
+            [model]="ItemOrgModel"
+            (onSetModalEditOrg)="onReceiveModalEditOrg($event)"
+            (onSetConfirmDelOrg)="onReceiveEmitDelOrg($event)"
+          ></app-organi-detail>
+        </div>
+      </div>
+      <app-nodata-info [totalItem]="totalItem"> </app-nodata-info>
+    </div>
+    <app-organi-edit
+      #popup
+      [model]="orgResponeModel"
+      [functionCode]="functionCode"
+      [lstFunctionCode]="lstFunctionCodePopup"
+      (onSubmitModal)="onSubmitModal($event)"
+      (onHideModal)="onHideModal()"
+      (onEditModal)="onEditModal($event)"
+      (onDeleteModal)="onDeleteModal($event)"
+    ></app-organi-edit>
+  </div>
+</div>

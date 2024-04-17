@@ -1,0 +1,160 @@
+<app-error-page
+  [isNotPermission]="
+    lstFunctionCode && !lstFunctionCode?.includes(FunctionCode.VIEW)
+  "
+></app-error-page>
+<div
+  *ngIf="lstFunctionCode && lstFunctionCode?.includes(FunctionCode.VIEW)"
+  class="card"
+>
+  <div class="card-body">
+    <!-- Filter - BEGIN -->
+    <div class="row m-b-5">
+      <div class="col-lg-8">
+        <form nz-form [formGroup]="searchForm">
+          <div class="form-group row">
+            <div class="col-md-3">
+              <label for="Content">Nội dung</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Nội dung"
+                id="Content"
+                formControlName="Content"
+              />
+            </div>
+            <div class="col-md-3">
+              <label for="CreatedUserId">Người tạo</label>
+              <select
+                id="CreatedUserId"
+                placeholder
+                formControlName="CreatedUserId"
+                class="form-control"
+              >
+                <option [ngValue]="null">Tất cả</option>
+                <option *ngFor="let user of listUser" [ngValue]="user.Id">
+                  {{ user.Username }} - {{ user.Name }}
+                </option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label for="rangeDate">Thời gian</label>
+              <input
+                placeholder="Từ ngày - đến ngày"
+                class="form-control"
+                [bsConfig]="bsConfig"
+                bsDaterangepicker
+                [(bsValue)]="selectedDateValue"
+                formControlName="rangeDate"
+              />
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+              <button class="btn btn-primary" (click)="onSearchData()">
+                <i class="anticon anticon-search m-r-5"></i>
+              </button>
+
+              <a
+                data-toggle="collapse"
+                href="#collapseExample"
+                role="button"
+                aria-expanded="false"
+                aria-controls="collapseExample"
+                class="advanced m-l-10 text-nowrap"
+              >
+                Tìm kiếm nâng cao <i class="fa fa-angle-down"></i>
+              </a>
+            </div>
+          </div>
+          <div class="mt-1">
+            <div class="collapse" id="collapseExample">
+              <div class="form-group row">
+                <div class="col-md-3">
+                  <label for="Type">Loại thông báo</label>
+                  <select
+                    id="Type"
+                    placeholder
+                    formControlName="Type"
+                    class="form-control"
+                  >
+                    <option [ngValue]="null">Tất cả</option>
+                    <option
+                      *ngFor="let type of notificationTypes"
+                      [ngValue]="type"
+                    >
+                      {{ notificationTypeMapping[type] }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+    <!-- Filter - END -->
+    <!-- Table - BEGIN -->
+    <div class="dataTables_wrapper dt-bootstrap4 no-footer">
+      <div class="table-responsive">
+        <div *ngIf="loading">
+          <div class="loading-overlay">
+            <div class="loading-spinner"></div>
+          </div>
+        </div>
+        <table
+          id="dtDynamicVerticalScroll"
+          class="table table-hover table-bordered e-commerce-table"
+        >
+          <thead>
+            <tr>
+              <th class="text-center align-middle" [width]="'5%'">STT</th>
+              <th class="text-center align-middle" [width]="'15%'">
+                Thời gian
+              </th>
+              <th class="text-center align-middle" [width]="'10%'">
+                Người tạo
+              </th>
+              <th class="text-center align-middle" [width]="'10%'">
+                Loại thông báo
+              </th>
+              <th class="text-center align-middle" [width]="'60%'">Nội dung</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of lstItem; let indexOfelement = index">
+              <td class="text-center">
+                {{ (pageIndex - 1) * pageSize + indexOfelement + 1 }}
+              </td>
+              <td class="text-center" style="white-space: pre-wrap">
+                {{ item.CreatedDTG | date : "dd/MM/yyyy HH:mm:ss" }}
+              </td>
+              <td class="text-left">
+                {{ item.CreatedUser_Name }}
+              </td>
+              <td class="text-left">
+                {{ notificationTypeMapping[item.Type] }}
+              </td>
+              <td
+                class="text-left"
+                [innerHTML]="item.DisplayContent"
+                style="white-space: pre-wrap"
+              ></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Paging - BEGIN -->
+      <app-pagination
+        [pageIndex]="pageIndex"
+        [totalItem]="totalItem"
+        [pageSize]="pageSize"
+        [pageCount]="pageCount"
+        (onChangePagination)="onChangePagination($event)"
+      >
+      </app-pagination>
+      <!-- Paging - END -->
+      <app-nodata-info [totalItem]="totalItem"> </app-nodata-info>
+    </div>
+    <!-- Table - END -->
+  </div>
+</div>

@@ -1,0 +1,18 @@
+.onTop {
+  position: fixed;
+  top: 47%;
+  right: 15px;
+  opacity: 0;
+  transition: all 0.2s ease-in-out;
+}
+
+.show-onTop {
+  opacity: 1;
+  transition: all 0.2s ease-in-out;
+}
+
+.stickyButton {
+  position: sticky;
+  top: 122px;
+  z-index: 3;
+}

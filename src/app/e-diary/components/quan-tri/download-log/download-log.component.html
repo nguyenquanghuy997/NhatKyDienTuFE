@@ -1,0 +1,89 @@
+<div class="card">
+  <div *ngIf="loading">
+    <div class="loading-overlay">
+      <div class="loading-spinner"></div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="row mb-4">
+      <div class="input-group col-md-4">
+        <div class="input-group-prepend">
+          <span class="input-group-text"><i class="fas fa-search"></i></span>
+        </div>
+        <input
+          class="form-control"
+          type="text"
+          name="search"
+          id="keySearch"
+          [(ngModel)]="searchText"
+          autocomplete="off"
+          placeholder="Nhập từ khóa để tìm kiếm"
+          autofocus
+        />
+      </div>
+      <div
+        class="input-group col-md-8 d-flex align-items-end justify-content-end"
+      >
+        <!-- <button class="btn btn-primary" (click)="onSearch()">
+          <i class="anticon anticon-search"></i>
+        </button> -->
+        <button
+          class="btn btn-primary"
+          (click)="reLoadPage()"
+          title="Tải lại trang"
+        >
+          <i class="anticon anticon-reload m-r-5"></i>
+          <span>Tải lại trang</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div *ngIf="rootItem && rootItem[0]">
+        <div style="display: flex; align-items: center">
+          <div
+            style="cursor: pointer"
+            class="m-b-5 m-l-5 m-r-5"
+            (click)="toggleCollapse()"
+          >
+            <i
+              class="anticon"
+              [ngClass]="{
+                'anticon-down': !isParentCollapsed,
+                'anticon-right': isParentCollapsed
+              }"
+            ></i>
+          </div>
+          <i
+            [class]="
+              isParentCollapsed
+                ? 'anticon anticon-folder'
+                : 'anticon anticon-folder-open'
+            "
+            [ngStyle]="{ fontSize: '24px', color: '#08c' }"
+            theme="outlined"
+          ></i>
+          <div class="border-0 p-2">
+            <a [routerLink]="[]" (click)="downloadAllFile(rootItem[0])">
+              {{ rootItem[0].Name }}
+            </a>
+          </div>
+        </div>
+        <div
+          *ngIf="
+            rootItem[0].Children &&
+            rootItem[0].Children.length > 0 &&
+            isChildVisible
+          "
+        >
+          <app-directory-item
+            *ngFor="let child of rootItem[0].Children | filter : searchText"
+            [item]="child"
+            (onDownloadFile)="downloadAllFile(child)"
+            [isParentCollapsed]="isParentCollapsed"
+          ></app-directory-item>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

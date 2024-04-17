@@ -1,0 +1,256 @@
+<div
+  [class]="'modal' + (isVisible ? ' fade show' : '')"
+  id="modalInput"
+  [style]="isVisible ? 'block' : 'none'"
+  #myModal
+>
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header justify-content-between align-items-center">
+        <h5 class="modal-title">Thông tin input: {{ typeInputInsert }}</h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          (click)="hideModal()"
+        >
+          <i class="anticon anticon-close"></i>
+        </button>
+      </div>
+      <div class="modal-body scrollable">
+        <form
+          [formGroup]="reactiveForm_"
+          (ngSubmit)="onSubmit()"
+          id="formInput"
+        >
+          <div class="form-row">
+            <div class="form-group col-md-12">
+              <label for="searchOrg" class="form-label">Nhà máy </label>
+              <ng-select
+                id="searchOrg"
+                [items]="lstOrg"
+                [searchable]="true"
+                bindLabel="BreadcrumbName"
+                bindValue="Id"
+                formControlName="OrganizationId"
+                placeholder="Chọn nhà máy"
+                dropdownPosition="bottom"
+                notFoundText="{{ ngSelectMessage.NotFound }}"
+                (change)="onChangeSelectOrg($event)"
+                [appendTo]="'body'"
+              >
+                >
+              </ng-select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-6 m-b-5">
+              <label for="SearchEquipment" class="form-label">Thiết bị</label>
+              <ng-select
+                [items]="listEquipment"
+                [searchable]="true"
+                bindLabel="BreadcrumbName"
+                bindValue="Id"
+                formControlName="Equipment"
+                (change)="onSelectChangeEquipement($event)"
+                (clear)="onClearEquipment()"
+                dropdownPosition="bottom"
+                placeholder="Chọn thiết bị"
+                notFoundText="{{ ngSelectMessage.NotFound }}"
+              >
+                >
+              </ng-select>
+            </div>
+            <div class="form-group col-md-6">
+              <label for="SearchEquipment" class="form-label"
+                >Thông số thiết bị</label
+              >
+              <ng-select
+                [searchable]="true"
+                formControlName="EquipmentTagId"
+                [(ngModel)]="selectedValue"
+                (change)="onSelectChangeTag($event)"
+                (clear)="onClearTag()"
+                placeholder="Chọn thông số"
+                dropdownPosition="bottom"
+                notFoundText="{{ ngSelectMessage.NotFound }}"
+              >
+                <ng-option *ngFor="let option of lstTag" [value]="option.Id">
+                  {{ option.TagName }}
+                </ng-option>
+              </ng-select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="txtTagName" class="form-label"
+                >Nhãn thuộc tính<span class="text-danger">*</span></label
+              >
+              <input
+                type="text"
+                formControlName="TagName"
+                class="form-control"
+                placeholder="Nhãn thuộc tính"
+                id="txtTagName"
+                [(ngModel)]="model.TagName"
+                [ngClass]="{ 'is-invalid': submitted && f.TagName.errors }"
+                autofocus
+              />
+              <div
+                *ngIf="submitted && f.TagName.errors"
+                class="invalid-feedback"
+              >
+                <div *ngIf="f.TagName.errors.required">
+                  Nhãn thuộc tính là bắt buộc nhập
+                </div>
+                <div *ngIf="f.TagName.errors.maxlength">
+                  Nhãn nhập tối đa 100 ký tự
+                </div>
+              </div>
+            </div>
+            <div class="form-group col-md-6">
+              <label for="txtPlaceholder" class="form-label">Placeholder</label>
+              <input
+                type="text"
+                formControlName="Placeholder"
+                class="form-control"
+                placeholder="Placeholder"
+                id="txtPlaceholder"
+              />
+            </div>
+          </div>
+          <!-- <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="txtWidth" class="form-label">Chiều rộng</label>
+              <input
+                type="number"
+                formControlName="Width"
+                class="form-control"
+                placeholder="Độ rộng input"
+                id="txtWidth"
+              />
+            </div>
+            <div class="form-group col-md-6">
+              <label for="selectDonViTinh" class="form-label"
+                >Đơn vị tính</label
+              >
+              <select
+                class="form-select form-control"
+                aria-label=".form-select-lg"
+                id="selectDonViTinh"
+                formControlName="DonViTinh"
+              >
+                <option value="%" selected>%</option>
+                <option value="px">px</option>
+              </select>
+            </div>
+          </div> -->
+          <div
+            class="form-row"
+            *ngIf="typeInputInsert == 'Textarea' || typeInputInsert == 'Text'"
+          >
+            <div class="form-group col-md-6">
+              <label for="txtminValue" class="form-label"
+                >ký tự tối thiểu</label
+              >
+              <input
+                type="number"
+                formControlName="minValue"
+                class="form-control"
+                placeholder="Ký tự tối thiểu"
+                id="txtminValue"
+              />
+            </div>
+            <div class="form-group col-md-6">
+              <label for="txtmaxValue" class="form-label">Ký tự tối đa</label>
+              <input
+                type="number"
+                formControlName="maxValue"
+                class="form-control"
+                placeholder="Ký tự tối đa"
+                id="txtmaxValue"
+              />
+            </div>
+          </div>
+
+          <div class="form-row" *ngIf="typeInputInsert == 'number'">
+            <div class="form-group col-md-6">
+              <label for="txtminValue" class="form-label"
+                >Giá trị nhỏ nhất</label
+              >
+              <input
+                type="number"
+                formControlName="minValue"
+                class="form-control"
+                placeholder="Giá trị nhỏ nhất"
+                id="txtminValue"
+                [(ngModel)]="model.minValue"
+              />
+            </div>
+            <div class="form-group col-md-6">
+              <label for="txtmaxValue" class="form-label"
+                >Giá trị lớn nhất</label
+              >
+              <input
+                type="number"
+                formControlName="maxValue"
+                class="form-control"
+                placeholder="Giá trị lớn nhất"
+                id="txtmaxValue"
+                [(ngModel)]="model.maxValue"
+              />
+            </div>
+          </div>
+
+          <div class="form-row" *ngIf="typeInputInsert == 'Textarea'">
+            <div class="form-group col-md-6">
+              <label for="txtRows" class="form-label">Số dòng</label>
+              <input
+                type="number"
+                formControlName="Rows"
+                class="form-control"
+                placeholder="Ký tự tối đa"
+                id="txtRows"
+                [(ngModel)]="model.Rows"
+              />
+            </div>
+          </div>
+          <div class="form-row" style="display: none">
+            <input
+              type="text"
+              formControlName="typeInput"
+              class="form-control"
+              id="txtName"
+              placeholder="Tên input"
+              [(ngModel)]="typeInputInsert"
+            />
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-primary" (click)="onSubmit()">
+          Thêm
+        </button>
+        <button
+          type="button"
+          (click)="copyFormDataToLocalStorage()"
+          class="btn btn-secondary float-right"
+          data-toggle="tooltip"
+          data-placement="top"
+          title="Sao chép thông số tới clipboard"
+        >
+          Sao chép
+        </button>
+        <button
+          (click)="hideModal()"
+          id="closeModalButton"
+          class="btn btn-secondary"
+          data-dismiss="modal"
+        >
+          Đóng
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

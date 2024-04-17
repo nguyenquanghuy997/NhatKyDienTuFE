@@ -1,0 +1,38 @@
+<div
+  *ngIf="showButtonRedirect"
+  class="d-flex justify-content-end m-b-10 stickyButton"
+>
+  <!-- <div *ngIf="showButtonRedirect" class="onTop show-onTop d-flex flex-column"> -->
+  <!-- <button type="button" class="btn btn-icon btn-success btn-rounded m-b-10" data-toggle="tooltip" title="Tìm kiếm" (click)="searchWithKeyword()">
+    <i class="anticon anticon-search"></i>
+  </button>
+  <button type="button" class="btn btn-icon btn-success btn-rounded" data-toggle="tooltip" title="Thống kê" (click)="statisticalWithKeyWord()">
+    <i class="anticon anticon-line-chart"></i>
+  </button> -->
+  <button
+    type="button"
+    class="btn btn-success btn-xs m-r-5"
+    (click)="searchWithKeyword()"
+  >
+    <i class="anticon anticon-search"></i>
+    Tìm kiếm
+  </button>
+  <button
+    type="button"
+    class="btn btn-success btn-xs"
+    (click)="statisticalWithKeyWord()"
+  >
+    <i class="anticon anticon-line-chart"></i>
+    Thống kê
+  </button>
+</div>
+<iframe
+  #myFrame
+  width="100%"
+  class="previewFormDong"
+  (load)="onIframeLoad()"
+  id="{{ 'myFrame' + childId }}"
+  [style.height.px]="iframeHeight"
+></iframe>
+
+<app-equipment-tag-modal #suggest_equipement_list></app-equipment-tag-modal>

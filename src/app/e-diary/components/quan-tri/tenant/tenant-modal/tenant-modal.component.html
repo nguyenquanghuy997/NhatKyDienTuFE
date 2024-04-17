@@ -1,0 +1,192 @@
+<div class="modal fade show" id="TenantModal">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header justify-content-between align-items-center">
+        <h5 class="modal-title">
+          {{
+            functionCode == FunctionCode.CREATE ||
+            functionCode == FunctionCode.EDIT
+              ? !model.Id
+                ? "Thêm mới "
+                : "Cập nhật "
+              : "Chi tiết "
+          }}
+          đơn vị vận hành
+        </h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          (click)="onHide()"
+        >
+          <i class="anticon anticon-close"></i>
+        </button>
+      </div>
+      <div class="modal-body scrollable">
+        <form
+          [formGroup]="popupForm"
+          (ngSubmit)="onSubmit()"
+          [attr.class]="
+            functionCode == FunctionCode.DISPLAY ? 'modalDetail' : undefined
+          "
+        >
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="Name">Tên <span class="text-danger">*</span></label>
+              <input
+                type="text"
+                class="form-control"
+                id="Name"
+                maxlength="100"
+                placeholder="Nhập tên"
+                formControlName="Name"
+                [attr.readonly]="
+                  functionCode == FunctionCode.DISPLAY ? true : undefined
+                "
+                [ngClass]="{
+                  'is-invalid':
+                    f.Name.errors && (f.Name.touched || f.Name.dirty)
+                }"
+                required
+              />
+              <div
+                *ngIf="f.Name.errors && (f.Name.touched || f.Name.dirty)"
+                class="invalid-feedback"
+              >
+                <div *ngIf="f.Name.errors.required">Tên không được trống</div>
+                <div *ngIf="f.Name.errors?.whitespace">
+                  Tên không được chỉ chứa dấu cách
+                </div>
+                <div *ngIf="f.Name.errors.maxLength">
+                  Tên không quá 100 ký tự
+                </div>
+              </div>
+            </div>
+            <div class="form-group col-md-6">
+              <label for="Code"
+                >Mã đơn vị <span class="text-danger">*</span></label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="Code"
+                placeholder="Nhập mã đơn vị"
+                formControlName="Code"
+                [attr.readonly]="
+                  functionCode == FunctionCode.DISPLAY ||
+                  functionCode == FunctionCode.EDIT
+                    ? true
+                    : null
+                "
+                [ngClass]="{
+                  'is-invalid':
+                    f.Code.errors && (f.Code.touched || f.Code.dirty)
+                }"
+                required
+              />
+              <div
+                *ngIf="f.Code.errors && (f.Code.touched || f.Code.dirty)"
+                class="invalid-feedback"
+              >
+                <div *ngIf="f.Code.errors.required">Mã không được trống</div>
+                <div *ngIf="f.Code.errors?.whitespace">
+                  Tên không được chỉ chứa dấu cách
+                </div>
+                <div *ngIf="f.Code.errors.pattern">Mã không hợp lệ</div>
+                <div *ngIf="f.Code.errors.maxlength">
+                  Mã đơn vị nhập tối đa 100 ký tự
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="IsActive">Trạng thái</label>
+              <ng-select
+                formControlName="IsActive"
+                dropdownPosition="bottom"
+                id="IsActive"
+                placeholder="Chọn trạng thái"
+                [appendTo]="'body'"
+                [clearable]="false"
+                *ngIf="functionCode != FunctionCode.DISPLAY"
+                notFoundText="{{ ngSelectMessage.NotFound }}"
+              >
+                <ng-option [value]="true"> Hoạt động </ng-option>
+                <ng-option [value]="false"> Không hoạt động </ng-option>
+              </ng-select>
+              <input
+                type="text"
+                class="form-control"
+                formControlName="IsActiveName"
+                *ngIf="functionCode == FunctionCode.DISPLAY"
+                readonly
+              />
+            </div>
+            <div class="form-group col-md-6">
+              <label for="Note" class="form-label">Ghi chú</label>
+              <textarea
+                rows="2"
+                formControlName="Note"
+                class="form-control"
+                id="Note"
+                placeholder="Ghi chú"
+                maxlength="1000"
+                [attr.readonly]="
+                  functionCode == FunctionCode.DISPLAY ? true : undefined
+                "
+                [ngClass]="{
+                  'is-invalid':
+                    f.Note.errors && (f.Note.touched || f.Note.dirty)
+                }"
+              ></textarea>
+              <div
+                *ngIf="f.Note.errors && (f.Note.touched || f.Note.dirty)"
+                class="invalid-feedback"
+              >
+                <div *ngIf="f.Note.errors?.[maxlength]">Tối đa 1000 ký tự</div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button
+          *ngIf="
+            lstFunctionCode &&
+            lstFunctionCode.includes(FunctionCode.EDIT) &&
+            functionCode == FunctionCode.DISPLAY
+          "
+          class="btn btn-primary"
+          (click)="onEdit()"
+        >
+          Sửa
+        </button>
+        <button
+          *ngIf="
+            lstFunctionCode &&
+            lstFunctionCode.includes(FunctionCode.DELETE) &&
+            functionCode == FunctionCode.DISPLAY
+          "
+          class="btn btn-danger btn-delete-left"
+          (click)="onDelete()"
+        >
+          Xóa
+        </button>
+        <button
+          type="submit"
+          *ngIf="
+            lstFunctionCode &&
+            lstFunctionCode.includes(functionCode) &&
+            functionCode != FunctionCode.DISPLAY
+          "
+          class="btn btn-primary"
+          (click)="onSubmit()"
+        >
+          Lưu
+        </button>
+        <button (click)="onHide()" class="btn btn-secondary">Đóng</button>
+      </div>
+    </div>
+  </div>
+</div>

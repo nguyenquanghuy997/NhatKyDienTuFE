@@ -1,0 +1,338 @@
+<app-error-page
+  [isNotPermission]="
+    lstFunctionCode && !lstFunctionCode.includes(FunctionCode.DISPLAY)
+  "
+></app-error-page>
+
+<div
+  *ngIf="lstFunctionCode && lstFunctionCode.includes(FunctionCode.DISPLAY)"
+  class="card"
+>
+  <div *ngIf="loading">
+    <div class="loading-overlay">
+      <div class="loading-spinner"></div>
+    </div>
+  </div>
+  <div class="card-header p-t-5 p-b-5">
+    <!-- Buttons -->
+    <div class="form-row">
+      <div class="col-12 text-right">
+        <button
+          *ngIf="
+            RefTypeModel.FlowId && lstFunctionCode.includes(FunctionCode.SUBMIT)
+          "
+          type="button"
+          class="btn btn-warning m-r-5"
+          (click)="onShowModal(FunctionCode.SUBMIT)"
+        >
+          <i class="fab fa-telegram-plane"></i>
+          Trình phê duyệt
+        </button>
+        <button
+          *ngIf="
+            RefTypeModel.FlowId &&
+            lstFunctionCode.includes(FunctionCode.APPROVE)
+          "
+          type="button"
+          class="btn btn-primary m-r-5"
+          (click)="onShowModal(FunctionCode.APPROVE)"
+        >
+          <i class="anticon anticon-safety-certificate"></i>
+          Phê duyệt
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-success m-r-5"
+          (click)="onGiaoNhanCa()"
+          *ngIf="
+            item.StatusDutyShift == StatusDutyShift.DangNhap &&
+            lstFunctionCode.includes(FunctionCode.GiaoNhanCa)
+          "
+        >
+          <i class="fab fa-telegram-plane"></i>
+          Giao nhận ca
+        </button>
+
+        <button
+          *ngIf="
+            RefTypeModel.FlowId && lstFunctionCode.includes(FunctionCode.REJECT)
+          "
+          type="button"
+          class="btn btn-danger m-r-5"
+          (click)="onShowModal(FunctionCode.REJECT)"
+        >
+          <i class="anticon anticon-stop"></i>
+          Từ chối
+        </button>
+
+        <a
+          *ngIf="lstFunctionCode.includes(FunctionCode.EDIT)"
+          [routerLink]="[
+            '/processform/reftype',
+            RefTypeModel.Id,
+            'cap-nhat',
+            Id
+          ]"
+          class="btn btn-primary m-r-5"
+        >
+          <i class="anticon anticon-edit"></i>
+          Sửa
+        </a>
+
+        <button
+          *ngIf="lstFunctionCode.includes(FunctionCode.DELETE)"
+          type="button"
+          class="btn btn-danger m-r-5"
+          (click)="onConfirmDel(item)"
+        >
+          <i class="anticon anticon-delete"></i>
+          Xóa
+        </button>
+
+        <a
+          [routerLink]="['/processform/reftype', RefTypeModel.Id]"
+          class="btn btn-secondary"
+        >
+          <i class="anticon anticon-rollback"></i>
+          Thoát
+        </a>
+      </div>
+    </div>
+    <!--// -->
+  </div>
+  <div class="card-body">
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+      <li class="nav-item">
+        <a
+          class="nav-link"
+          id="common-tab"
+          data-toggle="tab"
+          href="#common"
+          role="tab"
+          aria-controls="common"
+          aria-selected="false"
+          (click)="setActiveTab('common', null)"
+          >Thông tin chung</a
+        >
+      </li>
+      <li class="nav-item">
+        <a
+          class="nav-link active"
+          id="data-tab"
+          data-toggle="tab"
+          href="#data"
+          role="tab"
+          aria-controls="data"
+          aria-selected="true"
+          (click)="setActiveTab('data', null)"
+          >Thông tin nhập</a
+        >
+      </li>
+      <!-- ca trực child-->
+      <li class="nav-item" *ngFor="let itemTab of lstTabLink">
+        <a
+          class="nav-link"
+          [attr.id]="itemTab.Id + '-tab'"
+          data-toggle="tab"
+          [attr.href]="'#itemForm'"
+          role="tab"
+          [attr.aria-controls]="'itemForm'"
+          aria-selected="false"
+          (click)="setActiveTab('data', itemTab)"
+          >{{ itemTab.Name }}</a
+        >
+      </li>
+      <!-- end ca trực child-->
+      <li class="nav-item">
+        <a
+          class="nav-link"
+          id="user-log-tab"
+          data-toggle="tab"
+          href="#user-log"
+          role="tab"
+          aria-controls="user-log"
+          aria-selected="false"
+          (click)="setActiveTab('user-log', null)"
+          >Lịch sử thao tác</a
+        >
+      </li>
+    </ul>
+    <div class="tab-content m-t-15" id="myTabContent">
+      <!-- Thông tin chung -->
+      <div
+        class="tab-pane fade"
+        id="common"
+        role="tabpanel"
+        aria-labelledby="common-tab"
+      >
+        <!-- Thông tin -->
+        <div class="form-row">
+          <div class="form-group col-4">
+            <label>Tên</label>
+            <input
+              type="text"
+              class="form-control"
+              readonly
+              [value]="item.Name"
+            />
+          </div>
+          <div class="form-group col-4">
+            <label>Trạng thái ca trực</label>
+            <input
+              type="text"
+              class="form-control"
+              [ngClass]="
+                DicStatusStyleInput_OnShiftDuty.get(item.StatusDutyShift)
+              "
+              readonly
+              [value]="DicStatusDesc_OnShiftDuty.get(item.StatusDutyShift)"
+            />
+          </div>
+          <div class="form-group col-4" *ngIf="RefTypeModel.FlowId">
+            <label>Trạng thái phê duyệt</label>
+            <input
+              type="text"
+              class="form-control"
+              [ngClass]="DicStatusStyleInput.get(item.Status)"
+              readonly
+              [value]="DicStatusDesc.get(item.Status)"
+            />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group col-4">
+            <label>Người phụ trách</label>
+            <input
+              type="text"
+              class="form-control"
+              readonly
+              value="{{ item.InchargeUsername }} - {{ item.InchargeUser_Name }}"
+            />
+          </div>
+          <div class="form-group col-4">
+            <label>Ngày tạo</label>
+            <input
+              type="text"
+              class="form-control"
+              readonly
+              [value]="item.CreatedDTG | date : 'dd/MM/yyyy HH:mm'"
+            />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group col-4">
+            <label>Tên ca trực</label>
+            <input
+              type="text"
+              class="form-control"
+              readonly
+              [value]="item.ShiftName"
+            />
+          </div>
+          <div class="form-group col-4">
+            <label>Thời gian ca trực</label>
+            <input
+              type="text"
+              class="form-control"
+              readonly
+              [value]="computeValue(item.StartDTG, item.EndDTG)"
+            />
+          </div>
+        </div>
+        <div class="form-group form-row">
+          <div class="col-8">
+            <label>Ghi chú</label>
+            <input
+              type="textarea"
+              class="form-control"
+              readonly
+              [value]="item.Note"
+            />
+          </div>
+        </div>
+        <!--// -->
+        <div class="form-row">
+          <div class="col-8">
+            <!-- Luồng phê duyệt -->
+            <app-flow-process-list
+              #flow_process_list
+              *ngIf="RefTypeModel.FlowId"
+              [refId]="Id"
+              [refTypeId]="RefTypeModel.Id"
+            ></app-flow-process-list>
+            <!--// -->
+          </div>
+        </div>
+      </div>
+      <!--// -->
+
+      <!-- Thông tin nhập -->
+      <div
+        class="tab-pane fade active show"
+        id="data"
+        role="tabpanel"
+        aria-labelledby="data-tab"
+      >
+        <!-- Form content -->
+        <app-iframe-content
+          [context]="item.Context"
+          [isReadOnly]="true"
+          [childId]="Id"
+          [showButtonRedirect]="true"
+        >
+        </app-iframe-content>
+        <!--// -->
+      </div>
+      <!-- ca child -->
+      <div class="tab-pane fade" role="tabpanel" [attr.id]="'itemForm'">
+        <app-iframe-content
+          [context]="itemContext"
+          [isReadOnly]="true"
+          [showButtonRedirect]="true"
+          [childId]="'itemForm'"
+        ></app-iframe-content>
+      </div>
+      <!-- end ca child -->
+      <!-- Lịch sử thao tác -->
+      <div
+        class="tab-pane fade"
+        id="user-log"
+        role="tabpanel"
+        aria-labelledby="user-log-tab"
+      >
+        <app-form-process-user-log-tab
+          #form_process_user_log_tab
+          [RefId]="Id"
+          [RefTypeId]="RefTypeModel.Id"
+          [FlowId]="RefTypeModel.FlowId"
+        >
+        </app-form-process-user-log-tab>
+      </div>
+      <!--// -->
+      <!-- Popup Luồng phê duyệt -->
+      <app-flow-process-modal
+        *ngIf="RefTypeModel.FlowId"
+        #flow_process_modal
+        [model]="processFlow"
+        [lstFunctionCode]="lstFunctionCode"
+        [functionCode]="flowFunctionCode"
+        (onSubmitProcessFlow)="onSubmitProcessFlow($event)"
+        (onApproveProcessFlow)="onApproveProcessFlow($event)"
+        (onRejectProcessFlow)="onRejectProcessFlow($event)"
+      ></app-flow-process-modal>
+
+      <!-- giao nhận ca-->
+      <app-giao-nhan-parent-modal
+        #giao_nhan
+        [RefTypeModel]="RefTypeModel"
+        [model]="popupItem"
+        [functionCode]="functionCode"
+        [lstFunctionCode]="lstFunctionCodePopup"
+        (onSubmitGiaoNhanModal)="onSubmitGiaoNhanModal($event)"
+        [lstShiftCategory]="lstShiftCategory"
+      >
+      </app-giao-nhan-parent-modal>
+    </div>
+  </div>
+</div>

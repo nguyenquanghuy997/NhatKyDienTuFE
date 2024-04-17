@@ -1,0 +1,251 @@
+<app-error-page
+  [isNotPermission]="
+    lstFunctionCode && !lstFunctionCode?.includes(FunctionCode.VIEW)
+  "
+></app-error-page>
+<div
+  *ngIf="lstFunctionCode && lstFunctionCode.includes(FunctionCode.VIEW)"
+  class="card"
+>
+  <div *ngIf="loading">
+    <div class="loading-overlay">
+      <div class="loading-spinner"></div>
+    </div>
+  </div>
+
+  <div class="card-body">
+    <div class="row m-b-5">
+      <div class="col-lg-8">
+        <form nz-form [formGroup]="searchForm" (ngSubmit)="onSearch()">
+          <div class="form-group row">
+            <div class="col-md-3">
+              <label for="name">Tên ca</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Nhập tên ca"
+                id="name"
+                formControlName="name"
+              />
+            </div>
+
+            <div class="col-md-3">
+              <label for="statusOnShiftDuty">Trạng thái ca trực</label>
+              <select
+                id="statusOnShiftDuty"
+                formControlName="statusOnShiftDuty"
+                class="form-control"
+              >
+                <option selected value="null">Tất cả</option>
+                <option
+                  *ngFor="let item of DicStatusDesc_OnShiftDuty | keyvalue"
+                  [ngValue]="item.key"
+                >
+                  {{ item.value }}
+                </option>
+              </select>
+            </div>
+
+            <div class="col-md-3" *ngIf="RefTypeModel.FlowId">
+              <label for="status">Trạng thái phê duyệt</label>
+              <select id="status" formControlName="status" class="form-control">
+                <option selected value="null">Tất cả</option>
+                <option
+                  *ngFor="let item of DicStatusDesc | keyvalue"
+                  [ngValue]="item.key"
+                >
+                  {{ item.value }}
+                </option>
+              </select>
+            </div>
+
+            <div class="col-md-1 d-flex align-items-end">
+              <button class="btn btn-primary">
+                <i class="anticon anticon-search m-r-5"></i>
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="col-lg-4 form-group">
+        <div class="h-100 d-flex align-items-end justify-content-end">
+          <!-- <button
+            *ngIf="lstFunctionCode.includes(FunctionCode.CREATE)"
+            class="btn btn-primary m-r-5"
+            title="Thêm mới"
+            (click)="onOpenModalCreate()"
+            data-toggle="modal"
+            data-target="#TrucCaAddnewModal"
+          >
+            <i class="anticon anticon-plus-circle m-r-5"></i>
+            <span>Thêm mới</span>
+          </button>
+          <button
+            *ngIf="lstFunctionCode.includes(FunctionCode.CREATE)"
+            class="btn btn-primary"
+            (click)="onCreateQuickly()"
+            title="Thêm mới cho ca hiện tại"
+          >
+            <i class="anticon anticon-plus-circle m-r-5"></i>
+            <span>Thêm mới - ca hiện tại</span>
+          </button> -->
+        </div>
+      </div>
+    </div>
+
+    <div class="dataTables_wrapper dt-bootstrap4 no-footer">
+      <div class="table-responsive">
+        <table
+          id="dtDynamicVerticalScroll"
+          class="table table-hover table-bordered e-commerce-table"
+        >
+          <thead>
+            <tr>
+              <th class="text-center" [width]="'5%'">STT</th>
+              <th class="text-left" [width]="'20%'">Ca trực</th>
+              <th class="text-center" [width]="'10%'">Thời gian</th>
+              <th class="text-center" [width]="'8%'">Trạng thái ca trực</th>
+              <th
+                class="text-center"
+                [width]="'8%'"
+                *ngIf="RefTypeModel.FlowId"
+              >
+                Trạng thái phê duyệt
+              </th>
+              <th class="text-left" [width]="'15%'">Người phụ trách</th>
+              <th class="text-left" [width]="'15%'">Lần sửa cuối</th>
+              <th class="text-left" [width]="'15%'">Ghi chú</th>
+              <th class="text-center" [width]="'8%'">Tác vụ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of lstItem; let indexOfelement = index">
+              <td class="text-center">
+                {{ (pageIndex - 1) * pageSize + indexOfelement + 1 }}
+              </td>
+              <td
+                class="text-left"
+                style="
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                  max-width: 200px;
+                  white-space: pre-wrap;
+                "
+              >
+                <a
+                  [routerLink]="[
+                    '/processform/reftype',
+                    item.RefTypeId,
+                    'chi-tiet',
+                    item.Id
+                  ]"
+                  *ngIf="lstFunctionCode.includes(FunctionCode.DISPLAY)"
+                >
+                  {{ item.Name }}</a
+                >
+                <span *ngIf="!lstFunctionCode.includes(FunctionCode.DISPLAY)"
+                  >{{ item.Name }}
+                </span>
+              </td>
+              <td class="text-center">
+                {{ item.StartDTG | date : "dd/MM/yyyy HH:mm" }} -
+                {{ item.EndDTG | date : "HH:mm" }}
+              </td>
+              <td class="text-center">
+                <span
+                  [class]="DicStatusStyle_OnShiftDuty.get(item.StatusDutyShift)"
+                >
+                  {{ DicStatusDesc_OnShiftDuty.get(item.StatusDutyShift) }}
+                </span>
+              </td>
+              <td class="text-center" *ngIf="RefTypeModel.FlowId">
+                <span [class]="DicStatusStyle.get(item.Status)">
+                  {{ DicStatusDesc.get(item.Status) }}
+                </span>
+              </td>
+
+              <td class="text-left">
+                {{ item.InchargeUser_Name }}
+                <br />
+                <i
+                  >TG tạo:
+                  {{ item.CreatedDTG | date : "dd/MM/yyyy HH:mm" }}</i
+                >
+              </td>
+              <td class="text-left">
+                <ng-container *ngIf="item.UpdatedDTG != null">
+                  {{ item.UpdatedUser_Name }}
+                  <br />
+                  <i>
+                    TG sửa: {{ item.UpdatedDTG | date : "dd/MM/yyyy HH:mm" }}</i
+                  >
+                </ng-container>
+              </td>
+              <td
+                class="text-left"
+                style="
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                  max-width: 200px;
+                  white-space: pre-wrap;
+                "
+              >
+                {{ item.Note }}
+              </td>
+              <td class="text-center align-middle text-nowrap">
+                <a
+                  *ngIf="lstFunctionCode.includes(FunctionCode.EDIT)"
+                  data-toggle="tooltip"
+                  title="Sửa"
+                  class="btn btn-icon btn-hover btn-sm btn-rounded pull-right"
+                  [routerLink]="[
+                    '/processform/reftype',
+                    item.RefTypeId,
+                    'cap-nhat',
+                    item.Id
+                  ]"
+                >
+                  <i class="anticon anticon-edit"></i>
+                </a>
+
+                <button
+                  *ngIf="lstFunctionCode.includes(FunctionCode.DELETE)"
+                  class="btn btn-icon btn-hover btn-sm btn-rounded"
+                  (click)="onConfirmDel(item)"
+                  data-toggle="tooltip"
+                  data-placement="top"
+                  title="Xóa"
+                >
+                  <i class="anticon anticon-delete"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <app-pagination
+        [pageIndex]="pageIndex"
+        [totalItem]="totalItem"
+        [pageSize]="pageSize"
+        [pageCount]="pageCount"
+        (onChangePagination)="onChangePagination($event)"
+      >
+      </app-pagination>
+      <app-nodata-info [totalItem]="totalItem"> </app-nodata-info>
+    </div>
+  </div>
+
+  <!-- POPUP -->
+  <app-truc-ca-create-modal
+    *ngIf="lstFunctionCode && lstFunctionCode.includes(FunctionCode.CREATE)"
+    #popup
+    [model]="popupItem"
+    [isVisible]="showpopup"
+    [functionCode]="functionCode"
+    [lstFunctionCode]="lstFunctionCodePopup"
+    (onSubmitModal)="onSubmitModal($event)"
+    (onHideModal)="onHideModal()"
+  ></app-truc-ca-create-modal>
+  <!--// -->
+</div>

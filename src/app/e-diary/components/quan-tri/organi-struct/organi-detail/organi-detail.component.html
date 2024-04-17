@@ -1,0 +1,144 @@
+<div>
+  <div class="justify-content-between">
+    <div class="row containerButtonDetail">
+      <div class="col-lg-8 font-weight-bold m-t-10 m-b-10">
+        Thông tin chi tiết
+      </div>
+      <div
+        class="col-lg-4 m-t-10 m-b-10 d-flex justify-content-end"
+        *ngIf="model.Id"
+      >
+        <button
+          type="button"
+          class="btn btn-primary m-r-10"
+          (click)="onOpenModalEditOrg()"
+        >
+          <i class="anticon anticon-edit"></i>
+          Sửa
+        </button>
+        <button
+          type="submit"
+          class="btn btn-danger m-r-10"
+          (click)="onOpenConfirmDelOrg()"
+        >
+          <i class="anticon anticon-delete"></i>
+          Xóa
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="conversation-body">
+    <div class="m-b-5">
+      <div class="form-row">
+        <div class="form-group col-md-4">
+          <label>Tên</label>
+          <input
+            type="text"
+            class="form-control"
+            readonly
+            [(ngModel)]="model.Name"
+          />
+        </div>
+        <div class="form-group col-md-4">
+          <label>Thuộc đơn vị</label>
+          <input
+            type="text"
+            class="form-control"
+            readonly
+            [(ngModel)]="model.ParentName"
+          />
+        </div>
+        <div class="form-group col-md-4">
+          <label for="IsActive">Loại đơn vị</label>
+          <input
+            type="text"
+            class="form-control"
+            id="IsActive"
+            [value]="setTypeName()"
+            readonly
+          />
+        </div>
+
+        <div class="form-group col-md-4">
+          <label for="IsActive">Trạng thái</label>
+          <input
+            type="text"
+            class="form-control"
+            id="IsActive"
+            [value]="setStatusName()"
+            readonly
+          />
+        </div>
+        <div class="form-group col-md-8">
+          <label for="txtNote" class="form-label">Ghi chú</label>
+          <textarea
+            rows="1"
+            class="form-control"
+            id="txtNote"
+            [(ngModel)]="model.Note"
+            readonly
+          ></textarea>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="formGroupExampleInput">Danh sách nhân viên</label>
+
+        <div class="table-responsive">
+          <table class="table table-hover table-bordered e-commerce-table">
+            <thead>
+              <tr>
+                <th scope="col" class="text-center align-middle" [width]="'5%'">
+                  STT
+                </th>
+                <th scope="col" class="align-middle" [width]="'40%'">
+                  Tên nhân viên
+                </th>
+                <th scope="col" class="align-middle" [width]="'30%'">
+                  Tên đăng nhập
+                </th>
+                <th
+                  scope="col"
+                  class="text-center align-middle"
+                  [width]="'15%'"
+                >
+                  Ngày sinh
+                </th>
+                <th
+                  scope="col"
+                  class="text-center align-middle"
+                  [width]="'10%'"
+                >
+                  Giới tính
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                *ngFor="
+                  let item of model.OrganizationUsers;
+                  let indexOfelement = index
+                "
+              >
+                <td class="text-center">
+                  {{ indexOfelement + 1 }}
+                </td>
+                <td>
+                  {{ item.Name }}
+                </td>
+                <td>
+                  {{ item.Username }}
+                </td>
+                <td class="text-center">
+                  {{ item.StringOfBirth }}
+                </td>
+                <td class="text-center">
+                  {{ item.GenderName }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

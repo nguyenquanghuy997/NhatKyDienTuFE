@@ -1,0 +1,175 @@
+<div class="modal" id="modalInputEdit">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header justify-content-between align-items-center">
+        <h5 class="modal-title">Thông tin input: {{ f.Id.value ?? identity }}</h5>
+        <button type="button" class="close" data-dismiss="modal" (click)="onHide()">
+          <i class="anticon anticon-close"></i>
+        </button>
+      </div>
+      <div class="modal-body scrollable">
+        <form [formGroup]="reactiveForm_" (ngSubmit)="onSubmitAdd()" id="formInputEdit">
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="select_TypeInputEdit" class="form-label">Kiểu nhập</label>
+              <ng-select [searchable]="true" dropdownPosition="bottom" id="select_TypeInputEdit"
+                formControlName="typeInput" placeholder="Chọn kiểu nhập" [attr.readonly]="!isEdit ? true : null"
+                notFoundText="{{ ngSelectMessage.NotFound }}" (ngModelChange)="onChangeTypeInput($event)">
+                <ng-option *ngFor="let option of typeInputArr" [value]="option.value">
+                  {{ option.text }}
+                </ng-option>
+              </ng-select>
+            </div>
+            <div class="form-group col-md-6">
+              <label for="searchOrg" class="form-label">Nhà máy </label>
+              <ng-select id="searchOrg" dropdownPosition="bottom" [items]="lstOrg" [searchable]="true"
+                bindLabel="BreadcrumbName" bindValue="Id" formControlName="OrganizationId" placeholder="Chọn nhà máy"
+                notFoundText="{{ ngSelectMessage.NotFound }}" (change)="onChangeSelectOrg($event)" [appendTo]="'body'">
+                >
+              </ng-select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="SearchEquipment" class="form-label">Thiết bị</label>
+              <ng-select [items]="listEquipment" dropdownPosition="bottom" [searchable]="true"
+                bindLabel="BreadcrumbName" bindValue="Id" formControlName="EquipmentId"
+                (change)="onSelectChangeEquipement($event)" (clear)="onClearEquipment()" placeholder="Chọn thiết bị"
+                notFoundText="{{ ngSelectMessage.NotFound }}">
+                >
+              </ng-select>
+            </div>
+            <div class="form-group col-md-6">
+              <label for="SearchEquipment" class="form-label">Thông số</label>
+              <ng-select [searchable]="true" dropdownPosition="bottom" formControlName="EquipmentTagId"
+                (change)="onSelectChangeTag($event)" (clear)="onClearTag()" placeholder="Chọn thông số"
+                notFoundText="{{ ngSelectMessage.NotFound }}">
+                <ng-option *ngFor="let option of lstTag" [value]="option.Id">
+                  {{ option.TagName }}
+                </ng-option>
+              </ng-select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="txtTagName" class="form-label">Nhãn thuộc tính<span class="text-danger">*</span></label>
+              <input type="text" formControlName="TagName" class="form-control" placeholder="Nhãn thuộc tính"
+                id="txtTagNameEdit" [ngClass]="{
+                  'is-invalid':
+                    (f.TagName.touched || f.TagName.dirty) && f.TagName.errors
+                }" autofocus [attr.readonly]="!isEdit ? true : null" />
+              <div *ngIf="
+                  (f.TagName.touched || f.TagName.dirty) && f.TagName.errors
+                " class="invalid-feedback">
+                <div *ngIf="f.TagName.errors.required">
+                  Nhãn thuộc tính không để trống
+                </div>
+                <div *ngIf="f.TagName.errors.duplicateName">
+                  Nhãn thuộc tính đã tồn tại
+                </div>
+                <div *ngIf="f.TagName.errors.maxlength">
+                  Nhãn nhập tối đa 100 ký tự
+                </div>
+              </div>
+            </div>
+            <div class="form-group col-md-6" *ngIf="f.typeInput.value !== 'checkbox'">
+              <label for="txtPlaceholder" class="form-label">Placeholder</label>
+              <input type="text" formControlName="Placeholder" class="form-control" placeholder="Placeholder"
+                id="txtPlaceholderEdit" [attr.readonly]="!isEdit ? true : null" />
+            </div>
+          </div>
+
+          <!-- <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="txtWidth" class="form-label">Chiều rộng</label>
+              <input type="number" formControlName="Width" class="form-control" placeholder="Độ rộng input"
+                id="txtWidthEdit" [attr.readonly]="!isEdit ? true : null" />
+            </div>
+            <div class="form-group col-md-6">
+              <label for="selectDonViTinh" class="form-label">Đơn vị tính</label>
+              <ng-select id="selectDonViTinhEdit" dropdownPosition="bottom" formControlName="DonViTinh" placeholder="Chọn đơn vị tính"
+                [attr.disabled]="!isEdit ? true : null">
+                <ng-option [value]="'%'" selected>%</ng-option>
+                <ng-option [value]="'px'">px</ng-option>
+              </ng-select>
+            </div>
+          </div> -->
+          <div class="form-group" *ngIf="f.typeInput.value == 'select'">
+            <label for="Values" class="form-label">Giá trị</label>
+            <ng-select dropdownPosition="bottom" formControlName="Values" placeholder="Nhập các giá trị mong muốn"
+              [multiple]="true" [addTag]="true" [isOpen]="false" [selectOnTab]="true" addTagText="Thêm giá trị">
+            </ng-select>
+          </div>
+          <div class="form-row" *ngIf="
+              f.typeInput.value == 'Textarea' || f.typeInput.value == 'Text'
+            ">
+            <div class="form-group col-md-6">
+              <label for="txtminValue" class="form-label">ký tự tối thiểu</label>
+              <input type="number" formControlName="minValue" class="form-control" placeholder="Ký tự tối thiểu"
+                id="txtminValueEdit" [attr.readonly]="!isEdit ? true : null" />
+            </div>
+            <div class="form-group col-md-6">
+              <label for="txtmaxValue" class="form-label">Ký tự tối đa</label>
+              <input type="number" formControlName="maxValue" class="form-control" placeholder="Ký tự tối đa"
+                id="txtmaxValueEdit" [attr.readonly]="!isEdit ? true : null" />
+            </div>
+          </div>
+
+          <div class="form-row" *ngIf="f.typeInput.value == 'number'">
+            <div class="form-group col-md-6">
+              <label for="txtminValueEdit" class="form-label">Giá trị nhỏ nhất</label>
+              <input type="number" formControlName="minValue" class="form-control" placeholder="Giá trị nhỏ nhất"
+                id="txtminValueEdit" [attr.readonly]="!isEdit ? true : null" />
+            </div>
+            <div class="form-group col-md-6">
+              <label for="txtmaxValueEdit" class="form-label">Giá trị lớn nhất</label>
+              <input formControlName="maxValue" class="form-control" placeholder="Giá trị lớn nhất" id="txtmaxValueEdit"
+                [attr.readonly]="!isEdit ? true : null" />
+            </div>
+          </div>
+
+          <div class="form-group" *ngIf="f.typeInput.value == 'Textarea'">
+            <label for="txtRows" class="form-label">Số dòng</label>
+            <input type="number" formControlName="Rows" class="form-control" placeholder="Ký tự tối đa" id="txtRowsEdit"
+              [attr.readonly]="!isEdit ? true : null" />
+          </div>
+          <div class="form-group" style="display: none">
+            <input type="text" class="form-control" id="txtNameEdit" [(ngModel)]="typeInputInsert"
+              [ngModelOptions]="{ standalone: true }" />
+            <!-- <input
+              type="text"
+              formControlName="EquipmentId"
+              class="form-control"
+              id="txtEquipmentIdEdit"
+            />
+            <input type="text" class="form-control" id="txtEquipmentName" />
+            <input type="text" class="form-control" id="txtEquipmentTagName" /> -->
+          </div>
+          <input hidden id="identityModal" />
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button *ngIf="hasElementCoppy" type="button" (click)="PasteDataModal()" class="btn btn-success">
+          <i class="anticon anticon-snippets"></i>
+          Paste
+        </button>
+        <button type="button" (click)="CoppyDataModal()" class="btn btn-success">
+          <i class="anticon anticon-copy"></i>
+          Coppy
+        </button>
+        <button *ngIf="isEdit" [disabled]="!reactiveForm_.valid" type="submit" class="btn btn-primary"
+          (click)="onSubmitAdd()">
+          Lưu
+        </button>
+        <!-- <button *ngIf="isEdit && !typeInsert" [disabled]="!reactiveForm_.valid" type="submit" class="btn btn-primary"
+          (click)="onSubmit()">
+          Lưu
+        </button> -->
+        <button (click)="onHide()" id="closeModalButtonEdit" class="btn btn-secondary" data-dismiss="modal">
+          Đóng
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,395 @@
+<div class="modal" id="RuleModal" #RuleModal>
+  <div class="modal-dialog modal-lg">
+    <!-- Create & Edit -->
+    <div
+      class="modal-content"
+      *ngIf="
+        functionCode == FunctionCode.CREATE || functionCode == FunctionCode.EDIT
+      "
+    >
+      <div class="modal-header justify-content-between align-items-center">
+        <h5 class="modal-title">
+          {{ !model || !model.Id ? "Thêm mới " : "Cập nhật " }} quyền dữ liệu
+        </h5>
+        <button type="button" class="close" (click)="onHide()">
+          <i class="anticon anticon-close"></i>
+        </button>
+      </div>
+      <div class="modal-body scrollable">
+        <form [formGroup]="popupForm" (ngSubmit)="onSubmit()">
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="Name">Tên <span class="text-danger">*</span></label>
+              <input
+                type="text"
+                class="form-control"
+                id="Name"
+                placeholder="Nhập tên"
+                formControlName="Name"
+                [(ngModel)]="model.Name"
+                maxlength="100"
+                [ngClass]="{ 'is-invalid': submitted && f.Name.errors }"
+                required
+              />
+              <div *ngIf="submitted && f.Name.errors" class="invalid-feedback">
+                <div *ngIf="f.Name.errors.required">Không được trống</div>
+                <div *ngIf="f.Name.errors.maxlength">Tối đa 100 ký tự</div>
+              </div>
+            </div>
+
+            <div class="form-group col-md-6">
+              <label for="IsActive" class="form-label">Trạng thái</label>
+              <select
+                class="form-select form-control"
+                aria-label=".form-select-lg"
+                id="IsActive"
+                formControlName="IsActive"
+                [(ngModel)]="model.IsActive"
+                [ngClass]="{ 'is-invalid': submitted && f.IsActive.errors }"
+              >
+                <option [ngValue]="true" selected>Hoạt động</option>
+                <option [ngValue]="false">Không hoạt động</option>
+              </select>
+              <div
+                *ngIf="submitted && f.IsActive.errors"
+                class="invalid-feedback"
+              >
+                <div *ngIf="f.IsActive.errors.required">Không được trống</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-12">
+              <label for="txtNote" class="form-label">Ghi chú</label>
+              <textarea
+                rows="2"
+                formControlName="Note"
+                class="form-control"
+                id="txtNote"
+                placeholder="Ghi chú"
+                [(ngModel)]="model.Note"
+                maxlength="1000"
+                [ngClass]="{ 'is-invalid': submitted && f.Note.errors }"
+              ></textarea>
+              <div *ngIf="submitted && f.Note.errors" class="invalid-feedback">
+                <div *ngIf="f.Note.errors?.maxlength">Tối đa 1000 ký tự</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="selectRuleView" class="form-label"
+                >Bảng (View) nghiệp vụ <span class="text-danger">*</span></label
+              >
+              <ng-select
+                [searchable]="true"
+                dropdownPosition="bottom"
+                formControlName="RuleView"
+                [(ngModel)]="model.RuleView"
+                id="selectRuleView"
+                placeholder="Chọn bảng nghiệp vụ"
+                notFoundText="{{ ngSelectMessage.NotFound }}"
+                [appendTo]="'body'"
+                (change)="onChangeRuleView($event)"
+                [ngClass]="{
+                  'is-invalid':
+                    f.RuleView.errors &&
+                    (f.RuleView.touched || f.RuleView.dirty)
+                }"
+              >
+                <ng-option
+                  *ngFor="let item of lstTableInfo"
+                  [value]="item.Name"
+                >
+                  {{ item.Name }}
+                </ng-option>
+              </ng-select>
+              <div
+                *ngIf="
+                  f.RuleView.errors && (f.RuleView.touched || f.RuleView.dirty)
+                "
+                class="error-feedback"
+              >
+                <div *ngIf="f.RuleView.errors.required">
+                  Bảng nghiệp vụ không được trống
+                </div>
+              </div>
+            </div>
+            <div class="form-group col-md-6">
+              <label for="Column" class="form-label">Trường thông tin</label>
+              <div class="input-group-prepend">
+                <div
+                  data-toggle="tooltip"
+                  data-placement="top"
+                  title="Lấy ds trường thông tin"
+                  class="btn btn-icon btn-primary"
+                  (click)="onGetColumnsOfRuleTable()"
+                >
+                  <i class="anticon anticon-arrow-right"></i>
+                </div>
+                <ng-select
+                  formControlName="columnName"
+                  dropdownPosition="bottom"
+                  id="Column"
+                  placeholder="Chọn trường thông tin"
+                  [appendTo]="'body'"
+                  [clearable]="false"
+                  notFoundText="{{ ngSelectMessage.NotFound }}"
+                  [(ngModel)]="columnName"
+                  [ngStyle]="{ width: '100%' }"
+                >
+                  <ng-option
+                    *ngFor="let item of lstColumnInfo"
+                    [value]="item.Name"
+                  >
+                    {{ item.Name }}
+                  </ng-option>
+                </ng-select>
+                <div
+                  data-toggle="tooltip"
+                  data-placement="top"
+                  title="Thêm"
+                  class="btn btn-primary btn-icon"
+                  (click)="onAddColumnOfRuleViewBuildFormula()"
+                >
+                  <i class="anticon anticon-plus"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="DefaultParam" class="form-label"
+                >Tham số mặc định</label
+              >
+              <div class="input-group-append">
+                <ng-select
+                  formControlName="defaultParam"
+                  dropdownPosition="bottom"
+                  id="DefaultParam"
+                  placeholder="Chọn tham số"
+                  [appendTo]="'body'"
+                  [clearable]="false"
+                  notFoundText="{{ ngSelectMessage.NotFound }}"
+                  [(ngModel)]="defaultParam"
+                  [ngStyle]="{ width: '100%' }"
+                >
+                  <ng-option
+                    *ngFor="let item of lstDefaultParam"
+                    [value]="item"
+                  >
+                    {{ item }}
+                  </ng-option>
+                </ng-select>
+
+                <div
+                  data-toggle="tooltip"
+                  data-placement="top"
+                  title="Thêm"
+                  class="btn btn-primary btn-icon"
+                  (click)="onAddDefultParamBuildFormula()"
+                >
+                  <i class="anticon anticon-plus"></i>
+                </div>
+              </div>
+            </div>
+            <div class="form-group col-md-6">
+              <label for="SqlOperator" class="form-label">Toán tử</label>
+              <div class="input-group-append">
+                <ng-select
+                  formControlName="sqlOperator"
+                  dropdownPosition="bottom"
+                  id="SqlOperator"
+                  placeholder="Chọn toán tử"
+                  [appendTo]="'body'"
+                  [clearable]="false"
+                  notFoundText="{{ ngSelectMessage.NotFound }}"
+                  [(ngModel)]="sqlOperator"
+                  [ngStyle]="{ width: '100%' }"
+                >
+                  <ng-option *ngFor="let item of lstSqlOperator" [value]="item">
+                    {{ item }}
+                  </ng-option>
+                </ng-select>
+                <div
+                  data-toggle="tooltip"
+                  data-placement="top"
+                  title="Thêm"
+                  class="btn btn-primary btn-icon"
+                  (click)="onAddSqlOperatorBuildFormula()"
+                >
+                  <i class="anticon anticon-plus"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-12">
+              <div class="d-flex justify-content-between">
+                <label for="txtFormula" class="form-label"
+                  >Công thức <span class="text-danger">*</span></label
+                >
+
+                <label
+                  for="txtFormula"
+                  class="form-label"
+                  [ngClass]="{
+                    'text-danger': !isValidFormula,
+                    'text-primary': isValidFormula
+                  }"
+                  (click)="onCheckFormula()"
+                  >Kiểm tra công thức</label
+                >
+              </div>
+
+              <textarea
+                rows="3"
+                formControlName="Formula"
+                class="form-control"
+                id="txtFormula"
+                placeholder="Công thức"
+                [(ngModel)]="model.Formula"
+                maxlength="1000"
+                (keydown)="onKeyDownFormula()"
+                [ngClass]="{
+                  'is-invalid':
+                    (submitted && f.Formula.errors) || !isValidFormula
+                }"
+              ></textarea>
+              <div
+                *ngIf="(submitted && f.Formula.errors) || !isValidFormula"
+                class="invalid-feedback"
+              >
+                <div *ngIf="f.Formula.errors?.required">Không được trống</div>
+                <div *ngIf="f.Formula.errors?.maxlength">Tối đa 1000 ký tự</div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="submit"
+          *ngIf="lstFunctionCode && lstFunctionCode.includes(functionCode)"
+          class="btn btn-primary"
+          (click)="onSubmit()"
+        >
+          Lưu
+        </button>
+        <button
+          (click)="onHide()"
+          id="closeModalButton"
+          class="btn btn-secondary"
+        >
+          Đóng
+        </button>
+      </div>
+    </div>
+    <!--// -->
+
+    <!-- Display -->
+    <div class="modal-content" *ngIf="functionCode == FunctionCode.DISPLAY">
+      <div class="modal-header justify-content-between align-items-center">
+        <h5 class="modal-title">Chi tiết Quyền dữ liệu</h5>
+        <button type="button" class="close" (click)="onHide()">
+          <i class="anticon anticon-close"></i>
+        </button>
+      </div>
+      <div class="modal-body scrollable">
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="Name">Tên</label>
+            <input
+              type="text"
+              class="form-control"
+              id="Name"
+              [(ngModel)]="model.Name"
+              readonly
+            />
+          </div>
+          <div class="form-group col-md-6">
+            <label for="IsActive" class="form-label">Trạng thái</label>
+            <input
+              type="text"
+              class="form-control"
+              id="IsActive"
+              [(ngModel)]="dislayIsActive"
+              readonly
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="RuleView" class="form-label"
+              >Bảng (View) nghiệp vụ</label
+            >
+            <input
+              type="text"
+              class="form-control"
+              id="RuleView"
+              [(ngModel)]="model.RuleView"
+              readonly
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-md-12">
+            <label for="txtNote" class="form-label">Ghi chú</label>
+            <textarea
+              rows="2"
+              class="form-control"
+              id="txtNote"
+              [(ngModel)]="model.Note"
+              readonly
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-md-12">
+            <label for="txtFormula" class="form-label">Công thức</label>
+            <textarea
+              rows="2"
+              class="form-control"
+              id="txtFormula"
+              [(ngModel)]="model.Formula"
+              readonly
+            ></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button
+          *ngIf="lstFunctionCode && lstFunctionCode.includes(FunctionCode.EDIT)"
+          class="btn btn-primary"
+          (click)="onEdit()"
+        >
+          Sửa
+        </button>
+        <button
+          *ngIf="
+            lstFunctionCode && lstFunctionCode.includes(FunctionCode.DELETE)
+          "
+          class="btn btn-danger btn-delete-left"
+          (click)="onDelete()"
+        >
+          Xóa
+        </button>
+        <button
+          (click)="onHide()"
+          id="closeModalButton"
+          class="btn btn-secondary"
+        >
+          Đóng
+        </button>
+      </div>
+    </div>
+    <!--// -->
+  </div>
+</div>

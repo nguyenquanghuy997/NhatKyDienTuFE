@@ -1,0 +1,310 @@
+<app-error-page [isNotPermission]="
+    lstFunctionCode && !lstFunctionCode?.includes(FunctionCode.EDIT) && functionCode == FunctionCode.EDIT
+  "></app-error-page>
+
+<div *ngIf="
+    (functionCode == FunctionCode.CREATE && (!model || !model.Id)) ||
+    (functionCode == FunctionCode.EDIT && model?.Id && lstFunctionCode && lstFunctionCode?.includes(FunctionCode.EDIT))
+  " class="card">
+  <div *ngIf="loading">
+    <div class="loading-overlay">
+      <div class="loading-spinner"></div>
+    </div>
+  </div>
+  <div class="card-body">
+    <input type="text" readonly style="display: none" id="idInputType" />
+    <div>
+      <button class="btn btn-icon btn-hover btn-sm btn-rounded pull-right" (click)="openModalCreate()"
+        data-toggle="modal" data-target="#modalInput" id="openModalCreate_Test" style="display: none"></button>
+      <button (click)="showErrorOnPaste()" class="btn btn-primary" style="display: none"
+        id="btn_showError_onPaste"></button>
+
+      <button (click)="formatContent()" class="btn btn-primary" style="display: none" id="btnFormatContent"></button>
+    </div>
+
+    <ng-container *ngIf="!showTemplateForm" style="height: 100%">
+      <form [formGroup]="reactiveForm">
+        <div class="text-right">
+          <button *ngIf="
+              (functionCode == FunctionCode.CREATE && (!model || !model.Id)) ||
+              (functionCode == FunctionCode.EDIT && model?.Id)
+            " type="submit" (click)="saveSettingForm(reactiveForm.value)" class="btn btn-primary m-r-10">
+            <i class="anticon anticon-save"></i>
+            Lưu
+          </button>
+          <button *ngIf="formIdToUpdate && functionCode == FunctionCode.DELETE" type="submit"
+            class="btn btn-danger m-r-10" (click)="onConfirmDel(model)">
+            <i class="anticon anticon-delete"></i>
+            Xóa
+          </button>
+          <a *ngIf="formIdToUpdate" class="btn btn-secondary"
+            [routerLink]="['/configs/formOld/chi-tiet-form', formIdToUpdate]">
+            <i class="anticon anticon-rollback"></i>
+            Thoát
+          </a>
+          <a *ngIf="!formIdToUpdate" class="btn btn-secondary" [routerLink]="['/configs/formOld']">
+            <i class="anticon anticon-rollback"></i>
+            Thoát
+          </a>
+        </div>
+        <div class="m-t-25">
+          <div class="form-row">
+            <div class="form-group col-md-4">
+              <label for="txtName">Tên<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="txtName" placeholder="Nhập tên" formControlName="Name"
+                [ngClass]="{
+                  'is-invalid':
+                    f.Name.errors && (f.Name.touched || f.Name.dirty)
+                }" />
+              <div *ngIf="f.Name.errors && (f.Name.touched || f.Name.dirty)" class="invalid-feedback">
+                <div *ngIf="f.Name.errors.required">Tên là bắt buộc</div>
+                <div *ngIf="f.Name.errors.maxlength">
+                  Tên nhập tối đa 100 ký tự
+                </div>
+              </div>
+            </div>
+            <div class="form-group col-md-4">
+              <label for="IsActive" class="form-label">Trạng thái</label>
+              <select class="form-select form-control" aria-label=".form-select-lg" id="IsActive"
+                formControlName="IsActive" [(ngModel)]="model.IsActive">
+                <option [ngValue]="true">Hoạt động</option>
+                <option [ngValue]="false">Ngừng hoạt động</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-8">
+              <label for="txtNote" class="form-label">Ghi chú </label>
+              <textarea rows="2" formControlName="Note" class="form-control" id="txtNote" placeholder="Ghi chú"
+                [(ngModel)]="model.Note" [ngClass]="{
+                  'is-invalid':
+                    f.Note.errors && (f.Note.touched || f.Note.dirty)
+                }"></textarea>
+              <div *ngIf="f.Note.errors && (f.Note.touched || f.Note.dirty)" class="invalid-feedback">
+                <div *ngIf="f.Note.errors.maxLength">
+                  Ghi chú nhập tối đa 1000 ký tự
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-12">
+              <label class="form-label font-weight-bold">Thiết kế giao diện<span class="text-danger">*</span></label>
+              <div class="d-flex justify-content-center">
+                <nouislider class="m-b-60" style="width: 80%" [disabled]="true" [ngModelOptions]="{ standalone: true }"
+                  (ngModelChange)="onChangeSlider()" [config]="sliderConfig" [(ngModel)]="sliderStep">
+                </nouislider>
+              </div>
+            </div>
+          </div>
+          <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item">
+              <a class="nav-link active" id="edit-tab" data-toggle="tab" href="#edit" role="tab" aria-controls="edit"
+                aria-selected="true">Chỉnh sửa</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" id="setting-tab" data-toggle="tab" href="#setting" role="tab" aria-controls="setting"
+                aria-selected="false">Thiếp lập</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" id="preview-tab" data-toggle="tab" href="#preview" role="tab" aria-controls="preview"
+                aria-selected="false">Xem trước</a>
+            </li>
+          </ul>
+          <div class="tab-content m-t-15" id="myTabContent">
+            <div class="tab-pane fade show active" id="edit" role="tabpanel" aria-labelledby="edit-tab">
+              <div class="form-row">
+                <div class="form-group col-md-12">
+                  <div class="form-group col-8">
+                    <div class="form-group row">
+                      <div class="col-md-3">
+                        <ng-select id="lblTypeInputAuto" [searchable]="true" dropdownPosition="bottom"
+                          formControlName="TypeInputAuto" placeholder="Kiểu input mặc định"
+                          notFoundText="{{ ngSelectMessage.NotFound }}">
+                          <ng-option [value]="1"> Text </ng-option>
+                          <ng-option [value]="2"> Textarea</ng-option>
+                        </ng-select>
+                      </div>
+                      <div class="form-group col-md-9 custom-file m-b-15">
+                        <input id="customFile" type="file" hidden (change)="onFileChange($event)" accept=".docx"
+                          #fileImport />
+                        <label class="btn btn-primary m-r-15 cursor-pointer" for="customFile">Chọn file</label>
+                        <span id="file-chosen">(.docx)</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div #summernote formControlName="Context" [ngxSummernote]="config"
+                    [ngxSummernoteDisabled]="editorDisabled" (blur)="onBlur()" (mediaDelete)="onDelete($event)"
+                    (summernoteInit)="summernoteInit($event)" [(ngModel)]="model.Context" class="form-control"
+                    formControlName="Context" (ngModelChange)="getElementsFromContext()" [ngClass]="{
+                      'is-invalid':
+                        f.Context.errors &&
+                        (f.Context.touched || f.Context.dirty)
+                    }" id="summernote"></div>
+                  <div *ngIf="
+                      f.Context.errors && (f.Context.touched || f.Context.dirty)
+                    " class="invalid-feedback">
+                    <div *ngIf="f.Context.errors.required">
+                      Giao diện là bắt buộc nhập
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="tab-pane fade" id="setting" role="tabpanel" aria-labelledby="setting-tab">
+              <div class="form-row">
+                <div class="col-md-9">
+                  <perfect-scrollbar id="htmlForm" class="previewFormDong">
+                    <div [ngxSummernoteView]="reactiveForm.get('Context')?.value"></div>
+                  </perfect-scrollbar>
+                </div>
+                <div class="col-md-3" id="listElements">
+                  <div class="card-body">
+                    <ul class="nav nav-tabs nav-justified" id="myTabJustified" role="tablist">
+                      <li class="nav-item">
+                        <a class="nav-link active text-nowrap" id="input-tab-justified" data-toggle="tab"
+                          href="#input-justified" role="tab" aria-controls="input-justified" aria-selected="true">Danh
+                          sách Input</a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link text-nowrap" id="table-tab-justified" data-toggle="tab"
+                          href="#table-justified" role="tab" aria-controls="table-justified" aria-selected="false">Danh
+                          sách Table</a>
+                      </li>
+                    </ul>
+                    <div class="tab-content m-t-15" id="myTabContentJustified">
+                      <div class="tab-pane fade show active" id="input-justified" role="tabpanel"
+                        aria-labelledby="input-tab-justified">
+                        <div class="input-affix m-t-10">
+                          <i class="prefix-icon anticon anticon-search"></i>
+                          <input id="txtSearchInput" type="text" class="form-control" placeholder="Tìm kiếm input"
+                            (keyup)="filterElement()" />
+                        </div>
+                        <div class="m-t-20">
+                          <div class="table-responsive">
+                            <table class="table table-hover table-scroll table-sm">
+                              <thead>
+                                <tr>
+                                  <th style="width: 13%" scope="col" class="text-center">
+                                    STT
+                                  </th>
+                                  <th style="width: 49%" scope="col">Tên</th>
+                                  <th style="width: 38%" scope="col" class="text-center">
+                                    Tác vụ
+                                  </th>
+                                </tr>
+                              </thead>
+                              <tbody id="scrollElementInput" class="scrollElement">
+                                <tr class="element" [attr.data-element]="ele.id" *ngFor="
+                                    let ele of elementInputRender;
+                                    let i = index
+                                  " (click)="focusElement(ele.id)">
+                                  <td style="width: 13%" class="text-center">
+                                    <a class="text-dark font-weight-bold text-truncate text-width">
+                                      {{ i + 1 }}
+                                    </a>
+                                  </td>
+                                  <td style="width: 37%">
+                                    <a class="text-dark f- text-truncate text-width">{{ ele.dataset.tag }}</a>
+                                  </td>
+                                  <td class="text-center" style="width: 50%">
+                                    <button class="btn btn-icon btn-rounded btn-sm m-r-5" data-toggle="tooltip"
+                                      data-placement="bottom" title="Chỉnh sửa" type="button" data-toggle="modal"
+                                      data-target="#modalInputEdit" (click)="openModalEdit(ele.id, true)">
+                                      <i class="anticon anticon-edit"></i>
+                                    </button>
+                                    <button class="btn btn-icon btn-rounded btn-sm m-r-5" data-toggle="tooltip"
+                                      data-placement="bottom" title="Coppy" type="button"
+                                      (click)="coppyDataElement(ele.id)">
+                                      <i class="anticon anticon-copy"></i>
+                                    </button>
+                                    <button class="btn btn-icon btn-rounded btn-sm m-r-5" data-toggle="tooltip"
+                                      data-placement="bottom" title="Paste" type="button"
+                                      (click)="pasteDataElement(ele.id)">
+                                      <i class="anticon anticon-snippets"></i>
+                                    </button>
+                                    <button class="btn btn-icon btn-rounded btn-sm" data-toggle="tooltip"
+                                      data-placement="bottom" title="Xóa" type="button" (click)="deleteElement(ele.id)">
+                                      <i class="anticon anticon-delete"></i>
+                                    </button>
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="tab-pane fade" id="table-justified" role="tabpanel"
+                        aria-labelledby="table-tab-justified">
+                        <div class="input-affix m-t-10">
+                          <i class="prefix-icon anticon anticon-search"></i>
+                          <input id="txtSearchTable" type="text" class="form-control" placeholder="Tìm kiếm table"
+                            (keyup)="filterTableElement()" />
+                        </div>
+                        <div class="m-t-20">
+                          <div class="table-responsive">
+                            <table class="table table-hover table-scroll table-sm">
+                              <thead>
+                                <tr>
+                                  <th style="width: 13%" scope="col" class="text-center">
+                                    STT
+                                  </th>
+                                  <th style="width: 59%" scope="col">Tên</th>
+                                  <th style="width: 28%" scope="col" class="text-center">
+                                    Tác vụ
+                                  </th>
+                                </tr>
+                              </thead>
+                              <tbody id="scrollElementTable" class="scrollElement">
+                                <tr class="element" [attr.data-element]="ele.id" *ngFor="
+                                    let ele of elementTableRender;
+                                    let i = index
+                                  " (click)="focusTableElement(ele.id)">
+                                  <td style="width: 13%" class="text-center">
+                                    <a class="text-dark font-weight-bold text-truncate text-width">
+                                      {{ i + 1 }}
+                                    </a>
+                                  </td>
+                                  <td style="width: 59%">
+                                    <a class="text-dark f- text-truncate text-width">{{ ele.id }}</a>
+                                  </td>
+                                  <td class="text-center" style="width: 28%">
+                                    <button class="btn btn-icon btn-rounded btn-sm m-r-5" data-toggle="tooltip"
+                                      data-placement="bottom" title="Chỉnh sửa" type="button" data-toggle="modal"
+                                      data-target="#modalTableEdit" (click)="openModalTableEdit(ele.id)">
+                                      <i class="anticon anticon-edit"></i>
+                                    </button>
+                                    <button class="btn btn-icon btn-rounded btn-sm m-r-5" data-toggle="tooltip"
+                                      data-placement="bottom" title="Coppy" type="button"
+                                      (click)="coppyDataTable(ele.id)">
+                                      <i class="anticon anticon-copy"></i>
+                                    </button>
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="tab-pane fade" id="preview" role="tabpanel" aria-labelledby="preview-tab">
+              <app-iframe-content [context]="reactiveForm.get('Context')?.value" [isReadOnly]="true">
+              </app-iframe-content>
+            </div>
+          </div>
+        </div>
+      </form>
+    </ng-container>
+  </div>
+</div>
+<app-modal-input #popup [model]="respone" [isVisible]="showpopup" [typeInputInsert]="typeInput_"></app-modal-input>
+<app-modal-input-edit #popupEdit [isVisible]="showModalEdit" (submitModel)="submitModel()" [isEdit]="isEdit"
+  [identity]="identity" (onHideModal)="closeModalEdit($event)"></app-modal-input-edit>
+<app-modal-table-edit #popupTableEdit [isVisible]="showModalTableEdit" (submitModel)="submitModel()"
+  [identity]="identity" (onHideModal)="closeModalEdit($event)"></app-modal-table-edit>

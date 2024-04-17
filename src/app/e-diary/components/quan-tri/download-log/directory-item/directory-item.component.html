@@ -1,0 +1,52 @@
+<div class="form-group col-md-6 d-flex m-b-0">
+  <div [class]="'m-l-' + 30 * level" style="display: flex; align-items: center">
+    <div
+      style="cursor: pointer"
+      class="m-b-5 m-l-5 m-r-5"
+      (click)="onClickCollapse()"
+    >
+      <i
+        *ngIf="item.Children && item.Children.length > 0"
+        class="anticon"
+        [ngClass]="{
+          'anticon-down': !item.IsCollapse,
+          'anticon-right': item.IsCollapse
+        }"
+      ></i>
+    </div>
+    <i
+      *ngIf="item.IsDirectory == true"
+      [class]="
+        item.IsCollapse
+          ? 'anticon anticon-folder'
+          : 'anticon anticon-folder-open'
+      "
+      [ngStyle]="{ fontSize: '24px', color: '#08c' }"
+      theme="outlined"
+    ></i>
+    <i
+      *ngIf="item.IsDirectory == false"
+      class="anticon anticon-file-text"
+      [ngStyle]="{ fontSize: '18px' }"
+    ></i>
+
+    <i class="bi bi-folder bi-4x"></i>
+
+    <div class="border-0 p-2">
+      <a [routerLink]="[]" (click)="downloadFileFromChild(item)">
+        {{ item.Name }}
+      </a>
+    </div>
+  </div>
+</div>
+<div
+  *ngIf="item.Children && item.Children.length > 0 && !item.IsCollapse"
+  [class]="'collapse show'"
+>
+  <app-directory-item
+    *ngFor="let child of item.Children | filter : searchText"
+    [item]="child"
+    [level]="level + 1"
+    [isParentCollapsed]="isParentCollapsed"
+  ></app-directory-item>
+</div>

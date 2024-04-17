@@ -1,0 +1,78 @@
+<app-error-page
+  [isNotPermission]="
+    lstFunctionCode && !lstFunctionCode.includes(FunctionCode.DISPLAY)
+  "
+></app-error-page>
+<div
+  *ngIf="lstFunctionCode && lstFunctionCode.includes(FunctionCode.DISPLAY)"
+  class="card"
+>
+  <div *ngIf="loading">
+    <div class="loading-overlay">
+      <div class="loading-spinner"></div>
+    </div>
+  </div>
+  <div class="card-body">
+    <ng-container style="height: 100%">
+      <div class="row">
+        <div class="col-lg-12 text-right">
+          <a
+            class="btn btn-primary m-r-10"
+            [routerLink]="editForm(formMauDetail.Id)"
+          >
+            <i class="anticon anticon-edit"></i>
+            Sửa
+          </a>
+          <button
+            type="submit"
+            class="btn btn-danger m-r-10"
+            (click)="onConfirmDel(formMauDetail)"
+          >
+            <i class="anticon anticon-delete"></i>
+            Xóa
+          </button>
+          <a class="btn btn-secondary" [routerLink]="backToList()">
+            <i class="anticon anticon-rollback"></i>
+            Thoát
+          </a>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group col-md-4">
+          <label>Tên</label>
+          <div class="form-control" readonly>{{ formMauDetail.Name }}</div>
+        </div>
+        <div class="form-group col-md-4">
+          <label>Trạng thái</label>
+          <div *ngIf="!formMauDetail.IsActive" class="form-control" readonly>
+            Không hoạt động
+          </div>
+          <div *ngIf="formMauDetail.IsActive" class="form-control" readonly>
+            Hoạt động
+          </div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group col-md-8">
+          <label>Ghi chú</label>
+          <textarea
+            rows="2"
+            formControlName="Note"
+            class="form-control"
+            [attr.readonly]="true"
+            >{{ formMauDetail.Note }}</textarea
+          >
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group col-md-12">
+          <label class="form-label font-weight-bold">Giao diện form</label>
+          <app-iframe-content
+            [context]="this.formMauDetail.Context"
+            [isReadOnly]="true"
+          ></app-iframe-content>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+</div>

@@ -1,0 +1,629 @@
+<div class="modal fade show" id="EquipmentModal" #EquipmentModal>
+  <div class="modal-dialog modal-xl">
+    <!-- Create & Edit -->
+    <div
+      class="modal-content"
+      *ngIf="
+        functionCode == FunctionCode.CREATE || functionCode == FunctionCode.EDIT
+      "
+    >
+      <div class="modal-header justify-content-between align-items-center">
+        <h5 class="modal-title">
+          {{ !model || !model.Id ? "Thêm mới " : "Cập nhật " }} thiết bị
+        </h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          (click)="onHide()"
+        >
+          <i class="anticon anticon-close"></i>
+        </button>
+      </div>
+      <div class="modal-body scrollable">
+        <form [formGroup]="reactiveForm" (ngSubmit)="onSubmit()">
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="Name">Tên <span class="text-danger">*</span></label>
+              <input
+                type="text"
+                class="form-control"
+                id="Name"
+                placeholder="Nhập tên"
+                formControlName="Name"
+                [(ngModel)]="model.Name"
+                maxlength="100"
+                [ngClass]="{ 'is-invalid': submitted && f.Name.errors }"
+                required
+              />
+              <div *ngIf="submitted && f.Name.errors" class="invalid-feedback">
+                <div *ngIf="f.Name.errors.required">Không được trống</div>
+                <div *ngIf="f.Name.errors.maxlength">Tối đa 100 ký tự</div>
+              </div>
+            </div>
+            <div class="form-group col-md-6">
+              <label for="Name">Mã <span class="text-danger">*</span></label>
+              <input
+                type="text"
+                class="form-control"
+                id="Code"
+                placeholder="Nhập mã"
+                formControlName="Code"
+                [(ngModel)]="model.Code"
+                maxlength="100"
+                [ngClass]="{ 'is-invalid': submitted && f.Code.errors }"
+                (ngModelChange)="onChangeCode()"
+                required
+              />
+              <div *ngIf="submitted && f.Code.errors" class="invalid-feedback">
+                <div *ngIf="f.Code.errors.required">Không được trống</div>
+                <div *ngIf="f.Code.errors.maxlength">Tối đa 100 ký tự</div>
+              </div>
+            </div>
+            <div class="form-group col-md-6">
+              <label for="ParentId">Thiết bị cha</label>
+              <ng-select
+                [searchable]="true"
+                formControlName="ParentId"
+                dropdownPosition="bottom"
+                id="ParentId"
+                [(ngModel)]="model.ParentId"
+                placeholder="Chọn thiết bị cha"
+                notFoundText="{{ ngSelectMessage.NotFound }}"
+                (change)="onChangeParentId()"
+              >
+                <ng-option *ngFor="let item of lstParent" [value]="item.Id">
+                  {{ item.BreadcrumbName }}
+                </ng-option>
+              </ng-select>
+            </div>
+
+            <div class="form-group col-md-6">
+              <label class="form-label">Nhà máy</label>
+              <ng-select
+                [readonly]="model.ParentId"
+                [items]="lstOrg"
+                [searchable]="true"
+                bindLabel="BreadcrumbName"
+                bindValue="Id"
+                formControlName="OrganizationId"
+                [(ngModel)]="model.OrganizationId"
+                dropdownPosition="bottom"
+                placeholder="Chọn nhà máy"
+                notFoundText="{{ ngSelectMessage.NotFound }}"
+              >
+              </ng-select>
+            </div>
+            <div class="form-group col-md-6">
+              <label for="IsActive">Trạng thái</label>
+              <select
+                class="form-select form-control"
+                aria-label=".form-select-lg"
+                id="IsActive"
+                formControlName="IsActive"
+                [(ngModel)]="model.IsActive"
+                [ngClass]="{ 'is-invalid': submitted && f.IsActive.errors }"
+              >
+                <option [ngValue]="true" selected>Hoạt động</option>
+                <option [ngValue]="false">Không hoạt động</option>
+              </select>
+              <div
+                *ngIf="submitted && f.IsActive.errors"
+                class="invalid-feedback"
+              >
+                <div *ngIf="f.IsActive.errors.required">Không được trống</div>
+              </div>
+            </div>
+
+            <div class="form-group col-md-6">
+              <label for="txtNote" class="form-label">Ghi chú</label>
+              <textarea
+                rows="3"
+                formControlName="Note"
+                class="form-control"
+                id="txtNote"
+                placeholder="Ghi chú"
+                [(ngModel)]="model.Note"
+                maxlength="1000"
+                [ngClass]="{ 'is-invalid': submitted && f.Note.errors }"
+              ></textarea>
+              <div *ngIf="submitted && f.Note.errors" class="invalid-feedback">
+                <div *ngIf="f.Note.errors?.maxlength">
+                  Ghi chú nhập tối đa 1000 ký tự
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-12 m-b-0">
+              <div>
+                <label class="form-label font-weight-bold"
+                  >Danh sách thông số</label
+                >
+                <button
+                  type="button"
+                  class="btn btn-primary btn-sm float-right"
+                  (click)="onAddTag()"
+                  title="Thêm"
+                >
+                  <i class="anticon anticon-plus-circle"></i>
+                  Thêm
+                </button>
+              </div>
+              <div
+                *ngIf="submitted && f?.EquipmentTags.errors"
+                class="invalid-feedback d-block"
+              >
+                <div *ngIf="f?.EquipmentTags?.errors?.duplicate">
+                  Tên Thông số bị trùng
+                </div>
+              </div>
+              <div class="dataTables_wrapper dt-bootstrap4 no-footer">
+                <ng-container formArrayName="EquipmentTags">
+                  <div class="table-responsive">
+                    <table
+                      class="table table-hover table-bordered e-commerce-table"
+                    >
+                      <thead>
+                        <tr>
+                          <th
+                            scope="col"
+                            class="text-center align-middle"
+                            [width]="'6%'"
+                          >
+                            STT
+                          </th>
+                          <th scope="col" class="align-middle" [width]="'20%'">
+                            Thông số
+                          </th>
+                          <th scope="col" class="align-middle" [width]="'10%'">
+                            ĐVT
+                          </th>
+                          <th scope="col" class="text-right" [width]="'14%'">
+                            Chặn dưới
+                          </th>
+                          <th scope="col" class="text-right" [width]="'14%'">
+                            Chặn trên
+                          </th>
+                          <th scope="col" class="text-right" [width]="'14%'">
+                            Cảnh báo dưới
+                          </th>
+                          <th scope="col" class="text-right" [width]="'14%'">
+                            Cảnh báo trên
+                          </th>
+                          <th
+                            scope="col"
+                            class="text-center align-middle"
+                            [width]="'50px'"
+                          ></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr
+                          *ngFor="
+                            let form of equipmentTagForms.controls;
+                            let indexOfelement = index
+                          "
+                          [formGroup]="form"
+                        >
+                          <td class="text-center">
+                            {{ indexOfelement + 1 }}
+                          </td>
+                          <td>
+                            <ng-select
+                              [searchable]="true"
+                              [appendTo]="'body'"
+                              id="selectTagId"
+                              [(ngModel)]="
+                                model.EquipmentTags[indexOfelement].TagId
+                              "
+                              (change)="SelectTagChangeHandler(indexOfelement)"
+                              placeholder="Chọn thông số"
+                              notFoundText="{{ ngSelectMessage.NotFound }}"
+                              formControlName="TagId"
+                              dropdownPosition="bottom"
+                              [ngClass]="{
+                                'is-invalid':
+                                  submitted && form.controls.TagId.errors
+                              }"
+                            >
+                              <ng-option
+                                *ngFor="let item of lstTag"
+                                [value]="item.Id"
+                              >
+                                {{ item.Name }}
+                              </ng-option>
+                            </ng-select>
+                            <div
+                              *ngIf="submitted && form.controls.TagId.errors"
+                              class="invalid-feedback d-block"
+                            >
+                              <div *ngIf="form.controls.TagId.errors.required">
+                                Không được trống
+                              </div>
+                            </div>
+                          </td>
+                          <td>
+                            {{ model.EquipmentTags[indexOfelement].UnitName }}
+                          </td>
+                          <td colspan="2">
+                            <nouislider
+                              [config]="sliderConfig"
+                              formControlName="SliderBlock"
+                              [(ngModel)]="
+                                model.EquipmentTags[indexOfelement].SliderBlock
+                              "
+                              (change)="
+                                onChangeSliderBlock($event, indexOfelement)
+                              "
+                            ></nouislider>
+                            <div class="input-group">
+                              <div class="w-50">
+                                <input
+                                  type="number"
+                                  class="form-control"
+                                  placeholder="Chặn dưới"
+                                  aria-label="Chặn dưới"
+                                  [(ngModel)]="
+                                    model.EquipmentTags[indexOfelement]
+                                      .MinBlocking
+                                  "
+                                  max="99999"
+                                  (change)="
+                                    onChangeInputMinBlock(indexOfelement)
+                                  "
+                                  formControlName="MinBlocking"
+                                  [ngClass]="{
+                                    'is-invalid':
+                                      submitted &&
+                                      form.controls.MinBlocking.errors
+                                  }"
+                                />
+                                <div
+                                  *ngIf="
+                                    submitted &&
+                                    form.controls.MinBlocking.errors
+                                  "
+                                  class="invalid-feedback d-block"
+                                >
+                                  <div
+                                    *ngIf="
+                                      form.controls.MinBlocking.errors.required
+                                    "
+                                  >
+                                    Không được trống
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="w-50">
+                                <input
+                                  type="number"
+                                  class="form-control"
+                                  placeholder="Chặn trên"
+                                  aria-label="Chặn trên"
+                                  [(ngModel)]="
+                                    model.EquipmentTags[indexOfelement]
+                                      .MaxBlocking
+                                  "
+                                  (change)="
+                                    onChangeInputMaxBlock(indexOfelement)
+                                  "
+                                  formControlName="MaxBlocking"
+                                  [ngClass]="{
+                                    'is-invalid':
+                                      submitted &&
+                                      form.controls.MaxBlocking.errors
+                                  }"
+                                />
+                                <div
+                                  *ngIf="
+                                    submitted &&
+                                    form.controls.MaxBlocking.errors
+                                  "
+                                  class="invalid-feedback d-block"
+                                >
+                                  <div
+                                    *ngIf="
+                                      form.controls.MaxBlocking.errors.required
+                                    "
+                                  >
+                                    Không được trống
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                          <td colspan="2">
+                            <nouislider
+                              [config]="sliderConfig"
+                              [(ngModel)]="
+                                model.EquipmentTags[indexOfelement].SliderWarn
+                              "
+                              (change)="
+                                onChangeSliderWarning($event, indexOfelement)
+                              "
+                              formControlName="SliderWarn"
+                            ></nouislider>
+
+                            <div class="input-group">
+                              <div class="w-50">
+                                <input
+                                  type="number"
+                                  class="form-control"
+                                  [(ngModel)]="
+                                    model.EquipmentTags[indexOfelement]
+                                      .MinWarning
+                                  "
+                                  id="min-warn"
+                                  placeholder="Cảnh báo dưới"
+                                  aria-label="Cảnh báo dưới"
+                                  (change)="
+                                    onChangeInputMinWarning(indexOfelement)
+                                  "
+                                  formControlName="MinWarning"
+                                  [ngClass]="{
+                                    'is-invalid':
+                                      submitted &&
+                                      form.controls.MinWarning.errors
+                                  }"
+                                />
+                                <div
+                                  *ngIf="
+                                    submitted && form.controls.MinWarning.errors
+                                  "
+                                  class="invalid-feedback d-block"
+                                >
+                                  <div
+                                    *ngIf="
+                                      form.controls.MinWarning.errors.required
+                                    "
+                                  >
+                                    Không được trống
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="w-50">
+                                <input
+                                  type="number"
+                                  class="form-control"
+                                  [(ngModel)]="
+                                    model.EquipmentTags[indexOfelement]
+                                      .MaxWarning
+                                  "
+                                  id="max-warn"
+                                  placeholder="Cảnh báo trên"
+                                  aria-label="Cảnh báo trên"
+                                  (change)="
+                                    onChangeInputMaxWarning(indexOfelement)
+                                  "
+                                  formControlName="MaxWarning"
+                                  [ngClass]="{
+                                    'is-invalid':
+                                      submitted &&
+                                      form.controls.MaxWarning.errors
+                                  }"
+                                />
+                                <div
+                                  *ngIf="
+                                    submitted && form.controls.MaxWarning.errors
+                                  "
+                                  class="invalid-feedback d-block"
+                                >
+                                  <div
+                                    *ngIf="
+                                      form.controls.MaxWarning.errors.required
+                                    "
+                                  >
+                                    Không được trống
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                          <td class="text-center align-middle text-nowrap">
+                            <button
+                              type="button"
+                              class="btn btn-icon btn-hover btn-sm btn-rounded"
+                              (click)="onDeleteTag(indexOfelement)"
+                              title="Xóa"
+                            >
+                              <i class="anticon anticon-delete"></i>
+                            </button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </ng-container>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="submit"
+          *ngIf="lstFunctionCode && lstFunctionCode.includes(functionCode)"
+          class="btn btn-primary"
+          (click)="onSubmit()"
+        >
+          Lưu
+        </button>
+        <button
+          (click)="onHide()"
+          id="closeModalButton"
+          class="btn btn-secondary"
+          data-dismiss="modal"
+        >
+          Đóng
+        </button>
+      </div>
+    </div>
+    <!--// -->
+
+    <!-- Display -->
+    <div class="modal-content" *ngIf="functionCode == FunctionCode.DISPLAY">
+      <div class="modal-header justify-content-between align-items-center">
+        <h5 class="modal-title">Chi tiết thiết bị</h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          (click)="onHide()"
+        >
+          <i class="anticon anticon-close"></i>
+        </button>
+      </div>
+      <div class="modal-body scrollable">
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="Name">Tên thiết bị</label>
+            <input
+              type="text"
+              class="form-control"
+              id="Name"
+              [(ngModel)]="model.Name"
+              readonly
+            />
+          </div>
+          <div class="form-group col-md-6">
+            <label for="Code">Mã thiết bị</label>
+            <input
+              type="text"
+              class="form-control"
+              id="Code"
+              [(ngModel)]="model.Code"
+              readonly
+            />
+          </div>
+          <div class="form-group col-md-6">
+            <label for="ParentId">Thiết bị cha</label>
+            <input
+              type="text"
+              class="form-control"
+              id="ParentId"
+              [(ngModel)]="model.ParentName"
+              readonly
+            />
+          </div>
+          <div class="form-group col-md-6">
+            <label for="ParentId">Nhà máy</label>
+            <input
+              type="text"
+              class="form-control"
+              id="ParentId"
+              [(ngModel)]="model.OrganizationBreadcrumbName"
+              readonly
+            />
+          </div>
+          <div class="form-group col-md-6">
+            <label for="IsActive">Trạng thái</label>
+            <input
+              type="text"
+              class="form-control"
+              id="IsActive"
+              [(ngModel)]="dislayIsActive"
+              readonly
+            />
+          </div>
+
+          <div class="form-group col-md-6">
+            <label for="txtNote" class="form-label">Ghi chú</label>
+            <textarea
+              rows="1"
+              class="form-control"
+              id="txtNote"
+              [(ngModel)]="model.Note"
+              readonly
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-md-12">
+            <label class="form-label font-weight-bold"
+              >Danh sách thông số</label
+            >
+            <div class="dataTables_wrapper dt-bootstrap4 no-footer">
+              <div class="table-responsive">
+                <table
+                  class="table table-hover table-bordered e-commerce-table"
+                >
+                  <thead>
+                    <tr>
+                      <th class="text-center" [width]="'6%'">STT</th>
+                      <th class="text-center" [width]="'20%'">Thông số</th>
+                      <th class="text-center" [width]="'12%'">ĐVT</th>
+                      <th class="text-right" [width]="'12%'">Chặn dưới</th>
+                      <th class="text-right" [width]="'12%'">Chặn trên</th>
+                      <th class="text-right" [width]="'12%'">Cảnh báo dưới</th>
+                      <th class="text-right" [width]="'12%'">Cảnh báo trên</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr
+                      *ngFor="
+                        let item of model.EquipmentTags;
+                        let indexOfelement = index
+                      "
+                    >
+                      <td class="text-right">
+                        {{ indexOfelement + 1 }}
+                      </td>
+                      <td>
+                        {{ item.TagName }}
+                      </td>
+                      <td>
+                        {{ item.UnitName }}
+                      </td>
+                      <td class="text-right">
+                        {{ item.MinBlocking }}
+                      </td>
+                      <td class="text-right">
+                        {{ item.MaxBlocking }}
+                      </td>
+                      <td class="text-right">
+                        {{ item.MinWarning }}
+                      </td>
+                      <td class="text-right">
+                        {{ item.MaxWarning }}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button
+          *ngIf="lstFunctionCode && lstFunctionCode.includes(FunctionCode.EDIT)"
+          class="btn btn-primary"
+          (click)="onEdit()"
+        >
+          Sửa
+        </button>
+        <button
+          *ngIf="
+            lstFunctionCode && lstFunctionCode.includes(FunctionCode.DELETE)
+          "
+          class="btn btn-danger btn-delete-left"
+          (click)="onDelete()"
+        >
+          Xóa
+        </button>
+        <button
+          (click)="onHide()"
+          id="closeModalButton"
+          class="btn btn-secondary"
+          data-dismiss="modal"
+        >
+          Đóng
+        </button>
+      </div>
+    </div>
+    <!--// -->
+  </div>
+</div>

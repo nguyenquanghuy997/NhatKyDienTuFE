@@ -1,0 +1,130 @@
+<!-- <div class="card-header"> -->
+<div>
+  <div class="form-row m-t-10 m-b-10">
+    <div class="form-group col-md-6 d-flex m-b-0">
+      <div [class]="'m-l-' + 20 * level" class="d-flex m-b-0">
+        <!-- Index -->
+        <div class="m-b-0" style="min-width: 50px">
+          <div *ngIf="STT" class="form-control border-0 m-l-5 p-r-0">
+            <dt>
+              {{ STT }}
+            </dt>
+          </div>
+        </div>
+
+        <!-- icon cụp xòe  -->
+        <div class="m-b-0 m-l-5" style="width: 20px">
+          <a
+            *ngIf="model.Childs && model.Childs.length > 0"
+            data-toggle="collapse"
+            style="cursor: pointer"
+            class="form-control border-0 p-r-0 p-l-0"
+            (click)="onClickCollapse(!model.IsCollapse)"
+          >
+            <i *ngIf="model.IsCollapse" class="anticon anticon-down"></i>
+            <i *ngIf="!model.IsCollapse" class="anticon anticon-right"></i>
+          </a>
+          <a
+            *ngIf="!model.Childs || model.Childs.length == 0"
+            style="cursor: pointer"
+            class="form-control border-0 p-r-0 p-l-0"
+          >
+            <!-- <i class="anticon anticon-minus"></i> -->
+          </a>
+        </div>
+
+        <!-- icon checkbox -->
+        <div class="m-b-0" style="width: 50px">
+          <div
+            class="checkbox form-control border-0"
+            (click)="onClickCheckbox(!model.IsGranted)"
+          >
+            <!-- đang uncheck, click thì thành check -->
+            <!-- đang trong childs có check, click thì thành check -->
+            <!-- đang check, click thì thành uncheck -->
+            <input
+              type="checkbox"
+              [checked]="model.IsGranted"
+              [indeterminate]="
+                model.IsExistChildGranted == true && !model.IsGranted
+              "
+              onclick=" return false;"
+            />
+            <label for="checkbox"></label>
+          </div>
+        </div>
+
+        <!-- Tên feature / function -->
+        <div class="m-b-0">
+          <span *ngIf="model.FunctionCode" class="form-control border-0">
+            <!-- Nếu có tên Function thì hiển thị FunctionCode. Nếu ko có thì hiển thị FeatureName -->
+            {{ model.FunctionCode }} -
+            {{ model.FunctionName }}
+          </span>
+          <span *ngIf="!model.FunctionCode" class="form-control border-0">
+            <!-- Nếu có tên Function thì hiển thị FunctionCode. Nếu ko có thì hiển thị FeatureName -->
+            <dt>
+              {{ model.FeatureName }}
+            </dt>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chọn Rule -->
+    <div
+      class="form-group col-md-4 m-b-0"
+      [class]="'ml-n' + 20 * level"
+      *ngIf="!model.Childs || model.Childs.length == 0"
+    >
+      <span class="form-control border-0">
+        <a [routerLink]="[]" (click)="onClickRuleName(model.RuleId)">
+          {{ model.RuleName }}
+        </a>
+        <span class="badge badge-pill badge-purple"
+          ><a
+            [routerLink]="['/admins/rule']"
+            [queryParams]="buildQueryParamsForRuleLink(model)"
+            *ngIf="model.RuleName"
+            class="anticon anticon-edit"
+            data-toggle="tooltip"
+            data-placement="top"
+            title="Đến trang chỉnh sửa"
+          ></a
+        ></span>
+      </span>
+      <!-- <select class="form-control w-100" [(ngModel)]="model.RuleId">
+        <option *ngFor="let rule of lstRule" [ngValue]="rule.Id">{{ rule.Name }}</option>
+      </select> -->
+    </div>
+  </div>
+
+  <!-- Nếu có bản ghi childs -->
+  <div
+    *ngIf="model.Childs && model.Childs.length > 0"
+    [class]="model.IsCollapse ? 'collapse show' : 'collapse'"
+  >
+    <div class="p-t-0 p-b-0">
+      <div class="accordion">
+        <div
+          class="card"
+          *ngFor="let item of model.Childs; let indexOfelement = index"
+        >
+          <!-- Đệ quy lại chính nó để buid tree -->
+          <app-permission-tree
+            [model]="item"
+            [parentModel]="model"
+            [lstRule]="lstRule"
+            (onSetCheckboxForParent)="setCheckboxForParent(model)"
+            (onShowModalRule)="onShowModalRuleFromChild($event)"
+            class="card-header"
+            [STT]="item.Childs ? STT + '.' + (indexOfelement + 1) : ''"
+            [level]="level + 1"
+          ></app-permission-tree>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Không có bản ghi childs nào thì thôi -->
+</div>
+<!-- </div> -->

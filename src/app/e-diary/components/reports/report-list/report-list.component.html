@@ -1,0 +1,57 @@
+<app-error-page [isNotPermission]="
+    lstFunctionCode && !lstFunctionCode.includes(FunctionCode.VIEW)
+  "></app-error-page>
+
+<div *ngIf="lstFunctionCode && lstFunctionCode.includes(FunctionCode.VIEW)" class="card">
+    <div *ngIf="loading">
+        <div class="loading-overlay">
+            <div class="loading-spinner"></div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="accordion" id="accordion-default">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">
+                        <a data-toggle="collapse" href="#collapseOneDefault">
+                            <span>Báo cáo SMOV</span>
+                        </a>
+                    </h5>
+                </div>
+                <div id="collapseOneDefault" class="collapse show" data-parent="#accordion-default">
+                    <div class="card-body">
+                        <app-report-smov></app-report-smov>
+                    </div>
+                </div>
+            </div>
+            <!-- <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">
+                    <a class="collapsed" data-toggle="collapse" href="#collapseTwoDefault">
+                        <span>Collapsible Group Item #2</span>
+                    </a>
+                </h5>
+            </div>
+            <div id="collapseTwoDefault" class="collapse" data-parent="#accordion-default">
+                <div class="card-body">
+                    ...
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">
+                    <a class="collapsed" data-toggle="collapse" href="#collapseThreeDefault">
+                        <span>Collapsible Group Item #3</span>
+                    </a>
+                </h5>
+            </div>
+            <div id="collapseThreeDefault" class="collapse" data-parent="#accordion-default">
+                <div class="card-body">
+                    ...
+                </div>
+            </div>
+        </div> -->
+        </div>
+    </div>
+</div>

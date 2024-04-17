@@ -1,0 +1,20 @@
+.card {
+    border-left: 0;
+    border-right: 0;
+}
+
+.accordion>.card .card-body {
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.accordion>.card:last-of-type {
+    border-bottom: 0;
+}
+
+.checkbox input[type=checkbox]:indeterminate+label:before {
+  background: #3f87f5;
+  border-color: #3f87f5;
+  color: #fff;
+  content: "\e079"
+}

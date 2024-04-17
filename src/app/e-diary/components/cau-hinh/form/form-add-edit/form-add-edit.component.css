@@ -1,0 +1,49 @@
+
+::ng-deep .custom-p {
+  min-height: 0px;
+  padding: 0.55rem 1rem;
+  height: auto;
+  color: #228b22 !important;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  text-align: center;
+}
+::ng-deep .custom-heading {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+::ng-deep .custom-paragraph {
+  margin-bottom: 10px;
+}
+
+.element {
+  border: 1px solid transparent;
+}
+
+.element.focus td {
+  border-top: unset;
+}
+
+#listElements .card-body {
+  border: 1px solid #edf2f9;
+  border-radius: 6px;
+  /* position: -webkit-sticky;
+  position: sticky;
+  top: 90px; */
+}
+
+#listElements .card-body .scrollElement {
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: 320px;
+}
+#listElements .card-body .scrollElement .text-width {
+  max-width: 100%;
+  display: inline-block;
+}
+
+#listElements .card-body {
+  position: sticky;
+  top: 128px;
+}

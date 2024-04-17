@@ -1,0 +1,178 @@
+<div class="modal fade" id="modalVerifyTOTP">
+  <button
+    id="openModalVerifyTOTPButton"
+    [hidden]="true"
+    data-toggle="modal"
+    data-target="#modalVerifyTOTP"
+  >
+    Open Modal
+  </button>
+  <div class="modal-dialog modal-lg">
+    <!-- Create -->
+    <!-- Không cho chỉnh URL -->
+    <!-- Có "Nghiệp vụ" => tự động sinh URL -->
+    <!-- Không "Nghiệp vụ" => clear URL -->
+    <div class="modal-content">
+      <div class="modal-header justify-content-between align-items-center">
+        <h5 class="modal-title">Giao nhận ca</h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          (click)="onHide()"
+        >
+          <i class="anticon anticon-close"></i>
+        </button>
+      </div>
+      <div class="modal-body scrollable">
+        <form [formGroup]="popupForm" (ngSubmit)="onSubmit()">
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="InchargeUser_Name" class="d-flex font-weight-bold"
+                >Ca hiện tại</label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="InchargeUser_Name"
+                readonly
+                value="{{ model.ShiftName }} ({{
+                  model.StartDTG | date : 'dd/MM/YYYY HH:mm'
+                }} - {{ model.EndDTG | date : 'HH:mm' }})"
+              />
+            </div>
+            <div class="form-group col-md-6">
+              <label for="InchargeUser_Name" class="d-flex font-weight-bold"
+                >Ca tiếp theo</label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="InchargeUser_Name"
+                readonly
+                value="{{ memberNhanCaDefault.ShiftName }} ({{
+                  memberNhanCaDefault.StartDTG | date : 'dd/MM/yyyy HH:mm'
+                }} - {{ memberNhanCaDefault.EndDTG | date : 'HH:mm' }})"
+              />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="InchargeUser_Name">Người phụ trách</label>
+              <input
+                type="text"
+                class="form-control"
+                id="InchargeUser_Name"
+                readonly
+                value="{{ model.InchargeUsername }} - {{
+                  model.InchargeUser_Name
+                }}"
+              />
+            </div>
+
+            <div class="form-group col-md-6">
+              <label for="NhanCaUser">
+                Người phụ trách
+                <span class="text-danger">*</span>
+              </label>
+              <ng-select
+                [searchable]="true"
+                placeholder="Chọn nghiệp vụ"
+                formControlName="UserIdNhanCa"
+                dropdownPosition="bottom"
+                [(ngModel)]="VerifyTOTPNhanCa.UserId"
+                [ngClass]="{
+                  'is-invalid': submitted && f.UserIdNhanCa.errors
+                }"
+              >
+                <ng-option *ngFor="let user of lstUserNhanCa" [value]="user.Id">
+                  {{ user.Username }} - {{ user.Name }}
+                </ng-option>
+              </ng-select>
+              <div
+                *ngIf="submitted && f.UserIdNhanCa.errors"
+                class="invalid-feedback d-block"
+              >
+                <div *ngIf="f.UserIdNhanCa.errors.required">
+                  Không được trống
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="col-md-6">
+              <label for="TOTPGiaoCa">
+                {{ HasOTP ? "Mã TOTP" : "Mật khẩu" }}
+                <span class="text-danger">*</span></label
+              >
+              <input
+                [type]="HasOTP ? 'text' : 'password'"
+                class="form-control"
+                id="TOTPGiaoCa"
+                [placeholder]="HasOTP ? 'TOTP' : 'Mật khẩu'"
+                formControlName="TOTPGiaoCa"
+                [(ngModel)]="VerifyTOTPGiaoCa.TOTP"
+                maxlength="100"
+                [ngClass]="{
+                  'is-invalid': submitted && f.TOTPGiaoCa.errors
+                }"
+                required
+              />
+              <div
+                *ngIf="submitted && f.TOTPGiaoCa.errors"
+                class="invalid-feedback d-block"
+              >
+                <div *ngIf="f.TOTPGiaoCa.errors.required">Không được trống</div>
+                <div *ngIf="f.TOTPGiaoCa.errors.maxlength">
+                  Tối đa 100 ký tự
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label for="TOTPNhanCa"
+                >{{ HasOTP ? "Mã TOTP" : "Mật khẩu" }}
+                <span class="text-danger">*</span></label
+              >
+              <input
+                [type]="HasOTP ? 'text' : 'password'"
+                class="form-control"
+                id="TOTPNhanCa"
+                [placeholder]="HasOTP ? 'TOTP' : 'Mật khẩu'"
+                formControlName="TOTPNhanCa"
+                [(ngModel)]="VerifyTOTPNhanCa.TOTP"
+                maxlength="100"
+                [ngClass]="{
+                  'is-invalid': submitted && f.TOTPNhanCa.errors
+                }"
+                required
+              />
+              <div
+                *ngIf="submitted && f.TOTPNhanCa.errors"
+                class="invalid-feedback"
+              >
+                <div *ngIf="f.TOTPNhanCa.errors.required">Không được trống</div>
+                <div *ngIf="f.TOTPNhanCa.errors.maxlength">
+                  Tối đa 100 ký tự
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-primary" (click)="onSubmit()">
+          Xác thực
+        </button>
+        <button
+          (click)="onHide()"
+          id="closeModalVerifyTOTPButton"
+          class="btn btn-secondary"
+          data-dismiss="modal"
+        >
+          Đóng
+        </button>
+      </div>
+    </div>
+    <!--// -->
+  </div>
+</div>

@@ -1,0 +1,372 @@
+<div class="modal fade" id="RefTypeModal" #RefTypeModal>
+  <div class="modal-dialog modal-lg">
+    <!-- Create & Edit -->
+    <div
+      class="modal-content"
+      *ngIf="
+        functionCode == FunctionCode.CREATE || functionCode == FunctionCode.EDIT
+      "
+    >
+      <div class="modal-header justify-content-between align-items-center">
+        <h5 class="modal-title">
+          {{ !model || !model.Id ? "Thêm mới " : "Cập nhật " }} nghiệp vụ
+        </h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          (click)="onHide()"
+        >
+          <i class="anticon anticon-close"></i>
+        </button>
+      </div>
+      <div class="modal-body scrollable">
+        <form [formGroup]="popupForm" (ngSubmit)="onSubmit()">
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="txtName"
+                >Tên <span class="text-danger">*</span></label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="txtName"
+                placeholder="Nhập tên"
+                formControlName="Name"
+                [(ngModel)]="model.Name"
+                maxlength="100"
+                [ngClass]="{ 'is-invalid': submitted && f.Name.errors }"
+                required
+              />
+              <div *ngIf="submitted && f.Name.errors" class="invalid-feedback">
+                <div *ngIf="f.Name.errors.required">Không được trống</div>
+                <div *ngIf="f.Name.errors.maxlength">Tối đa 100 ký tự</div>
+              </div>
+            </div>
+            <div class="form-group col-md-6">
+              <label for="FormId" class="form-label">Màn hình động</label>
+              <ng-select
+                [searchable]="true"
+                formControlName="FormId"
+                id="FormId"
+                placeholder="Chọn màn hình động"
+                dropdownPosition="bottom"
+                [(ngModel)]="model.FormId"
+                notFoundText="{{ ngSelectMessage.NotFound }}"
+              >
+                <ng-option *ngFor="let item of lstForm" [value]="item.Id">
+                  {{ item.Name }}
+                </ng-option>
+              </ng-select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="ParentId">Nghiệp vụ cha</label>
+              <ng-select
+                [searchable]="true"
+                formControlName="ParentId"
+                id="ParentId"
+                placeholder="Chọn nghiệp vụ cha"
+                [(ngModel)]="model.ParentId"
+                notFoundText="{{ ngSelectMessage.NotFound }}"
+                dropdownPosition="bottom"
+                (change)="onChangeParentId()"
+              >
+                <ng-option *ngFor="let item of lstParent" [value]="item.Id">
+                  {{ item.Name }}
+                </ng-option>
+              </ng-select>
+            </div>
+            <div class="form-group col-md-6">
+              <label for="ShiftCategoryId">Loại ca</label>
+              <ng-select
+                [readonly]="model.ParentId"
+                [searchable]="true"
+                formControlName="ShiftCategoryId"
+                id="ShiftCategoryId"
+                placeholder="Chọn loại ca"
+                [(ngModel)]="model.ShiftCategoryId"
+                dropdownPosition="bottom"
+                notFoundText="{{ ngSelectMessage.NotFound }}"
+              >
+                <ng-option
+                  *ngFor="let item of lstShiftCategory"
+                  [value]="item.Id"
+                >
+                  {{ item.Name }}
+                </ng-option>
+              </ng-select>
+            </div>
+          </div>
+
+          <div class="form-row" *ngIf="model.ParentId">
+            <div class="form-group col-md-6">
+              <label for="hasCA">Ký số</label>
+              <input
+                type="text"
+                class="form-control"
+                id="hasCA"
+                formControlName="HasCA"
+                [(ngModel)]="displayHasCA"
+                readonly
+              />
+            </div>
+
+            <div class="form-group col-md-6">
+              <label for="hasOTP">Xác thực OTP</label>
+              <input
+                formControlName="HasCA"
+                type="text"
+                class="form-control"
+                id="hasOTP"
+                formControlName="HasOTP"
+                [(ngModel)]="displayHasOTP"
+                readonly
+              />
+            </div>
+          </div>
+
+          <div class="form-row" *ngIf="!model.ParentId">
+            <div class="form-group col-md-6">
+              <label for="hasCA"
+                >Ký số <span class="text-danger">*</span></label
+              >
+              <select
+                class="form-select form-control"
+                aria-label=".form-select-lg"
+                id="hasCA"
+                formControlName="HasCA"
+                [(ngModel)]="model.HasCA"
+                [ngClass]="{ 'is-invalid': submitted && f.HasCA.errors }"
+              >
+                <option [ngValue]="true" selected>Có</option>
+                <option [ngValue]="false">Không</option>
+              </select>
+              <div *ngIf="submitted && f.HasCA.errors" class="invalid-feedback">
+                <div *ngIf="f.HasCA.errors.required">Không được trống</div>
+              </div>
+            </div>
+
+            <div class="form-group col-md-6">
+              <label for="hasOTP"
+                >Xác thực OTP <span class="text-danger">*</span></label
+              >
+              <select
+                class="form-select form-control"
+                aria-label=".form-select-lg"
+                id="hasOTP"
+                formControlName="HasOTP"
+                [(ngModel)]="model.HasOTP"
+                [ngClass]="{ 'is-invalid': submitted && f.HasOTP.errors }"
+              >
+                <option [ngValue]="true" selected>Có</option>
+                <option [ngValue]="false">Không</option>
+              </select>
+              <div
+                *ngIf="submitted && f.HasOTP.errors"
+                class="invalid-feedback"
+              >
+                <div *ngIf="f.HasOTP.errors.required">Không được trống</div>
+              </div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="flowId" class="form-label">Luồng phê duyệt</label>
+              <ng-select
+                [searchable]="true"
+                formControlName="FlowId"
+                id="flowId"
+                placeholder="Chọn luồng phê duyệt"
+                [(ngModel)]="model.FlowId"
+                dropdownPosition="bottom"
+                notFoundText="{{ ngSelectMessage.NotFound }}"
+              >
+                <ng-option *ngFor="let item of lstFlow" [value]="item.Id">
+                  {{ item.Name }}
+                </ng-option>
+              </ng-select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-12">
+              <label for="txtNote" class="form-label">Ghi chú</label>
+              <textarea
+                rows="3"
+                formControlName="Note"
+                class="form-control"
+                id="txtNote"
+                placeholder="Ghi chú"
+                [(ngModel)]="model.Note"
+                maxlength="1000"
+                [ngClass]="{ 'is-invalid': submitted && f.Note.errors }"
+              ></textarea>
+              <div *ngIf="submitted && f.Note.errors" class="invalid-feedback">
+                <div *ngIf="f.Note.errors?.[maxlength]">Tối đa 1000 ký tự</div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="submit"
+          *ngIf="lstFunctionCode && lstFunctionCode.includes(functionCode)"
+          class="btn btn-primary"
+          (click)="onSubmit()"
+        >
+          Lưu
+        </button>
+        <button
+          (click)="onHide()"
+          id="closeModalButton"
+          class="btn btn-secondary"
+          data-dismiss="modal"
+        >
+          Đóng
+        </button>
+      </div>
+    </div>
+    <!--// -->
+
+    <!-- Display -->
+    <div class="modal-content" *ngIf="functionCode == FunctionCode.DISPLAY">
+      <div class="modal-header justify-content-between align-items-center">
+        <h5 class="modal-title">Chi tiết nghiệp vụ</h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          (click)="onHide()"
+        >
+          <i class="anticon anticon-close"></i>
+        </button>
+      </div>
+      <div class="modal-body scrollable">
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="txtName">Tên</label>
+            <input
+              type="text"
+              class="form-control"
+              id="txtName"
+              [(ngModel)]="model.Name"
+              readonly
+            />
+          </div>
+          <div class="form-group col-md-6">
+            <label for="form" class="form-label">Màn hình động</label>
+            <input
+              type="text"
+              class="form-control"
+              id="form"
+              [(ngModel)]="model.FormName"
+              readonly
+            />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="IsShiftDuty">Nghiệp vụ cha</label>
+            <input
+              type="text"
+              class="form-control"
+              id="IsShiftDuty"
+              [(ngModel)]="model.ParentName"
+              readonly
+            />
+          </div>
+
+          <div class="form-group col-md-6">
+            <label for="ShiftCategoryName">Loại ca</label>
+            <input
+              type="text"
+              class="form-control"
+              id="ShiftCategoryName"
+              [(ngModel)]="model.ShiftCategoryName"
+              readonly
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="hasCA">Ký số</label>
+            <input
+              type="text"
+              class="form-control"
+              id="hasCA"
+              [(ngModel)]="displayHasCA"
+              readonly
+            />
+          </div>
+
+          <div class="form-group col-md-6">
+            <label for="hasOTP">Xác thực OTP</label>
+            <input
+              type="text"
+              class="form-control"
+              id="hasOTP"
+              [(ngModel)]="displayHasOTP"
+              readonly
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="flow" class="form-label">Luồng phê duyệt</label>
+            <input
+              type="text"
+              class="form-control"
+              id="flow"
+              [(ngModel)]="model.FlowName"
+              readonly
+            />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group col-md-12">
+            <label for="txtNote" class="form-label">Ghi chú</label>
+            <textarea
+              rows="3"
+              class="form-control"
+              id="txtNote"
+              [(ngModel)]="model.Note"
+              readonly
+            ></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button
+          *ngIf="lstFunctionCode && lstFunctionCode.includes(FunctionCode.EDIT)"
+          class="btn btn-primary"
+          (click)="onEdit()"
+        >
+          Sửa
+        </button>
+        <button
+          *ngIf="
+            lstFunctionCode && lstFunctionCode.includes(FunctionCode.DELETE)
+          "
+          class="btn btn-danger btn-delete-left"
+          (click)="onDelete()"
+        >
+          Xóa
+        </button>
+        <button
+          (click)="onHide()"
+          id="closeModalButton"
+          class="btn btn-secondary"
+          data-dismiss="modal"
+        >
+          Đóng
+        </button>
+      </div>
+    </div>
+    <!--// -->
+  </div>
+</div>

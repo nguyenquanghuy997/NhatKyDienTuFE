@@ -1,0 +1,232 @@
+<app-error-page
+  [isNotPermission]="
+    lstFunctionCode && !lstFunctionCode?.includes(FunctionCode.VIEW)
+  "
+></app-error-page>
+<div
+  *ngIf="lstFunctionCode && lstFunctionCode.includes(FunctionCode.VIEW)"
+  class="card"
+>
+  <div *ngIf="loading">
+    <div class="loading-overlay">
+      <div class="loading-spinner"></div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="row m-b-5">
+      <div class="col-lg-8">
+        <form nz-form [formGroup]="searchForm" (ngSubmit)="onSearch()">
+          <div class="form-group row">
+            <div class="col-md-3">
+              <label for="name">Tên</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Nhập tên thiết bị"
+                id="name"
+                formControlName="name"
+              />
+            </div>
+            <div class="col-md-3">
+              <label for="code">Mã</label>
+
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Nhập mã thiết bị"
+                id="code"
+                formControlName="code"
+              />
+            </div>
+            <div class="col-md-3">
+              <label for="status">Trạng thái</label>
+
+              <select id="status" formControlName="status" class="form-control">
+                <option selected value="-1">Tất cả</option>
+                <option [ngValue]="true">Hoạt động</option>
+                <option [ngValue]="false">Không hoạt động</option>
+              </select>
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+              <button class="btn btn-primary">
+                <i class="anticon anticon-search"></i>
+              </button>
+              <a
+                data-toggle="collapse"
+                href="#collapseExample"
+                role="button"
+                aria-expanded="false"
+                aria-controls="collapseExample"
+                class="advanced m-l-10"
+              >
+                Tìm kiếm nâng cao <i class="fa fa-angle-down"></i>
+              </a>
+            </div>
+          </div>
+          <div class="mt-1">
+            <div class="collapse" id="collapseExample">
+              <div class="form-group row">
+                <div class="col-md-3">
+                  <label for="orgId">Nhà máy</label>
+                  <ng-select
+                    [searchable]="true"
+                    formControlName="orgId"
+                    id="orgId"
+                    placeholder="Tất cả"
+                    notFoundText="{{ ngSelectMessage.NotFound }}"
+                  >
+                    <ng-option
+                      *ngFor="let item of lstOrgSearch"
+                      [value]="item.Id"
+                    >
+                      {{ item.BreadcrumbName }}
+                    </ng-option>
+                  </ng-select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div
+        class="col-lg-4 form-group"
+        *ngIf="lstFunctionCode.includes(FunctionCode.CREATE)"
+      >
+        <div class="h-100 d-flex align-items-end justify-content-end">
+          <button class="btn btn-primary" (click)="onOpenModalCreate()">
+            <i class="anticon anticon-plus-circle m-r-5"></i>
+            <span>Thêm mới</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="dataTables_wrapper dt-bootstrap4 no-footer">
+      <div class="table-responsive">
+        <table class="table table-hover table-bordered e-commerce-table">
+          <thead>
+            <tr>
+              <th class="text-center" [width]="'5%'">STT</th>
+              <th class="text-left" [width]="'15%'">Tên</th>
+              <th class="text-left" [width]="'15%'">Thiết bị cha</th>
+              <th class="text-left" [width]="'10%'">Mã</th>
+              <th class="text-left" [width]="'15%'">Nhà máy</th>
+              <th class="text-center" [width]="'10%'">Trạng thái</th>
+              <th class="text-left" [width]="'15%'">Ghi chú</th>
+              <th class="text-center" [width]="'8%'">Tác vụ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of lstEquipment; let indexOfelement = index">
+              <td class="text-center">
+                {{ (pageIndex - 1) * pageSize + indexOfelement + 1 }}
+              </td>
+              <td
+                class="text-left"
+                style="
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                  max-width: 200px;
+                  white-space: pre-wrap;
+                "
+              >
+                <a
+                  [id]="'Item_' + item.Id"
+                  [href]="'javascript:void(' + item.Id + ')'"
+                  class="text-primary"
+                  (click)="onOpenModalDisplay(item.Id)"
+                >
+                  {{ item.BreadcrumbName }}</a
+                >
+              </td>
+              <td
+                class="text-left"
+                style="
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                  max-width: 200px;
+                  white-space: pre-wrap;
+                "
+              >
+                <a
+                  class="text-primary"
+                  href="javascript:void({{ item.Id }})"
+                  (click)="onOpenModalDisplay(item.ParentId)"
+                >
+                  {{ item.ParentName }}</a
+                >
+              </td>
+              <td class="text-left text-nowrap">{{ item.Code }}</td>
+              <td class="text-left text-nowrap">
+                {{ item.OrganizationBreadcrumbName }}
+              </td>
+              <td class="text-center">
+                <span
+                  *ngIf="item.IsActive"
+                  class="badge badge-pill badge-primary font-weight-bold"
+                  >Hoạt động</span
+                >
+                <span
+                  *ngIf="!item.IsActive"
+                  class="badge badge-pill badge-secondary font-weight-bold"
+                  >Không hoạt động</span
+                >
+              </td>
+              <td
+                class="text-left"
+                style="
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                  max-width: 200px;
+                  white-space: pre-wrap;
+                "
+              >
+                {{ item.Note }}
+              </td>
+              <td class="text-center">
+                <button
+                  class="btn btn-icon btn-hover btn-sm btn-rounded pull-right"
+                  data-toggle="tooltip"
+                  title="Sửa"
+                  *ngIf="lstFunctionCode.includes(FunctionCode.EDIT)"
+                  (click)="onOpenModalUpdate(item.Id)"
+                >
+                  <i class="anticon anticon-edit"></i>
+                </button>
+                <button
+                  class="btn btn-icon btn-hover btn-sm btn-rounded"
+                  data-toggle="tooltip"
+                  title="Xóa"
+                  *ngIf="lstFunctionCode.includes(FunctionCode.DELETE)"
+                  (click)="onDeleteModal(item)"
+                >
+                  <i class="anticon anticon-delete"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <app-pagination
+        [pageIndex]="pageIndex"
+        [totalItem]="totalItem"
+        [pageSize]="pageSize"
+        [pageCount]="pageCount"
+        (onChangePagination)="changePagination($event)"
+      >
+      </app-pagination>
+      <app-nodata-info [totalItem]="totalItem"> </app-nodata-info>
+    </div>
+  </div>
+
+  <app-equipment-modal
+    #popup
+    [model]="respone"
+    [functionCode]="functionCode"
+    [lstFunctionCode]="lstFunctionCodePopup"
+    (onSubmitModal)="onSubmitModal($event)"
+    (onHideModal)="onHideModal()"
+    (onEditModal)="onEditModal($event)"
+    (onDeleteModal)="onDeleteModal($event)"
+  ></app-equipment-modal>
+</div>

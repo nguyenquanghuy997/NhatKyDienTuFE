@@ -1,0 +1,184 @@
+<app-error-page
+  [isNotPermission]="
+    lstFunctionCode && !lstFunctionCode.includes(FunctionCode.EDIT)
+  "
+></app-error-page>
+
+<div
+  *ngIf="lstFunctionCode && lstFunctionCode.includes(FunctionCode.EDIT)"
+  class="card"
+>
+  <div *ngIf="loading">
+    <div class="loading-overlay">
+      <div class="loading-spinner"></div>
+    </div>
+  </div>
+  <div class="card-header p-t-5 p-b-5">
+    <div class="form-row">
+      <div class="col-lg-12 text-right">
+        <button
+          *ngIf="lstFunctionCode.includes(FunctionCode.EDIT)"
+          type="submit"
+          class="btn btn-primary m-r-5"
+          (click)="onSaveDiary()"
+        >
+          <i class="anticon anticon-save"></i>
+          Lưu
+        </button>
+        <a
+          class="btn btn-secondary"
+          [routerLink]="[
+            '/processform/reftype',
+            RefTypeModel.Id,
+            'chi-tiet',
+            id
+          ]"
+        >
+          <i class="anticon anticon-rollback"></i>
+          Thoát
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="card-body">
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+      <li class="nav-item">
+        <a
+          class="nav-link"
+          id="common-tab"
+          data-toggle="tab"
+          href="#common"
+          role="tab"
+          aria-controls="common"
+          aria-selected="false"
+          >Thông tin chung</a
+        >
+      </li>
+      <li class="nav-item">
+        <a
+          class="nav-link active"
+          id="data-tab"
+          data-toggle="tab"
+          href="#data"
+          role="tab"
+          aria-controls="data"
+          aria-selected="true"
+          >Thông tin nhập</a
+        >
+      </li>
+    </ul>
+
+    <div class="tab-content m-t-15" id="myTabContent">
+      <!-- Thông tin chung -->
+      <div
+        class="tab-pane fade"
+        id="common"
+        role="tabpanel"
+        aria-labelledby="common-tab"
+      >
+        <!-- Thông tin -->
+        <div class="form-row">
+          <div class="form-group col-4">
+            <label>Tên <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" [(ngModel)]="item.Name" />
+          </div>
+          <div class="form-group col-4">
+            <label>Trạng thái ca trực</label>
+            <input
+              type="text"
+              class="form-control"
+              [ngClass]="
+                DicStatusStyleInput_OnShiftDuty.get(item.StatusDutyShift)
+              "
+              readonly
+              [value]="DicStatusDesc_OnShiftDuty.get(item.StatusDutyShift)"
+            />
+          </div>
+          <div class="form-group col-4" *ngIf="RefTypeModel.FlowId">
+            <label>Trạng thái phê duyệt</label>
+            <input
+              type="text"
+              class="form-control"
+              [ngClass]="DicStatusStyleInput.get(item.Status)"
+              readonly
+              [value]="DicStatusDesc.get(item.Status)"
+            />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group col-4">
+            <label>Người phụ trách</label>
+            <input
+              type="text"
+              class="form-control"
+              readonly
+              value="{{ item.InchargeUsername }} - {{ item.InchargeUser_Name }}"
+            />
+          </div>
+          <div class="form-group col-4">
+            <label>Ngày tạo</label>
+            <input
+              type="text"
+              class="form-control"
+              readonly
+              [value]="item.CreatedDTG | date : 'dd/MM/yyyy HH:mm'"
+            />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group col-4">
+            <label>Tên ca trực</label>
+            <input
+              type="text"
+              class="form-control"
+              readonly
+              [value]="item.ShiftName"
+            />
+          </div>
+          <div class="form-group col-4">
+            <label>Thời gian ca trực</label>
+            <input
+              type="text"
+              class="form-control"
+              readonly
+              [value]="computeValue(item.StartDTG, item.EndDTG)"
+            />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="col-8">
+            <label>Ghi chú</label>
+            <input
+              type="textarea"
+              class="form-control"
+              [(ngModel)]="item.Note"
+              mask="d0/M0/0000 Hh:m0:s0"
+            />
+          </div>
+        </div>
+
+        <!--// -->
+      </div>
+
+      <!-- Thông tin nhập -->
+      <div
+        class="tab-pane fade show active"
+        id="data"
+        role="tabpanel"
+        aria-labelledby="data-tab"
+      >
+        <!-- Form content -->
+        <form id="myForm">
+          <app-iframe-content
+            [context]="item.Context"
+            [isReadOnly]="false"
+            [showButtonRedirect]="false"
+            (onSetLstEquipment)="onReceiveLstEquiment($event)"
+          >
+          </app-iframe-content>
+        </form>
+        <!--// -->
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,206 @@
+<div
+  class="modal fade show"
+  id="TrucCaParentAddnewModal"
+  #TrucCaParentAddnewModal
+>
+  <div class="modal-dialog modal-lg">
+    <!-- Create -->
+    <div class="modal-content" *ngIf="functionCode == FunctionCode.CREATE">
+      <div class="modal-header justify-content-between align-items-center">
+        <h5 class="modal-title">Thêm mới bản ghi</h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          (click)="onHide()"
+        >
+          <i class="anticon anticon-close"></i>
+        </button>
+      </div>
+      <div class="modal-body scrollable">
+        <form [formGroup]="popupForm" (ngSubmit)="onSubmit()">
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="StartDTG"
+                >Ngày <span class="text-danger">*</span></label
+              >
+
+              <input
+                id="StartDTG"
+                formControlName="StartDTG"
+                class="form-select form-control"
+                [ngClass]="{ 'is-invalid': submitted && f.StartDTG.errors }"
+                placeholdDer="Chọn ngày"
+                name="dp"
+                [(ngModel)]="model.StartDTG"
+                bsDatepicker
+                #d="bsDatepicker"
+                [bsConfig]="bsConfig"
+                [(bsValue)]="selectedDateValue"
+                (ngModelChange)="onStartDTGChange()"
+              />
+
+              <div
+                *ngIf="submitted && f.StartDTG.errors"
+                class="invalid-feedback"
+              >
+                <div *ngIf="f.StartDTG.errors.required">Không được trống</div>
+              </div>
+            </div>
+            <div class="form-group col-md-6">
+              <label for="ShiftId"
+                >Ca trực <span class="text-danger">*</span></label
+              >
+              <div
+                *ngIf="submitted && f.ShiftId.errors"
+                class="invalid-feedback"
+              >
+                <div *ngIf="f.ShiftId.errors.required">Không được trống</div>
+              </div>
+
+              <ng-select
+                [searchable]="true"
+                dropdownPosition="bottom"
+                formControlName="ShiftId"
+                id="ShiftId"
+                [(ngModel)]="model.ShiftId"
+                (change)="onShiftIdChange($event)"
+                placeholder="Chọn ca trực"
+                notFoundText="{{ ngSelectMessage.NotFound }}"
+                [appendTo]="'body'"
+                [ngClass]="{
+                  'is-invalid':
+                    f.ShiftId.errors && (f.ShiftId.touched || f.ShiftId.dirty)
+                }"
+              >
+                <ng-option *ngFor="let item of lstShiftModel" [value]="item.Id">
+                  {{ item.Name }} ({{ item.StartDTG | date : "HH:mm" }} -
+                  {{ item?.EndDTG | date : "HH:mm" }})
+                </ng-option>
+              </ng-select>
+              <div
+                *ngIf="
+                  f.ShiftId.errors && (f.ShiftId.touched || f.ShiftId.dirty)
+                "
+                class="error-feedback"
+              >
+                <div *ngIf="f.ShiftId.errors.required">
+                  Ca trực không được trống
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-12">
+              <label for="txtNote" class="form-label">Ghi chú</label>
+              <textarea
+                rows="3"
+                formControlName="Note"
+                class="form-control"
+                id="txtNote"
+                placeholder="Ghi chú"
+                [(ngModel)]="model.Note"
+                maxlength="1000"
+                [ngClass]="{ 'is-invalid': submitted && f.Note.errors }"
+              ></textarea>
+              <div *ngIf="submitted && f.Note.errors" class="invalid-feedback">
+                <div *ngIf="f.Note.errors?.[maxlength]">Tối đa 1000 ký tự</div>
+              </div>
+            </div>
+          </div>
+        </form>
+
+        <div class="form-row" *ngIf="shiftSelected">
+          <div class="form-group col-md-12">
+            <label for="txtNote" class="form-label">Thành viên ca trực</label>
+            <div class="dataTables_wrapper dt-bootstrap4 no-footer">
+              <div class="table-responsive">
+                <table
+                  class="table table-hover table-bordered e-commerce-table"
+                >
+                  <thead>
+                    <tr>
+                      <th
+                        scope="col"
+                        class="text-center align-middle"
+                        [width]="'30px'"
+                      >
+                        STT
+                      </th>
+                      <th scope="col" class="align-middle">Chức danh</th>
+                      <th scope="col" class="align-middle">Nghiệp vụ</th>
+                      <th scope="col" class="align-middle">Thành viên</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr
+                      *ngFor="
+                        let item of lstMemberChild;
+                        let indexOfelement = index
+                      "
+                    >
+                      <td>
+                        {{ indexOfelement + 1 }}
+                      </td>
+                      <td>
+                        {{ item.JobTitleName }}
+                      </td>
+                      <td>
+                        <span
+                          *ngFor="
+                            let refType of item.RefTypes;
+                            let refTypeIndex = index
+                          "
+                        >
+                          {{ refType.Name }}
+                          <br *ngIf="refTypeIndex != item.RefTypes.length" />
+                        </span>
+                      </td>
+                      <td>
+                        <ng-select
+                          [searchable]="true"
+                          placeholder="Chọn người dùng"
+                          dropdownPosition="bottom"
+                          notFoundText="{{ ngSelectMessage.NotFound }}"
+                          [appendTo]="'body'"
+                          [(ngModel)]="item.UserId"
+                        >
+                          <ng-option
+                            *ngFor="let user of lstUser"
+                            [value]="user.Id"
+                            [selected]="user.Id == item.UserId"
+                          >
+                            {{ user.Username }} - {{ user.Name }}
+                          </ng-option>
+                        </ng-select>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="submit"
+          *ngIf="lstFunctionCode && lstFunctionCode.includes(functionCode)"
+          class="btn btn-primary"
+          (click)="onSubmit()"
+        >
+          Lưu
+        </button>
+        <button
+          (click)="onHide()"
+          id="closeModalButton"
+          class="btn btn-secondary"
+        >
+          Đóng
+        </button>
+      </div>
+    </div>
+    <!--// -->
+  </div>
+</div>

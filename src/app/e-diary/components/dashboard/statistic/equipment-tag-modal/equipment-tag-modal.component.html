@@ -1,0 +1,176 @@
+<div class="modal fade show" #myModalSuggest>
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header justify-content-between align-items-center">
+        <h5 class="modal-title">Thống kê số liệu</h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+          (click)="onHide()"
+        >
+          <i class="anticon anticon-close"></i>
+        </button>
+      </div>
+      <div class="modal-body scrollable">
+        <div class="dataTables_wrapper dt-bootstrap4 no-footer">
+          <form [formGroup]="searchForm" (ngSubmit)="onSearch()">
+            <div class="form-group row">
+              <div class="col-md-3">
+                <label for="Equipment" class="form-label">Thiết bị</label>
+                <ng-select
+                  [items]="listEquipment"
+                  [searchable]="true"
+                  bindLabel="BreadcrumbName"
+                  bindValue="Id"
+                  formControlName="Equipment"
+                  (change)="onSelectChangeEquipement($event)"
+                  (clear)="onClearEquipment()"
+                  dropdownPosition="bottom"
+                >
+                </ng-select>
+              </div>
+
+              <div class="col-md-3">
+                <label for="EquipmentTagId" class="form-label"
+                  >Thông số thiết bị</label
+                >
+                <ng-select
+                  [searchable]="true"
+                  formControlName="EquipmentTagId"
+                  (change)="onSelectChangeTag($event)"
+                  (clear)="onClearTag()"
+                  dropdownPosition="bottom"
+                >
+                  <ng-option *ngFor="let option of lstTag" [value]="option.Id">
+                    {{ option.TagName }}
+                  </ng-option>
+                </ng-select>
+              </div>
+
+              <div class="col-md-3">
+                <label for="rangeDate">Thời gian</label>
+                <input
+                  type="text"
+                  placeholder="Daterangepicker"
+                  class="form-control"
+                  [bsConfig]="{
+                    keepDatepickerOpened: true,
+                    rangeInputFormat: 'DD/MM/YYYY',
+                    dateInputFormat: 'DD/MM/YYYY'
+                  }"
+                  bsDaterangepicker
+                  [(bsValue)]="selectedDateValue"
+                  formControlName="rangeDate"
+                />
+              </div>
+              <div class="col-md-3 d-flex align-items-end">
+                <button class="btn btn-primary m-r-5">
+                  <i class="anticon anticon-search"></i>
+                </button>
+              </div>
+            </div>
+          </form>
+          <div class="table-data table-responsive">
+            <div class="d-flex flex-row m-t-10 m-b-10">
+              <div>
+                Thống kê thiết bị: <span class="bg-warning">{{ label }}</span
+                >.
+              </div>
+              <div>
+                &nbsp;Thời gian từ:
+                <span class="bg-warning"
+                  >{{ dateFromSearch }} - {{ dateToSearch }}</span
+                >
+              </div>
+            </div>
+            <div class="chart-wrapper">
+              <canvas #myChart></canvas>
+            </div>
+            <div class="d-flex flex-row m-t-10" *ngIf="totalItem > 0">
+              <div class="p-2 bg-warning rounded m-r-5 m-b-10"></div>
+              <div class="m-b-10 m-r-5">Ngoài khoảng cảnh báo</div>
+              <div class="p-2 bg-danger rounded m-b-10 m-r-5"></div>
+              <div class="m-b-10">Ngoài giá trị chặn trên/dưới</div>
+            </div>
+            <table
+              id="dtDynamicVerticalScroll"
+              class="table table-hover table-bordered e-commerce-table"
+            >
+              <thead>
+                <tr>
+                  <th class="text-center" [width]="'5%'">STT</th>
+                  <th class="text-left" [width]="'20%'">Thiết bị</th>
+                  <th class="text-left" [width]="'15%'">Thông số</th>
+                  <th class="text-center" [width]="'15%'">Ca trực</th>
+                  <th class="text-center" [width]="'15%'">Người phụ trách</th>
+                  <th class="text-center" [width]="'15%'">Thời gian</th>
+                  <th class="text-right" [width]="'15%'">Giá trị</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of lstData; let indexOfelement = index">
+                  <td class="text-center">{{ indexOfelement + 1 }}</td>
+                  <td class="text-left">
+                    {{ item.equipmentName }}
+                  </td>
+                  <td class="text-left">
+                    {{ item.equipmentTagName }}
+                  </td>
+                  <td class="text-left">
+                    <a
+                      [routerLink]="['/Search/nhat-ky/chi-tiet/']"
+                      [queryParams]="{
+                        id: item.Id,
+                        refTypeId: item.RefTypeId
+                      }"
+                    >
+                      {{ item.Name }}</a
+                    >
+                  </td>
+                  <td class="text-left">{{ item.InchargeUser_Name }}</td>
+                  <td class="text-center">
+                    {{ item.timeFollowStr }}
+                  </td>
+                  <td class="text-right">
+                    <div
+                      *ngIf="
+                        !(
+                          item.value >= item.minWarn &&
+                          item.value <= item.maxWarn &&
+                          item.minWarn != null &&
+                          item.maxWarn != null
+                        )
+                      "
+                    >
+                      <span class="bg-warning"> {{ item.value }}</span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <app-nodata-info [totalItem]="totalItem"> </app-nodata-info>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="submit"
+          class="btn btn-primary"
+          (click)="redirectStatistic()"
+        >
+          Đến màn hình thống kê
+        </button>
+        <button
+          type="button"
+          class="btn btn-secondary"
+          data-dismiss="modal"
+          (click)="onHide()"
+        >
+          Đóng
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

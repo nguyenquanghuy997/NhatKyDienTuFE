@@ -1,0 +1,30 @@
+export interface ThuocTinhFormModel {
+  // Id: number;
+  // Name?: string;
+  chisoThietBi?: number;
+  Width?: number;
+  Value?: number;
+  Placeholder?: string;
+  Format?: string;
+  Rows?: number;
+  TagName?: string;
+  TagCode?: string;
+  Tooltip?: string;
+  minValue?: number;
+  maxValue?: number;
+  DonViTinh?: string;
+  typeInput?: string;
+  MinBlocking?: number;
+  MaxBlocking?: number;
+  MinWarning?: number;
+  MaxWarning?: number;
+  EquipmentId?: number;
+  EquipmentTagId?: number;
+  TimeFollow?: Date;
+  EquipmentName?: string;
+  EquipmentTagName?: string;
+  EquipmentCode?: string;
+  OrganizationId?: number;
+  TagId?: number;
+  Values?: [];
+}

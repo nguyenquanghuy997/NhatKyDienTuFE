@@ -1,0 +1,159 @@
+<div class="modal" id="modalChangePasss" #modalChangePasss>
+  <div class="modal-dialog modal-md modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header justify-content-between align-items-center">
+        <h5 class="modal-title">Đổi mật khẩu</h5>
+        <button
+          type="button"
+          class="close"
+          (click)="hideModal()"
+        >
+          <i class="anticon anticon-close"></i>
+        </button>
+      </div>
+      <div class="modal-body scrollable">
+        <div class="m-b-5">
+          <form [formGroup]="reactiveForm">
+            <div class="form-group">
+              <label for="formGroupExampleInput">Tài khoản</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Tài khoản"
+                [(ngModel)]="model.Username"
+                readonly
+                formControlName="Username"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="formGroupExampleInput"
+                >Mật khẩu hiện tại <span class="text-danger">*</span></label
+              >
+              <div class="input-affix m-b-10">
+                <input
+                  [type]="isShowOldPass == true ? 'text' : 'password'"
+                  class="form-control"
+                  placeholder="Mật khẩu hiện tại"
+                  [(ngModel)]="model.OldPassword"
+                  formControlName="OldPassword"
+                  [ngClass]="{
+                    'is-invalid': submitted && control.OldPassword.errors
+                  }"
+                />
+                <i
+                  class="suffix-icon anticon anticon-eye"
+                  (mousedown)="onMouseDownShowOldPass()"
+                  (mouseup)="onMouseUpHideOldPass()"
+                  (mouseout)="onMouseOutHideOldPass()"
+                ></i>
+              </div>
+              <div
+                *ngIf="submitted && control.OldPassword.errors"
+                class="invalid-feedback d-block"
+              >
+                <div *ngIf="control.OldPassword.errors.required">
+                  Mật khẩu hiện tại là bắt buộc
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="formGroupExampleInput"
+                >Mật khẩu mới <span class="text-danger">*</span></label
+              >
+              <div class="input-affix m-b-10">
+                <input
+                  [type]="isShowNewPass == true ? 'text' : 'password'"
+                  class="form-control"
+                  placeholder="Mật khẩu mới"
+                  [(ngModel)]="model.NewPassword"
+                  formControlName="NewPassword"
+                  [ngClass]="{
+                    'is-invalid': submitted && control.NewPassword.errors
+                  }"
+                />
+                <i
+                  class="suffix-icon anticon anticon-eye"
+                  (mousedown)="onMouseDownShowNewPass()"
+                  (mouseup)="onMouseUpHideNewPass()"
+                  (mouseout)="onMouseOutHideNewPass()"
+                ></i>
+              </div>
+              <div
+                *ngIf="submitted && control.NewPassword.errors"
+                class="invalid-feedback d-block"
+              >
+                <div *ngIf="control.NewPassword.errors.required">
+                  Mật khẩu mới là bắt buộc
+                </div>
+                <div *ngIf="control.NewPassword.errors.maxlength">
+                  Mật khẩu mới nhập tối đa 100 ký tự
+                </div>
+                <div *ngIf="control.NewPassword.errors.pattern">
+                  Mật khẩu mới phải chứa ít nhất một số, một chữ hoa và một chữ
+                  thường và ít nhất 8 ký tự
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="formGroupExampleInput"
+                >Nhập lại mật khẩu mới <span class="text-danger">*</span></label
+              >
+              <div class="input-affix m-b-10">
+                <input
+                  [type]="isShowReNewPass == true ? 'text' : 'password'"
+                  class="form-control"
+                  placeholder="Nhập lại mật khẩu mới"
+                  [(ngModel)]="model.ReNewPassword"
+                  formControlName="ReNewPassword"
+                  [ngClass]="{
+                    'is-invalid': submitted && control.ReNewPassword.errors
+                  }"
+                />
+                <i
+                  class="suffix-icon anticon anticon-eye"
+                  (mousedown)="onMouseDownShowReNewPass()"
+                  (mouseup)="onMouseUpHideReNewPass()"
+                  (mouseout)="onMouseOutHideReNewPass()"
+                ></i>
+              </div>
+              <div
+                *ngIf="submitted && control.ReNewPassword.errors"
+                class="invalid-feedback d-block"
+              >
+                <div *ngIf="control.ReNewPassword.errors.required">
+                  Nhập lại mật khẩu mới là bắt buộc
+                </div>
+                <div *ngIf="control.ReNewPassword.errors.maxlength">
+                  Nhập lại mật khẩu nhập mới tối đa 100 ký tự
+                </div>
+                <div *ngIf="control.ReNewPassword.errors.pattern">
+                  Mật khẩu mới phải chứa ít nhất một số, một chữ hoa và một chữ
+                  thường và ít nhất 8 ký tự
+                </div>
+                <div *ngIf="control.ReNewPassword.errors.confirmedValidator">
+                  Nhập lại mật khẩu mới không khớp
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-primary" (click)="submitModal()">
+          Đổi mật khẩu
+        </button>
+        <button
+          id="closeModalButton"
+          type="button"
+          class="btn btn-default m-r-10"
+          (click)="hideModal()"
+        >
+          Đóng
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

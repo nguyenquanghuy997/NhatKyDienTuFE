@@ -1,0 +1,33 @@
+<app-error-page
+  [isNotPermission]="
+    lstFunctionCode && !lstFunctionCode?.includes(FunctionCode.VIEW)
+  "
+></app-error-page>
+<ng-container
+  *ngIf="lstFunctionCode && lstFunctionCode?.includes(FunctionCode.VIEW)"
+>
+  <!-- Ca trực - Parent -->
+  <app-truc-ca-parent-edit
+    #trucCaParent
+    *ngIf="
+      refTypeModel && refTypeModel.ShiftCategoryId && !refTypeModel.ParentId
+    "
+    [RefTypeModel]="refTypeModel"
+  ></app-truc-ca-parent-edit>
+
+  <!-- Ca trực -->
+  <app-truc-ca-edit
+    #trucCa
+    *ngIf="
+      refTypeModel && refTypeModel.ShiftCategoryId && refTypeModel.ParentId
+    "
+    [RefTypeModel]="refTypeModel"
+  ></app-truc-ca-edit>
+
+  <!-- Phiếu lệnh -->
+  <app-phieu-lenh-edit
+    #phieuLenh
+    *ngIf="refTypeModel && !refTypeModel.ShiftCategoryId"
+    [RefTypeModel]="refTypeModel"
+  ></app-phieu-lenh-edit>
+</ng-container>

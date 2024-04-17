@@ -1,0 +1,7 @@
+.glyphicon-calendar {
+  font-size: 15pt;
+}
+::ng-deep .highlighted-text {
+  color: #228b22 !important;
+  font-weight: bold;
+}

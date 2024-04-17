@@ -1,0 +1,431 @@
+<div class="modal" id="FlowModal" #FlowModal>
+  <div class="modal-dialog modal-lg">
+    <!-- Create & Edit -->
+    <div
+      class="modal-content"
+      *ngIf="
+        functionCode == FunctionCode.CREATE || functionCode == FunctionCode.EDIT
+      "
+    >
+      <div class="modal-header justify-content-between align-items-center">
+        <h5 class="modal-title">
+          {{ !model || !model.Id ? "Thêm mới " : "Cập nhật " }} luồng phê duyệt
+        </h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          (click)="onHide()"
+        >
+          <i class="anticon anticon-close"></i>
+        </button>
+      </div>
+      <div class="modal-body scrollable">
+        <form [formGroup]="popupForm" (ngSubmit)="onSubmit()">
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="Name">Tên <span class="text-danger">*</span></label>
+              <input
+                type="text"
+                class="form-control"
+                id="Name"
+                placeholder="Nhập tên"
+                formControlName="Name"
+                [(ngModel)]="model.Name"
+                maxlength="100"
+                [ngClass]="{ 'is-invalid': submitted && f.Name.errors }"
+                required
+              />
+              <div *ngIf="submitted && f.Name.errors" class="invalid-feedback">
+                <div *ngIf="f.Name.errors.required">Không được trống</div>
+                <div *ngIf="f.Name.errors.maxlength">Tối đa 100 ký tự</div>
+              </div>
+            </div>
+            <div class="form-group col-md-6">
+              <label for="IsActive">Trạng thái</label>
+              <select
+                class="form-select form-control"
+                aria-label=".form-select-lg"
+                id="IsActive"
+                formControlName="IsActive"
+                [(ngModel)]="model.IsActive"
+                [ngClass]="{ 'is-invalid': submitted && f.IsActive.errors }"
+              >
+                <option [ngValue]="true" selected>Hoạt động</option>
+                <option [ngValue]="false">Không hoạt động</option>
+              </select>
+              <div
+                *ngIf="submitted && f.IsActive.errors"
+                class="invalid-feedback"
+              >
+                <div *ngIf="f.IsActive.errors.required">Không được trống</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-12">
+              <label for="txtNote" class="form-label">Ghi chú</label>
+              <textarea
+                rows="2"
+                formControlName="Note"
+                class="form-control"
+                id="txtNote"
+                placeholder="Ghi chú"
+                [(ngModel)]="model.Note"
+                maxlength="1000"
+                [ngClass]="{ 'is-invalid': submitted && f.Note.errors }"
+              ></textarea>
+              <div *ngIf="submitted && f.Note.errors" class="invalid-feedback">
+                <div *ngIf="f.Note.errors?.[maxlength]">Tối đa 1000 ký tự</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-12 m-b-0">
+              <div>
+                <label class="form-label font-weight-bold"
+                  >Danh sách bước duyệt
+                  <span class="text-danger">*</span></label
+                >
+                <button
+                  type="button"
+                  class="btn btn-primary btn-sm float-right"
+                  data-toggle="tooltip"
+                  data-placement="top"
+                  title="Thêm"
+                  (click)="onAddFlowActive()"
+                >
+                  <i class="anticon anticon-plus-circle m-r-5"></i>
+                  <span>Thêm</span>
+                </button>
+              </div>
+              <div
+                *ngIf="submitted && f?.FlowActives?.errors"
+                class="invalid-feedback d-block"
+              >
+                <div *ngIf="f?.FlowActives?.errors?.duplicate">
+                  Tên bước bị trùng
+                </div>
+              </div>
+              <div class="dataTables_wrapper dt-bootstrap4 no-footer">
+                <ng-container formArrayName="FlowActives">
+                  <div class="table-responsive" style="max-height: 50vh;">
+                    <table
+                      class="table table-hover table-bordered e-commerce-table"
+                    >
+                      <thead>
+                        <tr>
+                          <th
+                            scope="col"
+                            class="text-center align-middle"
+                            [width]="'30px'"
+                          >
+                            STT
+                          </th>
+                          <th scope="col" class="align-middle">
+                            Tên bước <span class="text-danger">*</span>
+                          </th>
+                          <th scope="col" class="align-middle">Mô tả</th>
+                          <th scope="col" class="align-middle" [width]="'35%'">
+                            Quyền dữ liệu <span class="text-danger">*</span>
+                          </th>
+                          <th
+                            scope="col"
+                            class="text-center align-middle"
+                            [width]="'50px'"
+                          ></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr
+                          *ngFor="
+                            let flowActiveForm of flowActiveForms.controls;
+                            let i = index
+                          "
+                          [formGroup]="flowActiveForm"
+                        >
+                          <td class="text-center">
+                            {{ i + 1 }}
+                          </td>
+                          <td>
+                            <input
+                              type="text"
+                              [id]="'flowActiveName_' + i"
+                              placeholder="Nhập tên bước"
+                              class="w-100 form-control"
+                              maxlength="100"
+                              required
+                              formControlName="Name"
+                              [(ngModel)]="model.FlowActives[i].Name"
+                              [ngClass]="{
+                                'is-invalid':
+                                  submitted &&
+                                  flowActiveForm.controls.Name.errors
+                              }"
+                            />
+                            <div
+                              *ngIf="
+                                submitted && flowActiveForm.controls.Name.errors
+                              "
+                              class="invalid-feedback"
+                            >
+                              <div
+                                *ngIf="
+                                  flowActiveForm.controls.Name.errors.required
+                                "
+                              >
+                                Không được trống
+                              </div>
+                              <div
+                                *ngIf="
+                                  flowActiveForm.controls.Name.errors.maxlength
+                                "
+                              >
+                                Tối đa 100 ký tự
+                              </div>
+                            </div>
+                          </td>
+                          <td>
+                            <input
+                              type="text"
+                              [id]="'flowActiveNote_' + i"
+                              placeholder="Nhập mô tả"
+                              class="w-100 form-control"
+                              maxlength="200"
+                              formControlName="Note"
+                              [(ngModel)]="model.FlowActives[i].Note"
+                              [ngClass]="{
+                                'is-invalid':
+                                  submitted &&
+                                  flowActiveForm.controls.Note.errors
+                              }"
+                            />
+                            <div
+                              *ngIf="
+                                submitted && flowActiveForm.controls.Note.errors
+                              "
+                              class="invalid-feedback"
+                            >
+                              <div
+                                *ngIf="
+                                  flowActiveForm.controls.Note.errors.maxlength
+                                "
+                              >
+                                Tối đa 100 ký tự
+                              </div>
+                            </div>
+                          </td>
+                          <td>
+                            <ng-select
+                              [searchable]="true"
+                              [id]="'flowActiveRule_' + i"
+                              dropdownPosition="bottom"
+                              [appendTo]="'body'"
+                              formControlName="RuleId"
+                              notFoundText="{{ ngSelectMessage.NotFound }}"
+                              [(ngModel)]="model.FlowActives[i].RuleId"
+                              [ngClass]="{
+                                'is-invalid':
+                                  submitted &&
+                                  flowActiveForm.controls.RuleId.errors
+                              }"
+                            >
+                              <ng-option
+                                *ngFor="let rule of lstRule"
+                                [value]="rule.Id"
+                              >
+                                {{ rule.Name }}
+                              </ng-option>
+                            </ng-select>
+                            <div
+                              *ngIf="
+                                submitted &&
+                                flowActiveForm.controls.RuleId.errors
+                              "
+                              class="invalid-feedback d-block"
+                            >
+                              <div
+                                *ngIf="
+                                  flowActiveForm.controls.RuleId.errors.required
+                                "
+                              >
+                                Không được trống
+                              </div>
+                            </div>
+                          </td>
+                          <td class="text-center align-middle">
+                            <button
+                              class="btn btn-icon btn-hover btn-sm btn-rounded"
+                              data-toggle="tooltip"
+                              data-placement="top"
+                              title="Xóa"
+                              (click)="onDeleteFlowActive(i)"
+                            >
+                              <i class="anticon anticon-delete"></i>
+                            </button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </ng-container>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="submit"
+          *ngIf="lstFunctionCode && lstFunctionCode.includes(functionCode)"
+          class="btn btn-primary"
+          (click)="onSubmit()"
+        >
+          Lưu
+        </button>
+        <button
+          (click)="onHide()"
+          id="closeModalButton"
+          class="btn btn-secondary"
+          data-dismiss="modal"
+        >
+          Đóng
+        </button>
+      </div>
+    </div>
+    <!--// -->
+
+    <!-- Display -->
+    <div class="modal-content" *ngIf="functionCode == FunctionCode.DISPLAY">
+      <div class="modal-header justify-content-between align-items-center">
+        <h5 class="modal-title">Chi tiết luồng phê duyệt</h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          (click)="onHide()"
+        >
+          <i class="anticon anticon-close"></i>
+        </button>
+      </div>
+      <div class="modal-body scrollable">
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="Name">Tên</label>
+            <input
+              type="text"
+              class="form-control"
+              id="Name"
+              [(ngModel)]="model.Name"
+              readonly
+            />
+          </div>
+          <div class="form-group col-md-6">
+            <label for="IsActive" class="form-label">Trạng thái</label>
+            <input
+              type="text"
+              class="form-control"
+              id="IsActive"
+              [(ngModel)]="dislayIsActive"
+              readonly
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-md-12">
+            <label for="txtNote" class="form-label">Ghi chú</label>
+            <textarea
+              rows="2"
+              class="form-control"
+              id="txtNote"
+              [(ngModel)]="model.Note"
+              maxlength="1000"
+              readonly
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-md-12">
+            <label class="form-label font-weight-bold"
+              >Danh sách bước duyệt</label
+            >
+            <div class="dataTables_wrapper dt-bootstrap4 no-footer">
+              <div class="table-responsive">
+                <table
+                  class="table table-hover table-bordered e-commerce-table"
+                >
+                  <thead>
+                    <tr>
+                      <th
+                        scope="col"
+                        class="text-center align-middle"
+                        [width]="'30px'"
+                      >
+                        STT
+                      </th>
+                      <th scope="col" class="align-middle">Tên bước</th>
+                      <th scope="col" class="align-middle">Mô tả</th>
+                      <th scope="col" class="align-middle">Quyền dữ liệu</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr
+                      *ngFor="
+                        let item of model.FlowActives;
+                        let indexOfelement = index
+                      "
+                    >
+                      <td class="text-center">
+                        {{ indexOfelement + 1 }}
+                      </td>
+                      <td>
+                        {{ item.Name }}
+                      </td>
+                      <td>
+                        {{ item.Note }}
+                      </td>
+                      <td>
+                        {{ item.RuleName }}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button
+          *ngIf="lstFunctionCode && lstFunctionCode.includes(FunctionCode.EDIT)"
+          class="btn btn-primary"
+          (click)="onEdit()"
+        >
+          Sửa
+        </button>
+        <button
+          *ngIf="
+            lstFunctionCode && lstFunctionCode.includes(FunctionCode.DELETE)
+          "
+          class="btn btn-danger btn-delete-left"
+          (click)="onDelete()"
+        >
+          Xóa
+        </button>
+        <button
+          (click)="onHide()"
+          id="closeModalButton"
+          class="btn btn-secondary"
+          data-dismiss="modal"
+        >
+          Đóng
+        </button>
+      </div>
+    </div>
+    <!--// -->
+  </div>
+</div>

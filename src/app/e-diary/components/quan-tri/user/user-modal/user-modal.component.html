@@ -1,0 +1,563 @@
+<div class="modal" id="UserModal" #UserModal>
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div
+      class="modal-content"
+      *ngIf="
+        functionCode == FunctionCode.CREATE || functionCode == FunctionCode.EDIT
+      "
+    >
+      <div class="modal-header justify-content-between align-items-center">
+        <h5 class="modal-title">
+          {{ !model || !model.Id ? "Thêm mới " : "Cập nhật " }} người dùng
+        </h5>
+        <button type="button" class="close" (click)="onHide()">
+          <i class="anticon anticon-close"></i>
+        </button>
+      </div>
+      <div class="modal-body scrollable">
+        <div class="m-b-5">
+          <form [formGroup]="reactiveForm" (ngSubmit)="onSubmit()">
+            <div class="form-row">
+              <div class="form-group col-md-6">
+                <label for="formGroupExampleInput"
+                  >Tên đăng nhập <span class="text-danger">*</span></label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  placeholder="{{ TenantCode_ }}Tên đăng nhập"
+                  [(ngModel)]="model.Username"
+                  formControlName="Username"
+                  [ngClass]="{
+                    'is-invalid': submitted && control.Username.errors
+                  }"
+                />
+
+                <div
+                  *ngIf="submitted && control.Username.errors"
+                  class="invalid-feedback"
+                >
+                  <div *ngIf="control.Username.errors.required">
+                    Tên đăng nhập là bắt buộc
+                  </div>
+                  <div *ngIf="control.Username.errors.maxlength">
+                    Tên đăng nhập nhập tối đa 100 ký tự
+                  </div>
+                  <div *ngIf="control.Username.errors.pattern">
+                    Tên đăng nhập nhập
+                    <span *ngIf="TenantCode"
+                      >phải bắt đầu bằng "{{ TenantCode_ }}",</span
+                    >
+                    không có ký tự đặc biệt
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group col-md-6">
+                <label for="formGroupExampleInput"
+                  >Họ tên <span class="text-danger">*</span></label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  placeholder="Họ tên"
+                  [(ngModel)]="model.Name"
+                  formControlName="Name"
+                  [ngClass]="{
+                    'is-invalid': submitted && control.Name.errors
+                  }"
+                />
+
+                <div
+                  *ngIf="submitted && control.Name.errors"
+                  class="invalid-feedback"
+                >
+                  <div *ngIf="control.Name.errors.required">
+                    Họ tên là bắt buộc
+                  </div>
+                  <div *ngIf="control.Name.errors.maxlength">
+                    Họ tên nhập tối đa 100 ký tự
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row" *ngIf="!model || !model.Id">
+              <div class="form-group col-md-6">
+                <label for="formGroupExampleInput"
+                  >Mật khẩu <span class="text-danger">*</span></label
+                >
+                <div class="input-affix m-b-10">
+                  <input
+                    [type]="isShowPass == true ? 'text' : 'password'"
+                    class="form-control"
+                    placeholder="Mật khẩu"
+                    [(ngModel)]="model.Password"
+                    formControlName="Password"
+                    [ngClass]="{
+                      'is-invalid': submitted && control.Password.errors
+                    }"
+                  />
+                  <i
+                    class="suffix-icon anticon anticon-eye"
+                    (mousedown)="onMouseDownShowPass()"
+                    (mouseup)="onMouseUpHidePass()"
+                    (mouseout)="onMouseOutHidePass()"
+                  ></i>
+                </div>
+
+                <div
+                  *ngIf="submitted && control.Password.errors"
+                  class="invalid-feedback d-block"
+                >
+                  <div *ngIf="control.Password.errors.required">
+                    Mật khẩu là bắt buộc
+                  </div>
+                  <div *ngIf="control.Password.errors.maxlength">
+                    Mật khẩu nhập tối đa 100 ký tự
+                  </div>
+                  <div *ngIf="control.Password.errors.pattern">
+                    Mật khẩu phải chứa ít nhất một số, một chữ hoa và một chữ
+                    thường và ít nhất 8 ký tự
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group col-md-6">
+                <label for="formGroupExampleInput"
+                  >Nhập lại mật khẩu <span class="text-danger">*</span></label
+                >
+                <div class="input-affix m-b-10">
+                  <input
+                    [type]="isShowRePass == true ? 'text' : 'password'"
+                    class="form-control"
+                    placeholder="Nhập lại mật khẩu"
+                    [(ngModel)]="model.RePassword"
+                    formControlName="RePassword"
+                    [ngClass]="{
+                      'is-invalid': submitted && control.RePassword.errors
+                    }"
+                  />
+                  <i
+                    class="suffix-icon anticon anticon-eye"
+                    (mousedown)="onMouseDownShowRePass()"
+                    (mouseup)="onMouseUpHideRePass()"
+                    (mouseout)="onMouseOutHideRePass()"
+                  ></i>
+                </div>
+                <div
+                  *ngIf="submitted && control.RePassword.errors"
+                  class="invalid-feedback d-block"
+                >
+                  <div *ngIf="control.RePassword.errors.required">
+                    Nhập lại mật khẩu là bắt buộc
+                  </div>
+                  <div *ngIf="control.RePassword.errors.maxlength">
+                    Nhập lại mật khẩu nhập tối đa 100 ký tự
+                  </div>
+                  <div *ngIf="control.RePassword.errors.pattern">
+                    Mật khẩu phải chứa ít nhất một số, một chữ hoa và một chữ
+                    thường và ít nhất 8 ký tự
+                  </div>
+                  <div *ngIf="control.RePassword.errors.confirmedValidator">
+                    Nhập lại mật khẩu không khớp
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-md-6">
+                <label for="formGroupExampleInput">Ngày sinh</label>
+
+                <div class="input-affix">
+                  <i class="prefix-icon anticon anticon-calendar"></i>
+                  <input
+                    type="text"
+                    placeholder="Ngày sinh"
+                    class="form-control"
+                    bsDatepicker
+                    [minDate]="minDate"
+                    [maxDate]="maxDate"
+                    [bsConfig]="datePickerConfig"
+                    [(ngModel)]="model.DateOfBirth"
+                    formControlName="DateOfBirth"
+                    (ngModelChange)="onDateChange($event)"
+                  />
+                </div>
+              </div>
+
+              <div class="form-group col-md-6">
+                <label for="formGroupExampleInput">Giới tính</label>
+
+                <select
+                  class="form-select form-control"
+                  aria-label=".form-select-lg"
+                  id="Gender"
+                  formControlName="Gender"
+                  [(ngModel)]="model.Gender"
+                >
+                  <option [ngValue]="1" selected>Nam</option>
+                  <option [ngValue]="2">Nữ</option>
+                  <option [ngValue]="3">Khác</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-md-6">
+                <label for="formGroupExampleInput">Email</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  placeholder="Email"
+                  [(ngModel)]="model.Email"
+                  formControlName="Email"
+                />
+              </div>
+              <div class="form-group col-md-6">
+                <label for="formGroupExampleInput">Trạng thái </label>
+                <select
+                  class="form-select form-control"
+                  aria-label=".form-select-lg"
+                  id="IsActive"
+                  formControlName="IsActive"
+                  [(ngModel)]="model.IsActive"
+                  [ngClass]="{
+                    'is-invalid': submitted && control.IsActive.errors
+                  }"
+                >
+                  <option [ngValue]="true" selected>Hoạt động</option>
+                  <option [ngValue]="false">Không hoạt động</option>
+                </select>
+                <div
+                  *ngIf="submitted && control.IsActive.errors"
+                  class="invalid-feedback"
+                >
+                  <div *ngIf="control.IsActive.errors.required">
+                    Trạng thái là bắt buộc
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-md-12">
+                <label for="formGroupExampleInput">Ghi chú</label>
+                <textarea
+                  class="form-control"
+                  placeholder="Ghi chú"
+                  [(ngModel)]="model.Note"
+                  rows="1"
+                  formControlName="Note"
+                  [ngClass]="{
+                    'is-invalid': submitted && control.Note.errors
+                  }"
+                >
+                </textarea>
+                <div
+                  *ngIf="submitted && control.Note.errors"
+                  class="invalid-feedback"
+                >
+                  <div *ngIf="control.Note.errors.maxlength">
+                    Tối đa 1000 ký tự
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-12 m-b-0">
+                <div>
+                  <label for="formGroupExampleInput"
+                    >Danh sách vai trò <span class="text-danger">*</span></label
+                  >
+                  <button
+                    type="button"
+                    class="btn btn-primary btn-sm float-right"
+                    (click)="onAddnewRole()"
+                    data-toggle="tooltip"
+                    data-placement="top"
+                    title="Thêm"
+                  >
+                    <i class="anticon anticon-plus-circle m-r-5"></i>
+                    <span>Thêm</span>
+                  </button>
+                </div>
+                <div
+                  *ngIf="submitted && control?.UserRoles?.errors"
+                  class="invalid-feedback d-block"
+                >
+                  <div *ngIf="control?.UserRoles?.errors?.duplicate">
+                    Tên vai trò bị trùng
+                  </div>
+                </div>
+                <div class="dataTables_wrapper dt-bootstrap4 no-footer">
+                  <ng-container formArrayName="UserRoles">
+                    <div class="table-responsive" style="max-height: 50vh">
+                      <table
+                        class="table table-hover table-bordered e-commerce-table"
+                      >
+                        <thead>
+                          <tr>
+                            <th class="text-center" [width]="'5%'">STT</th>
+                            <th class="text-center" [width]="'85%'">
+                              Tên vai trò
+                            </th>
+                            <th class="text-center" [width]="'10%'">Tác vụ</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr
+                            *ngFor="
+                              let userRoleForm of userRoleForms.controls;
+                              let indexOfelement = index
+                            "
+                            [formGroup]="userRoleForm"
+                          >
+                            <td class="text-center">
+                              {{ indexOfelement + 1 }}
+                            </td>
+                            <td class="text-left">
+                              <ng-select
+                                [searchable]="true"
+                                dropdownPosition="bottom"
+                                [(ngModel)]="
+                                  model.UserRoles[indexOfelement].RoleId
+                                "
+                                notFoundText="{{ ngSelectMessage.NotFound }}"
+                                [appendTo]="'body'"
+                                formControlName="RoleId"
+                                [ngClass]="{
+                                  'is-invalid':
+                                    submitted &&
+                                    userRoleForm.controls.RoleId.errors
+                                }"
+                              >
+                                <ng-option
+                                  *ngFor="let item of lstUserRole"
+                                  [value]="item.Id"
+                                >
+                                  {{ item.Name }}
+                                </ng-option>
+                              </ng-select>
+                              <div
+                                *ngIf="
+                                  submitted &&
+                                  userRoleForm.controls.RoleId.errors
+                                "
+                                class="invalid-feedback d-block"
+                              >
+                                <div
+                                  *ngIf="
+                                    userRoleForm.controls.RoleId.errors.required
+                                  "
+                                >
+                                  Không được trống
+                                </div>
+                              </div>
+                            </td>
+
+                            <td class="text-center">
+                              <button
+                                class="btn btn-icon btn-hover btn-sm btn-rounded"
+                                (click)="onDeleteRole(indexOfelement)"
+                                data-toggle="tooltip"
+                                data-placement="top"
+                                title="Xóa"
+                              >
+                                <i class="anticon anticon-delete"></i>
+                              </button>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </ng-container>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="submit"
+          *ngIf="lstFunctionCode && lstFunctionCode.includes(functionCode)"
+          class="btn btn-primary"
+          (click)="onSubmit()"
+        >
+          Lưu
+        </button>
+        <button
+          (click)="onHide()"
+          id="closeModalButton"
+          class="btn btn-secondary"
+        >
+          Đóng
+        </button>
+      </div>
+    </div>
+
+    <!-- Display -->
+    <div class="modal-content" *ngIf="functionCode == FunctionCode.DISPLAY">
+      <div class="modal-header justify-content-between align-items-center">
+        <h5 class="modal-title">Chi tiết người dùng</h5>
+        <button type="button" class="close" (click)="onHide()">
+          <i class="anticon anticon-close"></i>
+        </button>
+      </div>
+      <div class="modal-body scrollable">
+        <div class="m-b-5">
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="formGroupExampleInput">Tên đăng nhập</label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="model.Username"
+                readonly
+              />
+            </div>
+            <div class="form-group col-md-6">
+              <label for="formGroupExampleInput">Họ tên </label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="model.Name"
+                readonly
+              />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="DateOfBirth_">Ngày sinh</label>
+              <input
+                type="text"
+                class="form-control"
+                id="DateOfBirth_"
+                [(ngModel)]="model.DateOfBirth"
+                readonly
+              />
+            </div>
+
+            <div class="form-group col-md-6">
+              <label for="formGroupExampleInput">Giới tính</label>
+              <input
+                type="text"
+                class="form-control"
+                id="Gender"
+                [(ngModel)]="dislayGendeer"
+                readonly
+              />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="formGroupExampleInput">Email</label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="model.Email"
+                readonly
+              />
+            </div>
+
+            <div class="form-group col-md-6">
+              <label for="IsActive">Trạng thái </label>
+              <input
+                type="text"
+                class="form-control"
+                id="IsActive"
+                [(ngModel)]="dislayIsActive"
+                readonly
+              />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-12">
+              <label for="formGroupExampleInput">Ghi chú</label>
+              <textarea
+                class="form-control"
+                [(ngModel)]="model.Note"
+                rows="1"
+                readonly
+              >
+              </textarea>
+            </div>
+          </div>
+
+          <div class="row">
+            <label for="formGroupExampleInput">Danh sách vai trò</label>
+
+            <div class="table-responsive">
+              <table class="table table-hover table-bordered">
+                <thead>
+                  <tr>
+                    <th class="text-center" [width]="'5%'">STT</th>
+                    <th class="text-center">Tên vai trò</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    *ngFor="
+                      let item of model.UserRoles;
+                      let indexOfelement = index
+                    "
+                  >
+                    <td class="text-center">
+                      {{ indexOfelement + 1 }}
+                    </td>
+                    <td class="text-left">
+                      {{ item.RoleName }}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div class="btn-delete-left">
+          <button
+            *ngIf="
+              lstFunctionCode && lstFunctionCode.includes(FunctionCode.DELETE)
+            "
+            class="btn btn-danger mr-1"
+            (click)="onDelete()"
+          >
+            Xóa
+          </button>
+          <button
+            *ngIf="
+              lstFunctionCode && lstFunctionCode.includes(FunctionCode.EDIT)
+            "
+            class="btn btn-warning"
+            (click)="onConfirmResetPass()"
+            data-toggle="tooltip"
+            data-placement="top"
+            title="Reset về mật khẩu mặc định"
+          >
+            Reset mật khẩu
+          </button>
+        </div>
+
+        <button
+          *ngIf="lstFunctionCode && lstFunctionCode.includes(FunctionCode.EDIT)"
+          class="btn btn-primary"
+          (click)="onEdit()"
+        >
+          Sửa
+        </button>
+
+        <button
+          (click)="onHide()"
+          id="closeModalButton"
+          class="btn btn-secondary"
+        >
+          Đóng
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

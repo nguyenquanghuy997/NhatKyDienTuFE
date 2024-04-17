@@ -1,0 +1,288 @@
+<app-error-page
+  [isNotPermission]="
+    lstFunctionCode && !lstFunctionCode?.includes(FunctionCode.VIEW)
+  "
+></app-error-page>
+<div
+  *ngIf="lstFunctionCode && lstFunctionCode.includes(FunctionCode.VIEW)"
+  class="card"
+>
+  <div *ngIf="loading">
+    <div class="loading-overlay">
+      <div class="loading-spinner"></div>
+    </div>
+  </div>
+  <!-- Filter - BEGIN -->
+  <div class="card-body">
+    <div class="row m-b-5">
+      <div class="col-lg-8">
+        <form nz-form [formGroup]="searchForm" (ngSubmit)="onSearchData()">
+          <div class="form-group row">
+            <div class="col-md-3">
+              <label for="name">Tên</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Nhập tên"
+                id="name"
+                formControlName="name"
+              />
+            </div>
+            <div class="col-md-3">
+              <label for="shiftCategoryId">Loại ca</label>
+              <ng-select
+                [searchable]="true"
+                dropdownPosition="bottom"
+                formControlName="shiftCategoryId"
+                id="shiftCategoryId"
+                placeholder="Tất cả"
+                notFoundText="{{ ngSelectMessage.NotFound }}"
+              >
+                <ng-option
+                  *ngFor="let item of lstShiftCategorySearch"
+                  [value]="item.Id"
+                >
+                  {{ item.Name }}
+                </ng-option>
+              </ng-select>
+            </div>
+            <div class="col-md-3">
+              <label for="formId">Màn hình động</label>
+              <ng-select
+                [searchable]="true"
+                dropdownPosition="bottom"
+                formControlName="formId"
+                id="formId"
+                placeholder="Tất cả"
+                notFoundText="{{ ngSelectMessage.NotFound }}"
+              >
+                <ng-option *ngFor="let item of lstFormSearch" [value]="item.Id">
+                  {{ item.Name }}
+                </ng-option>
+              </ng-select>
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+              <button class="btn btn-primary">
+                <i class="anticon anticon-search"></i>
+              </button>
+              <a
+                data-toggle="collapse"
+                href="#collapseExample"
+                role="button"
+                aria-expanded="false"
+                aria-controls="collapseExample"
+                class="advanced m-l-10"
+              >
+                Tìm kiếm nâng cao <i class="fa fa-angle-down"></i>
+              </a>
+            </div>
+          </div>
+          <div class="mt-1">
+            <div class="collapse" id="collapseExample">
+              <div class="form-group row">
+                <div class="col-md-3">
+                  <label for="hasCA">Ký số</label>
+                  <select
+                    id="hasCA"
+                    formControlName="hasCA"
+                    class="form-control"
+                  >
+                    <option selected value="null">Tất cả</option>
+                    <option [ngValue]="true">Có</option>
+                    <option [ngValue]="false">Không</option>
+                  </select>
+                </div>
+
+                <div class="col-md-3">
+                  <label for="flowId">Luồng phê duyệt</label>
+                  <ng-select
+                    [searchable]="true"
+                    formControlName="flowId"
+                    dropdownPosition="bottom"
+                    id="flowId"
+                    placeholder="Tất cả"
+                    notFoundText="{{ ngSelectMessage.NotFound }}"
+                  >
+                    <ng-option
+                      *ngFor="let item of lstFlowSearch"
+                      [value]="item.Id"
+                    >
+                      {{ item.Name }}
+                    </ng-option>
+                  </ng-select>
+                </div>
+              </div>
+              <div class="form-group row">
+                <div class="col-md-3">
+                  <label for="hasOTP">Xác thực OTP</label>
+                  <select
+                    id="hasOTP"
+                    formControlName="hasOTP"
+                    class="form-control"
+                  >
+                    <option selected value="null">Tất cả</option>
+                    <option [ngValue]="true">Có</option>
+                    <option [ngValue]="false">Không</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div
+        class="col-lg-4 form-group"
+        *ngIf="lstFunctionCode.includes(FunctionCode.CREATE)"
+      >
+        <div class="h-100 d-flex align-items-end justify-content-end">
+          <button
+            class="btn btn-primary"
+            (click)="onOpenModalCreate()"
+          >
+            <i class="anticon anticon-plus-circle m-r-5"></i>
+            <span>Thêm mới</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- Filter - END -->
+
+    <!-- Table - BEGIN -->
+    <div class="dataTables_wrapper dt-bootstrap4 no-footer">
+      <div class="table-responsive">
+        <table
+          id="dtDynamicVerticalScroll"
+          class="table table-hover table-bordered e-commerce-table"
+        >
+          <thead>
+            <tr>
+              <th class="text-center align-middle" [width]="'30px'">STT</th>
+              <th class="text-left align-middle">Tên</th>
+
+              <th class="text-center align-middle" [width]="'65px'">
+                Xác thực OTP
+              </th>
+              <th class="text-center align-middle" [width]="'65px'">Ký số</th>
+              <th class="text-center align-middle">Loại ca</th>
+
+              <th class="text-left align-middle">Màn hình động</th>
+              <th class="text-left align-middle">Luồng phê duyệt</th>
+
+              <th class="text-left align-middle">Ghi chú</th>
+              <th class="text-center align-middle" [width]="'95px'">Tác vụ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of lstRefType; let indexOfelement = index">
+              <td class="text-center">
+                {{ (pageIndex - 1) * pageSize + indexOfelement + 1 }}
+              </td>
+
+              <td
+                class="text-left"
+                style="
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                  max-width: 200px;
+                  white-space: pre-wrap;
+                "
+              >
+                <a
+                  [id]="'Item_' + item.Id"
+                  [href]="'javascript:void(' + item.Id + ')'"
+                  class="text-primary"
+                  (click)="onOpenModalDisplay(item.Id)"
+                >
+                  {{ item.BreadcrumbName }}</a
+                >
+              </td>
+
+              <td class="text-center">
+                <input
+                  type="checkbox"
+                  onclick="return false;"
+                  [checked]="item.HasOTP"
+                />
+              </td>
+              <td class="text-center">
+                <input
+                  type="checkbox"
+                  onclick="return false;"
+                  [checked]="item.HasCA"
+                />
+              </td>
+              <td class="text-center">
+                {{ item.ShiftCategoryName }}
+              </td>
+
+              <td class="text-left">
+                {{ item.FormName }}
+              </td>
+              <td class="text-left">
+                {{ item.FlowName }}
+              </td>
+
+              <td
+                class="text-left"
+                style="
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                  max-width: 200px;
+                  white-space: pre-wrap;
+                "
+              >
+                {{ item.Note }}
+              </td>
+              <td class="text-center">
+                <button
+                  class="btn btn-icon btn-hover btn-sm btn-rounded pull-right"
+                  data-toggle="tooltip"
+                  title="Chỉnh sửa"
+                  *ngIf="lstFunctionCode.includes(FunctionCode.EDIT)"
+                  (click)="onOpenModalUpdate(item.Id)"
+                >
+                  <i class="anticon anticon-edit"></i>
+                </button>
+                <button
+                  class="btn btn-icon btn-hover btn-sm btn-rounded"
+                  data-toggle="tooltip"
+                  title="Xóa"
+                  *ngIf="lstFunctionCode.includes(FunctionCode.DELETE)"
+                  (click)="onDeleteModal(item)"
+                >
+                  <i class="anticon anticon-delete"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Paging - BEGIN -->
+      <app-pagination
+        [pageIndex]="pageIndex"
+        [totalItem]="totalItem"
+        [pageSize]="pageSize"
+        [pageCount]="pageCount"
+        (onChangePagination)="onChangePagination($event)"
+      >
+      </app-pagination>
+      <!-- Paging - END -->
+      <app-nodata-info [totalItem]="totalItem"> </app-nodata-info>
+    </div>
+    <!-- Table - END -->
+  </div>
+
+  <!-- Popup - BEGIN -->
+  <app-reftype-modal
+    #popup
+    [model]="popupItem"
+    [functionCode]="functionCode"
+    [lstFunctionCode]="lstFunctionCodePopup"
+    (onSubmitModal)="onSubmitModal($event)"
+    (onHideModal)="onHideModal()"
+    (onEditModal)="onEditModal($event)"
+    (onDeleteModal)="onDeleteModal($event)"
+  ></app-reftype-modal>
+  <!-- Popup - END -->
+</div>

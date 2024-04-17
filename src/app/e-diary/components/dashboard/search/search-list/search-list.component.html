@@ -1,0 +1,244 @@
+<app-error-page
+  [isNotPermission]="
+    lstFunctionCode && !lstFunctionCode?.includes(FunctionCode.VIEW)
+  "
+></app-error-page>
+<div
+  *ngIf="lstFunctionCode && lstFunctionCode.includes(FunctionCode.VIEW)"
+  class="card"
+>
+  <div *ngIf="loading">
+    <div class="loading-overlay">
+      <div class="loading-spinner"></div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="row m-b-5">
+      <div class="col-lg-12">
+        <form [formGroup]="searchForm" (ngSubmit)="onSearch()">
+          <div class="form-group row">
+            <div class="col-md-2">
+              <label for="txtKeySearch">Từ khóa</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Nhập từ khóa tìm kiếm"
+                id="txtKeySearch"
+                formControlName="KeySearch"
+                [(ngModel)]="searchForm.value.KeySearch"
+              />
+            </div>
+            <div class="col-md-3">
+              <label for="startEndDate">Thời gian</label>
+              <input
+                type="text"
+                placeholder="Từ ngày - đến ngày"
+                class="form-control"
+                [bsConfig]="{
+                  keepDatepickerOpened: true,
+                  rangeInputFormat: 'DD/MM/YYYY',
+                  dateInputFormat: 'DD/MM/YYYY',
+                }"
+                bsDaterangepicker
+                [(bsValue)]="selectedDateValue"
+                formControlName="rangeDate"
+              />
+            </div>
+            <div class="col-md-2">
+              <label for="code">Loại ca trực</label>
+              <ng-select
+                [searchable]="true"
+                formControlName="ShiftCategoryId"
+                id="ShiftCategoryId"
+                (change)="onChangeShiftCategorSelect($event)"
+                (clear)="onClearShiftCategor()"
+                placeholder="Chọn loại ca trực"
+                dropdownPosition="bottom"
+                notFoundText="{{ ngSelectMessage.NotFound }}"
+                [appendTo]="'body'"
+              >
+                <ng-option
+                  *ngFor="let item of lstShiftCategory"
+                  [value]="item.Id"
+                >
+                  {{ item.Name }}
+                </ng-option>
+              </ng-select>
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+              <button class="btn btn-primary m-r-5">
+                <i class="anticon anticon-search"></i>
+              </button>
+
+              <a
+                data-toggle="collapse"
+                href="#collapseExample"
+                role="button"
+                aria-expanded="false"
+                aria-controls="collapseExample"
+                class="advanced m-l-10"
+              >
+                Tìm kiếm nâng cao <i class="fa fa-angle-down"></i>
+              </a>
+            </div>
+          </div>
+          <div class="mt-1">
+            <div class="collapse" id="collapseExample">
+              <div class="form-group row">
+                <div class="col-md-2">
+                  <label for="refTypeId" class="form-label">Nghiệp vụ</label>
+                  <ng-select
+                    [searchable]="true"
+                    formControlName="refTypeId"
+                    id="refTypeId"
+                    placeholder="Chọn nghiệp vụ"
+                    dropdownPosition="bottom"
+                    notFoundText="{{ ngSelectMessage.NotFound }}"
+                  >
+                    <ng-option
+                      *ngFor="let item of lstRefType"
+                      [value]="item.Id"
+                    >
+                      {{ item.Name }}
+                    </ng-option>
+                  </ng-select>
+                </div>
+
+                <div class="col-md-3">
+                  <label for="SearchEquipment" class="form-label"
+                    >Thiết bị</label
+                  >
+                  <ng-select
+                    [items]="listEquipment"
+                    [searchable]="true"
+                    bindLabel="BreadcrumbName"
+                    formControlName="Equipment"
+                    placeholder="Chọn thiết bị"
+                    (change)="onSelectChangeEquipement($event)"
+                    (clear)="onClearEquipment()"
+                    dropdownPosition="bottom"
+                    notFoundText="{{ ngSelectMessage.NotFound }}"
+                  >
+                    >
+                  </ng-select>
+                </div>
+
+                <div class="col-md-2">
+                  <label for="SearchEquipment" class="form-label"
+                    >Thông số thiết bị</label
+                  >
+                  <ng-select
+                    [searchable]="true"
+                    formControlName="EquipmentTagId"
+                    notFoundText="{{ ngSelectMessage.NotFound }}"
+                    placeholder="Chọn thông số"
+                    dropdownPosition="bottom"
+                  >
+                    <ng-option
+                      *ngFor="let option of lstTag"
+                      [value]="option.Id"
+                    >
+                      {{ option.TagName }}
+                    </ng-option>
+                  </ng-select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="dataTables_wrapper dt-bootstrap4 no-footer">
+      <div class="table-responsive">
+        <table
+          id="dtDynamicVerticalScroll"
+          class="table table-hover table-bordered e-commerce-table"
+        >
+          <thead>
+            <tr>
+              <th class="text-center" [width]="'5%'">STT</th>
+              <th class="text-left" [width]="'10%'">Ca trực</th>
+              <th class="text-left" [width]="'20%'">Ngày</th>
+              <th class="text-center" [width]="'8%'">Trạng thái ca trực</th>
+              <th class="text-left" [width]="'17%'">Người phụ trách</th>
+              <th class="text-center" [width]="'28%'">Từ khóa tìm kiếm</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of listDiary; let indexOfelement = index">
+              <td class="text-center">
+                {{ (pageIndex - 1) * pageSize + indexOfelement + 1 }}
+              </td>
+              <td class="text-left">
+                <!-- <a
+                  href="javascript:void(0)"
+                  (click)="onOpenModalDetail(item.Id, item.RefTypeId)"
+                  queryParamsHandling="preserve"
+                  data-toggle="modal"
+                  data-target="#myModal"
+                >
+                  {{ item.Name }}
+                </a> -->
+
+                <a
+                  [routerLink]="['chi-tiet/']"
+                  [queryParams]="{ id: item.Id, refTypeId: item.RefTypeId }"
+                >
+                  {{ item.Name }}</a
+                >
+              </td>
+              <td class="text-left">
+                {{ item.StartDate | date : "dd/MM/yyyy HH:mm" }} -
+                {{ item.EndDate | date : "dd/MM/yyyy HH:mm" }}
+              </td>
+              <td class="text-center">
+                <span
+                  [class]="DicStatusStyle_OnShiftDuty.get(item.StatusDutyShift)"
+                >
+                  {{ DicStatusDesc_OnShiftDuty.get(item.StatusDutyShift) }}
+                </span>
+              </td>
+              <td class="text-left">
+                {{ item.InchargeUser_Name }}
+                <br />
+                <i
+                  >Ngày tạo:
+                  {{ item.CreatedDTG | date : "dd/MM/yyyy HH:mm" }}</i
+                >
+              </td>
+              <td class="text-left">
+                <div *ngFor="let HighlightItem of item.Highlights">
+                  <span
+                    [innerHTML]="
+                      highlightText(
+                        HighlightItem.HighlightValue,
+                        searchForm.value.KeySearch
+                      )
+                    "
+                  ></span>
+                </div>
+                <!-- <p [innerHTML]="highlight()"></p> -->
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <app-pagination
+        [pageIndex]="pageIndex"
+        [totalItem]="totalItem"
+        [pageSize]="pageSize"
+        [pageCount]="pageCount"
+        (onChangePagination)="changePagination($event)"
+      >
+      </app-pagination>
+      <app-nodata-info [totalItem]="totalItem"> </app-nodata-info>
+    </div>
+  </div>
+  <!-- <app-search-modal
+    #popup
+    [isVisible]="showModal"
+    (onHideModal)="onHideModal()"
+  ></app-search-modal> -->
+</div>

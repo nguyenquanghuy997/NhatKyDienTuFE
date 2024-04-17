@@ -1,0 +1,42 @@
+.custom-p {
+  min-height: 0px;
+  border: 1px solid black;
+  padding: 0.55rem 1rem;
+  height: auto;
+  color: #228b22 !important;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  text-align: center;
+}
+.custom-heading {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.custom-table {
+  border-collapse: collapse;
+  border: 1px solid black;
+  min-width: 100%;
+  width: 100%;
+  margin-left: unset;
+  border: none;
+  margin-right: unset;
+  padding-left: unset;
+}
+/* Customize table row borders */
+.my-custom-row {
+  border: 1px solid black; /* or any other color/width */
+}
+.custom-cell {
+  border: 1px solid black;
+  padding: 8px;
+  min-height: 20px;
+  height: 30px;
+}
+
+.custom-card {
+  font-size: 24px;
+  color: rgb(34, 189, 168);
+  border: 1px solid rgb(119, 23, 163);
+  font-weight: bold;
+}

@@ -1,0 +1,40 @@
+<!-- Không có quyền -->
+<!-- 404 -->
+<div class="card" *ngIf="this.isNotPermission || this.isError404">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-md-6">
+        <div class="p-v-30">
+          <!-- Không có quyền - BEGIN -->
+          <h1 *ngIf="isNotPermission" class="font-weight-semibold display-1 text-primary lh-1-2">
+            Không có quyền
+          </h1>
+          <h2 *ngIf="isNotPermission" class="font-weight-light font-size-30">
+            Rất tiếc! Bạn không có quyền truy cập tại đây.
+          </h2>
+          <p *ngIf="isNotPermission" class="lead m-b-30">Vui lòng liên hệ quản trị viên để cấp quyền truy cập.</p>
+          <!-- Không có quyền - END -->
+
+          <!-- 404 - BEGIN -->
+          <h1 *ngIf="isError404" class="font-weight-semibold display-1 text-primary lh-1-2">
+            404
+          </h1>
+
+          <h2 *ngIf="isError404" class="font-weight-light font-size-30">
+            Rất tiếc! Đường dẫn không tồn tại.
+          </h2>
+          <p *ngIf="isError404" class="lead m-b-30">Vui lòng liên hệ quản trị viên để xử lý sự cố.</p>
+          <!-- 404 - END -->
+
+          <!-- Back Home - BEGIN -->
+          <a href="" class="btn btn-primary btn-tone">
+            <i class="anticon anticon-home"></i> Về trang chủ</a>
+          <!-- Back Home - END -->
+        </div>
+      </div>
+      <div class="col-md-6 m-l-auto">
+        <img class="img-fluid" src="assets/images/others/error-1.png" alt="" />
+      </div>
+    </div>
+  </div>
+</div>

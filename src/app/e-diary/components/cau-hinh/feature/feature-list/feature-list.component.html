@@ -1,0 +1,327 @@
+<app-error-page
+  [isNotPermission]="
+    lstFunctionCode && !lstFunctionCode?.includes(FunctionCode.VIEW)
+  "
+></app-error-page>
+
+<div
+  *ngIf="lstFunctionCode && lstFunctionCode.includes(FunctionCode.VIEW)"
+  class="card"
+>
+  <div *ngIf="loading">
+    <div class="loading-overlay">
+      <div class="loading-spinner"></div>
+    </div>
+  </div>
+  <!-- Filter - BEGIN -->
+  <div class="card-body">
+    <div class="row m-b-5">
+      <div class="col-lg-8">
+        <form nz-form [formGroup]="searchForm" (ngSubmit)="onSearchData()">
+          <div class="form-group row">
+            <div class="col-md-3">
+              <label for="name">Tên menu</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Nhập tên"
+                id="name"
+                formControlName="Name"
+              />
+            </div>
+            <div class="col-md-3">
+              <label for="name">Tên menu cha</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Nhập tên menu cha"
+                id="parentName"
+                formControlName="ParentName"
+              />
+            </div>
+
+            <div class="col-md-3">
+              <label for="formId">Trạng thái</label>
+              <select
+                id="IsActive"
+                formControlName="IsActive"
+                class="form-control"
+              >
+                <option selected value="null">Tất cả</option>
+                <option [ngValue]="true">Hoạt động</option>
+                <option [ngValue]="false">Không hoạt động</option>
+              </select>
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+              <button class="btn btn-primary m-r-5">
+                <i class="anticon anticon-search"></i>
+              </button>
+              <a
+                data-toggle="collapse"
+                href="#collapseExample"
+                role="button"
+                aria-expanded="false"
+                aria-controls="collapseExample"
+                class="advanced m-l-10"
+              >
+                Tìm kiếm nâng cao <i class="fa fa-angle-down"></i>
+              </a>
+            </div>
+          </div>
+          <div class="mt-1">
+            <div class="collapse" id="collapseExample">
+              <div class="form-group row">
+                <div class="col-md-3">
+                  <label for="Url">Url</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Nhập Url"
+                    id="Url"
+                    formControlName="Url"
+                  />
+                </div>
+                <div class="col-md-3">
+                  <label for="RefTypeId">Nghiệp vụ</label>
+                  <ng-select
+                    dropdownPosition="bottom"
+                    [searchable]="true"
+                    placeholder="Chọn nghiệp vụ"
+                    formControlName="RefTypeId"
+                  >
+                    <ng-option
+                      *ngFor="let item of lstRefTypeSearch"
+                      [value]="item.Id"
+                    >
+                      {{ item.Name }}
+                    </ng-option>
+                  </ng-select>
+                </div>
+                <div class="col-md-3">
+                  <label for="formId">Trên Mobile</label>
+                  <select
+                    id="OnMobile"
+                    formControlName="OnMobile"
+                    class="form-control"
+                  >
+                    <option selected value="null">Tất cả</option>
+                    <option [ngValue]="true">Có</option>
+                    <option [ngValue]="false">Không</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group row">
+                <div class="col-md-3">
+                  <label for="FunctionId">Chức năng</label>
+                  <ng-select
+                    dropdownPosition="bottom"
+                    [searchable]="true"
+                    id="FunctionId"
+                    placeholder="Chọn chức năng"
+                    formControlName="FunctionId"
+                  >
+                    <ng-option
+                      *ngFor="let item of lstFunctionSearch"
+                      [value]="item.Id"
+                    >
+                      {{ item.Code }} - {{ item.Name }}
+                    </ng-option>
+                  </ng-select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div
+        class="col-lg-4 form-group"
+        *ngIf="lstFunctionCode.includes(FunctionCode.CREATE)"
+      >
+        <div class="h-100 d-flex align-items-end justify-content-end">
+          <button
+            class="btn btn-primary"
+            (click)="onOpenModalCreate()"
+          >
+            <i class="anticon anticon-plus-circle"></i>
+            <span>Thêm mới</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- Filter - END -->
+
+    <!-- Table - BEGIN -->
+    <div class="dataTables_wrapper dt-bootstrap4 no-footer">
+      <div class="table-responsive">
+        <table
+          id="dtDynamicVerticalScroll"
+          class="table table-hover table-bordered e-commerce-table"
+        >
+          <thead>
+            <tr>
+              <th class="text-center align-middle" [width]="'30px'">STT</th>
+
+              <th class="text-center align-middle" [width]="'65px'">
+                Trên Mobile
+              </th>
+
+              <th class="text-left align-middle" [width]="'75px'">Thứ tự</th>
+              <th class="text-left align-middle">Tên menu</th>
+              <th class="text-left align-middle">Menu cha</th>
+
+              <th class="text-left align-middle">Nghiệp vụ</th>
+              <th class="text-left align-middle">Icon</th>
+              <th class="text-left align-middle">Url</th>
+
+              <th class="text-center align-middle" [width]="'106px'">
+                Trạng thái
+              </th>
+
+              <th class="text-left align-middle">Ghi chú</th>
+              <th class="text-center align-middle" [width]="'95px'">Tác vụ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of lstFeature; let indexOfelement = index">
+              <td class="text-center">
+                {{ (pageIndex - 1) * pageSize + indexOfelement + 1 }}
+              </td>
+
+              <td class="text-center">
+                <input
+                  type="checkbox"
+                  onclick="return false;"
+                  [checked]="item.OnMobile"
+                />
+              </td>
+
+              <td class="text-left text-nowrap">
+                {{ item.BreadcrumbNO }}
+              </td>
+
+              <td
+                class="text-left"
+                style="
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                  max-width: 200px;
+                  white-space: pre-wrap;
+                "
+              >
+                <a
+                  [id]="'Item_' + item.Id"
+                  [href]="'javascript:void(' + item.Id + ')'"
+                  class="text-primary"
+                  (click)="onOpenModalDisplay(item.Id)"
+                >
+                  {{ item.Name }}
+                </a>
+                <i
+                  *ngIf="item.IsDefault"
+                  class="anticon anticon-check-circle"
+                  data-toggle="tooltip"
+                  data-placement="top"
+                  title="Menu mặc định của hệ thống"
+                ></i>
+              </td>
+              <td
+                class="text-left"
+                style="
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                  max-width: 200px;
+                  white-space: pre-wrap;
+                "
+              >
+                <a
+                  class="text-primary"
+                  (click)="onOpenModalDisplay(item.ParentId)"
+                >
+                  {{ item.ParentName }}</a
+                >
+              </td>
+
+              <td class="text-left">
+                {{ item.RefTypeName }}
+              </td>
+              <td class="text-left">
+                {{ item.Icon }}
+              </td>
+              <td class="text-left">
+                {{ item.Url }}
+              </td>
+
+              <td class="text-center">
+                <span
+                  *ngIf="item.IsActive"
+                  class="badge badge-pill badge-primary font-weight-bold"
+                  >Hoạt động</span
+                >
+                <span
+                  *ngIf="!item.IsActive"
+                  class="badge badge-pill badge-secondary font-weight-bold"
+                  >Không hoạt động</span
+                >
+              </td>
+
+              <td
+                class="text-left"
+                style="
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                  max-width: 200px;
+                  white-space: pre-wrap;
+                "
+              >
+                {{ item.Note }}
+              </td>
+              <td class="text-center">
+                <button
+                  class="btn btn-icon btn-hover btn-sm btn-rounded pull-right"
+                  *ngIf="lstFunctionCode.includes(FunctionCode.EDIT)"
+                  (click)="onOpenModalUpdate(item.Id)"
+                >
+                  <i class="anticon anticon-edit"></i>
+                </button>
+                <button
+                  class="btn btn-icon btn-hover btn-sm btn-rounded"
+                  (click)="onDeleteModal(item)"
+                  *ngIf="lstFunctionCode.includes(FunctionCode.DELETE)"
+                >
+                  <i class="anticon anticon-delete"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Paging - BEGIN -->
+      <app-pagination
+        [pageIndex]="pageIndex"
+        [totalItem]="totalItem"
+        [pageSize]="pageSize"
+        [pageCount]="pageCount"
+        (onChangePagination)="onChangePagination($event)"
+      >
+      </app-pagination>
+      <!-- Paging - END -->
+      <app-nodata-info [totalItem]="totalItem"> </app-nodata-info>
+    </div>
+    <!-- Table - END -->
+  </div>
+
+  <!-- Popup - BEGIN -->
+  <app-feature-modal
+    #popup
+    [model]="popupItem"
+    [functionCode]="functionCode"
+    [lstFunctionCode]="lstFunctionCodePopup"
+    [lstRefType]="lstRefTypeSearch"
+    (onSubmitModal)="onSubmitModal($event)"
+    (onHideModal)="onHideModal()"
+    (onEditModal)="onEditModal($event)"
+    (onDeleteModal)="onDeleteModal($event)"
+  ></app-feature-modal>
+  <!-- Popup - END -->
+</div>

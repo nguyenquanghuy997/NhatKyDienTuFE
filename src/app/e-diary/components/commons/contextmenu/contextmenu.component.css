@@ -1,0 +1,62 @@
+.contextmenu {
+  position: absolute;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.5);
+}
+/* .context-menu {
+  display: none;
+  position: absolute;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+}
+
+.context-menu ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.context-menu ul li {
+  padding: 10px;
+  cursor: pointer;
+}
+
+.context-menu ul li:hover {
+  background-color: #f0f0f0;
+} */
+.context-menu {
+  position: absolute;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+}
+
+.context-menu ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.context-menu ul li {
+  padding: 10px;
+  cursor: pointer;
+}
+
+.context-menu ul li:hover {
+  background-color: #f0f0f0;
+}
+/**/
+.context-menu {
+  position: absolute;
+  background-color: white;
+  border: 1px solid #ccc;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+}
+
+.context-menu div {
+  padding: 8px;
+  cursor: pointer;
+}

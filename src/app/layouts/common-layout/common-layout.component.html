@@ -1,0 +1,50 @@
+<div
+  class="app {{ 'is-' + selectedHeaderColor }}"
+  [ngClass]="{
+    'is-folded': isFolded,
+    'is-side-nav-dark': isSideNavDark,
+    'is-expand': isExpand
+  }"
+>
+  <div class="layout">
+    <app-header></app-header>
+    <app-sidenav (callGetBreadCrumbs)="getBreadCrumbs()"></app-sidenav>
+    <div class="page-container">
+      <div class="main-content">
+        <div class="page-header sticky" *ngIf="contentHeaderDisplay !== 'none'">
+          <h4
+            class="header-title"
+            *ngIf="
+              breadcrumbs &&
+              breadcrumbs.length > 0 &&
+              (currentMenu$ | async) != null
+            "
+          >
+            {{
+              (currentMenu$ | async)
+                ? (currentMenu$ | async) +
+                  " " +
+                  breadcrumbs[breadcrumbs.length - 1]?.Name?.toLowerCase()
+                : breadcrumbs[breadcrumbs.length - 1]?.Name
+            }}
+          </h4>
+          <div class="header-sub-title">
+            <i class="anticon anticon-home m-r-5"></i>
+            <nav class="breadcrumb breadcrumb-dash">
+              <a
+                [routerLink]="itemMenu?.Url"
+                class="breadcrumb-item"
+                *ngFor="let itemMenu of breadcrumbs"
+              >
+                {{ itemMenu?.Name }}
+              </a>
+            </nav>
+          </div>
+        </div>
+        <router-outlet></router-outlet>
+        <app-scroll-to-top></app-scroll-to-top>
+      </div>
+      <app-footer></app-footer>
+    </div>
+  </div>
+</div>

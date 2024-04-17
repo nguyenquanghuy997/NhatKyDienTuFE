@@ -1,0 +1,813 @@
+<div class="modal fade" id="FeatureModal" #FeatureModal>
+  <div class="modal-dialog modal-lg">
+    <!-- Create -->
+    <!-- Không cho chỉnh URL -->
+    <!-- Có "Nghiệp vụ" => tự động sinh URL -->
+    <!-- Không "Nghiệp vụ" => clear URL -->
+    <div
+      class="modal-content"
+      *ngIf="functionCode == FunctionCode.CREATE && (!model || !model.Id)"
+    >
+      <div class="modal-header justify-content-between align-items-center">
+        <h5 class="modal-title">Thêm mới menu</h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          (click)="onHide()"
+        >
+          <i class="anticon anticon-close"></i>
+        </button>
+      </div>
+      <div class="modal-body scrollable">
+        <form [formGroup]="popupForm" (ngSubmit)="onSubmit()">
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="Name">Tên <span class="text-danger">*</span></label>
+              <input
+                type="text"
+                class="form-control"
+                id="Name"
+                placeholder="Nhập tên"
+                formControlName="Name"
+                [(ngModel)]="model.Name"
+                maxlength="100"
+                [ngClass]="{ 'is-invalid': submitted && f.Name.errors }"
+                required
+              />
+              <div *ngIf="submitted && f.Name.errors" class="invalid-feedback">
+                <div *ngIf="f.Name.errors.required">Không được trống</div>
+                <div *ngIf="f.Name.errors.maxlength">Tối đa 100 ký tự</div>
+              </div>
+            </div>
+            <div class="form-group col-md-6">
+              <label for="ParentId">Menu cha</label>
+              <ng-select
+                dropdownPosition="bottom"
+                [searchable]="true"
+                formControlName="ParentId"
+                id="ParentId"
+                placeholder="Chọn menu cha"
+                [(ngModel)]="model.ParentId"
+              >
+                <ng-option *ngFor="let item of lstParent" [value]="item.Id">
+                  {{ item.BreadcrumbNO }} &nbsp;&nbsp;-&nbsp;&nbsp;
+                  {{ item.Name }}
+                </ng-option>
+              </ng-select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="NO" class="form-label"
+                >Thứ tự <span class="text-danger">*</span></label
+              >
+              <input
+                type="number"
+                class="form-control"
+                id="NO"
+                placeholder="Nhập thứ tự"
+                formControlName="NO"
+                [(ngModel)]="model.NO"
+                min="0"
+                [ngClass]="{ 'is-invalid': submitted && f.NO.errors }"
+                required
+              />
+              <div *ngIf="submitted && f.NO.errors" class="invalid-feedback">
+                <div *ngIf="f.NO.errors.required">Không được trống</div>
+              </div>
+            </div>
+
+            <div class="form-group col-md-6">
+              <label for="IsActive">Trạng thái</label>
+              <select
+                class="form-select form-control"
+                aria-label=".form-select-lg"
+                id="IsActive"
+                formControlName="IsActive"
+                [(ngModel)]="model.IsActive"
+                [ngClass]="{ 'is-invalid': submitted && f.IsActive.errors }"
+              >
+                <option [ngValue]="true" selected>Hoạt động</option>
+                <option [ngValue]="false">Không hoạt động</option>
+              </select>
+              <div
+                *ngIf="submitted && f.IsActive.errors"
+                class="invalid-feedback"
+              >
+                <div *ngIf="f.IsActive.errors.required">Không được trống</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="RefTypeId">Nghiệp vụ </label>
+              <ng-select
+                [searchable]="true"
+                formControlName="RefTypeId"
+                id="RefTypeId"
+                dropdownPosition="bottom"
+                [(ngModel)]="model.RefTypeId"
+                placeholder="Chọn nghiệp vụ"
+                (change)="onChangeRefTypeId($event)"
+              >
+                <ng-option *ngFor="let item of lstRefType" [value]="item.Id">
+                  {{ item.Name }}
+                </ng-option>
+              </ng-select>
+            </div>
+            <div class="form-group col-md-6">
+              <label for="OnMobile">Trên Mobile</label>
+              <select
+                class="form-select form-control"
+                aria-label=".form-select-lg"
+                id="OnMobile"
+                formControlName="OnMobile"
+                [(ngModel)]="model.OnMobile"
+                [ngClass]="{ 'is-invalid': submitted && f.OnMobile.errors }"
+              >
+                <option [ngValue]="true" selected>Có</option>
+                <option [ngValue]="false">Không</option>
+              </select>
+              <div
+                *ngIf="submitted && f.OnMobile.errors"
+                class="invalid-feedback"
+              >
+                <div *ngIf="f.OnMobile.errors.required">Không được trống</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="Url" class="form-label">Url</label>
+              <input
+                type="text"
+                class="form-control"
+                id="Url"
+                placeholder="Url"
+                formControlName="Url"
+                [(ngModel)]="model.Url"
+                maxlength="300"
+                [ngClass]="{ 'is-invalid': submitted && f.Url.errors }"
+                [readOnly]="model.RefTypeId"
+              />
+              <div *ngIf="submitted && f.Url.errors" class="invalid-feedback">
+                <div *ngIf="f.Url.errors.maxlength">Tối đa 300 ký tự</div>
+              </div>
+            </div>
+            <div class="form-group col-md-6">
+              <label for="Icon" class="form-label">Icon</label>
+              <input
+                type="text"
+                class="form-control"
+                id="Icon"
+                placeholder="Nhập class icon"
+                formControlName="Icon"
+                [(ngModel)]="model.Icon"
+                maxlength="100"
+                [ngClass]="{ 'is-invalid': submitted && f.Icon.errors }"
+              />
+              <div *ngIf="submitted && f.Icon.errors" class="invalid-feedback">
+                <div *ngIf="f.Icon.errors.maxlength">Tối đa 100 ký tự</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-12">
+              <label for="txtNote" class="form-label">Ghi chú</label>
+              <textarea
+                rows="3"
+                formControlName="Note"
+                class="form-control"
+                id="txtNote"
+                placeholder="Ghi chú"
+                [(ngModel)]="model.Note"
+                maxlength="1000"
+                [ngClass]="{ 'is-invalid': submitted && f.Note.errors }"
+              ></textarea>
+              <div *ngIf="submitted && f.Note.errors" class="invalid-feedback">
+                <div *ngIf="f.Note.errors?.[maxlength]">Tối đa 1000 ký tự</div>
+              </div>
+            </div>
+          </div>
+        </form>
+
+        <div class="form-row" *ngIf="model.RefTypeId">
+          <div class="form-group col-md-12 m-b-0">
+            <label class="form-label font-weight-bold"
+              >Danh sách chức năng</label
+            >
+            <div class="dataTables_wrapper dt-bootstrap4 no-footer">
+              <div class="table-responsive">
+                <table
+                  class="table table-hover table-bordered e-commerce-table"
+                >
+                  <thead>
+                    <tr>
+                      <th
+                        scope="col"
+                        class="text-center align-middle"
+                        [width]="'30px'"
+                      >
+                        #
+                      </th>
+                      <th scope="col" class="align-middle">Mã</th>
+                      <th scope="col" class="align-middle">Tên</th>
+                      <th scope="col" class="align-middle">Quyền dữ liệu</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr
+                      *ngFor="
+                        let item of model.FeatureFunctions;
+                        let indexOfelement = index
+                      "
+                    >
+                      <td class="text-center">
+                        <input
+                          type="checkbox"
+                          [checked]="item.IsChecked"
+                          (click)="onCheckFunction(item)"
+                        />
+                      </td>
+                      <td>
+                        {{ item.FunctionCode }}
+                      </td>
+                      <td>
+                        {{ item.FunctionName }}
+                      </td>
+                      <td>
+                        <ng-select
+                          [searchable]="true"
+                          placeholder="Chọn quyền dữ liệu"
+                          dropdownPosition="bottom"
+                          [appendTo]="'body'"
+                          notFoundText="{{ ngSelectMessage.NotFound }}"
+                          [(ngModel)]="item.RuleId"
+                          (change)="onChangeRuleId(item, $event)"
+                        >
+                          <ng-option
+                            *ngFor="let rule of lstRule"
+                            [value]="rule.Id"
+                          >
+                            {{ rule.Name }}
+                          </ng-option>
+                        </ng-select>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button
+          *ngIf="lstFunctionCode && lstFunctionCode.includes(functionCode)"
+          type="submit"
+          class="btn btn-primary"
+          (click)="onSubmit()"
+        >
+          Lưu
+        </button>
+        <button
+          (click)="onHide()"
+          id="closeModalButton"
+          class="btn btn-secondary"
+          data-dismiss="modal"
+        >
+          Đóng
+        </button>
+      </div>
+    </div>
+    <!--// -->
+
+    <!-- Edit -->
+    <!-- Với menu tĩnh, không cho sửa: Nghiệp vụ, URL -->
+    <!-- Vói menu động, required: Nghiệp vụ, URL -->
+    <div
+      class="modal-content"
+      *ngIf="functionCode == FunctionCode.EDIT && model?.Id"
+    >
+      <div class="modal-header justify-content-between align-items-center">
+        <h5 class="modal-title">Cập nhật menu</h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          (click)="onHide()"
+        >
+          <i class="anticon anticon-close"></i>
+        </button>
+      </div>
+      <div class="modal-body scrollable">
+        <form [formGroup]="popupForm" (ngSubmit)="onSubmit()">
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="Name"
+                >Tên
+                <i
+                  *ngIf="model.IsDefault"
+                  class="anticon anticon-check-circle"
+                  data-toggle="tooltip"
+                  data-placement="top"
+                  title="Menu mặc định của hệ thống"
+                ></i>
+                <span class="text-danger">*</span>
+              </label>
+              <input
+                type="text"
+                class="form-control"
+                id="Name"
+                placeholder="Nhập tên"
+                formControlName="Name"
+                [(ngModel)]="model.Name"
+                [ngModelOptions]="{ standalone: true }"
+                maxlength="100"
+                [ngClass]="{ 'is-invalid': submitted && f.Name.errors }"
+                required
+              />
+              <div *ngIf="submitted && f.Name.errors" class="invalid-feedback">
+                <div *ngIf="f.Name.errors.required">Không được trống</div>
+                <div *ngIf="f.Name.errors.maxlength">Tối đa 100 ký tự</div>
+              </div>
+            </div>
+            <div class="form-group col-md-6">
+              <label for="ParentId">Menu cha</label>
+              <ng-select
+                [searchable]="true"
+                dropdownPosition="bottom"
+                formControlName="ParentId"
+                id="ParentId"
+                [(ngModel)]="model.ParentId"
+                [ngModelOptions]="{ standalone: true }"
+                placeholder="Chọn menu cha"
+                notFoundText="{{ ngSelectMessage.NotFound }}"
+              >
+                <ng-option *ngFor="let item of lstParent" [value]="item.Id">
+                  {{ item.BreadcrumbNO }} &nbsp;&nbsp;-&nbsp;&nbsp;
+                  {{ item.Name }}
+                </ng-option>
+              </ng-select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="NO" class="form-label"
+                >Thứ tự <span class="text-danger">*</span></label
+              >
+              <input
+                type="number"
+                class="form-control"
+                id="NO"
+                placeholder="Nhập thứ tự"
+                formControlName="NO"
+                [(ngModel)]="model.NO"
+                [ngModelOptions]="{ standalone: true }"
+                min="0"
+                [ngClass]="{ 'is-invalid': submitted && f.NO.errors }"
+                required
+              />
+              <div *ngIf="submitted && f.NO.errors" class="invalid-feedback">
+                <div *ngIf="f.NO.errors.required">Không được trống</div>
+              </div>
+            </div>
+            <div class="form-group col-md-6">
+              <label for="IsActive">Trạng thái</label>
+              <select
+                class="form-select form-control"
+                aria-label=".form-select-lg"
+                id="IsActive"
+                formControlName="IsActive"
+                [(ngModel)]="model.IsActive"
+                [ngModelOptions]="{ standalone: true }"
+                [ngClass]="{ 'is-invalid': submitted && f.IsActive.errors }"
+              >
+                <option [ngValue]="true" selected>Hoạt động</option>
+                <option [ngValue]="false">Không hoạt động</option>
+              </select>
+              <div
+                *ngIf="submitted && f.IsActive.errors"
+                class="invalid-feedback"
+              >
+                <div *ngIf="f.IsActive.errors.required">Không được trống</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="RefTypeId">Nghiệp vụ</label>
+              <!-- Nếu là menu động thì cho sửa -->
+              <ng-select
+                *ngIf="!model.IsDefault"
+                [searchable]="true"
+                formControlName="RefTypeId"
+                dropdownPosition="bottom"
+                id="RefTypeId"
+                [(ngModel)]="model.RefTypeId"
+                [ngModelOptions]="{ standalone: true }"
+                (change)="onChangeRefTypeId($event)"
+                placeholder="Chọn nghiệp vụ"
+                notFoundText="{{ ngSelectMessage.NotFound }}"
+              >
+                <ng-option *ngFor="let item of lstRefType" [value]="item.Id">
+                  {{ item.Name }}
+                </ng-option>
+              </ng-select>
+              <!-- Nếu là menu mặc định thì ko cho sửa -->
+              <input
+                *ngIf="model.IsDefault"
+                type="text"
+                class="form-control"
+                id="RefTypeId"
+                [(ngModel)]="model.RefTypeName"
+                [ngModelOptions]="{ standalone: true }"
+                readonly
+              />
+            </div>
+            <div class="form-group col-md-6">
+              <label for="OnMobile">Trên Mobile</label>
+              <select
+                class="form-select form-control"
+                aria-label=".form-select-lg"
+                id="OnMobile"
+                formControlName="OnMobile"
+                [(ngModel)]="model.OnMobile"
+                [ngModelOptions]="{ standalone: true }"
+                [ngClass]="{ 'is-invalid': submitted && f.OnMobile.errors }"
+              >
+                <option [ngValue]="true" selected>Có</option>
+                <option [ngValue]="false">Không</option>
+              </select>
+              <div
+                *ngIf="submitted && f.OnMobile.errors"
+                class="invalid-feedback"
+              >
+                <div *ngIf="f.OnMobile.errors.required">Không được trống</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="Url" class="form-label">Url </label>
+              <!-- Cho sửa và required khi có Nghiệp vụ -->
+              <input
+                type="text"
+                class="form-control"
+                id="Url"
+                placeholder="Nhập Url"
+                formControlName="Url"
+                [(ngModel)]="model.Url"
+                [ngModelOptions]="{ standalone: true }"
+                maxlength="300"
+                [ngClass]="{ 'is-invalid': submitted && f.Url.errors }"
+                [readOnly]="model.RefTypeId || model.IsDefault"
+              />
+              <div *ngIf="submitted && f.Url.errors" class="invalid-feedback">
+                <div *ngIf="f.Url.errors.maxlength">Tối đa 300 ký tự</div>
+              </div>
+            </div>
+            <div class="form-group col-md-6">
+              <label for="Icon" class="form-label">Icon</label>
+              <input
+                type="text"
+                class="form-control"
+                id="Icon"
+                placeholder="Nhập class icon"
+                formControlName="Icon"
+                [(ngModel)]="model.Icon"
+                [ngModelOptions]="{ standalone: true }"
+                maxlength="100"
+                [ngClass]="{ 'is-invalid': submitted && f.Icon.errors }"
+              />
+              <div *ngIf="submitted && f.Icon.errors" class="invalid-feedback">
+                <div *ngIf="f.Icon.errors.maxlength">Tối đa 100 ký tự</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-12">
+              <label for="txtNote" class="form-label">Ghi chú</label>
+              <textarea
+                rows="3"
+                formControlName="Note"
+                [(ngModel)]="model.Note"
+                [ngModelOptions]="{ standalone: true }"
+                class="form-control"
+                id="txtNote"
+                placeholder="Ghi chú"
+                maxlength="1000"
+                [ngClass]="{ 'is-invalid': submitted && f.Note.errors }"
+              ></textarea>
+              <div *ngIf="submitted && f.Note.errors" class="invalid-feedback">
+                <div *ngIf="f.Note.errors?.[maxlength]">Tối đa 1000 ký tự</div>
+              </div>
+            </div>
+          </div>
+        </form>
+
+        <div class="form-row" *ngIf="model.IsDefault || model.RefTypeId">
+          <div class="form-group col-md-12 m-b-0">
+            <label class="form-label font-weight-bold"
+              >Danh sách chức năng</label
+            >
+            <div class="dataTables_wrapper dt-bootstrap4 no-footer">
+              <div class="table-responsive">
+                <table
+                  class="table table-hover table-bordered e-commerce-table"
+                >
+                  <thead>
+                    <tr>
+                      <th
+                        scope="col"
+                        class="text-center align-middle"
+                        [width]="'30px'"
+                      >
+                        #
+                      </th>
+                      <th scope="col" class="align-middle">Mã</th>
+                      <th scope="col" class="align-middle">Tên</th>
+                      <th scope="col" class="align-middle">Quyền dữ liệu</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let item of model.FeatureFunctions">
+                      <td class="text-center">
+                        <input
+                          type="checkbox"
+                          [checked]="item.IsChecked"
+                          (click)="onCheckFunction(item)"
+                        />
+                      </td>
+                      <td>
+                        {{ item.FunctionCode }}
+                      </td>
+                      <td>
+                        {{ item.FunctionName }}
+                      </td>
+                      <td>
+                        <ng-select
+                          [searchable]="true"
+                          dropdownPosition="bottom"
+                          placeholder="Chọn quyền dữ liệu"
+                          notFoundText="{{ ngSelectMessage.NotFound }}"
+                          [appendTo]="'body'"
+                          [(ngModel)]="item.RuleId"
+                        >
+                          <ng-option
+                            *ngFor="let rule of lstRule"
+                            [value]="rule.Id"
+                            [selected]="rule.Id == item.RuleId"
+                          >
+                            {{ rule.Name }}
+                          </ng-option>
+                        </ng-select>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button
+          *ngIf="lstFunctionCode && lstFunctionCode.includes(functionCode)"
+          type="submit"
+          class="btn btn-primary"
+          (click)="onSubmit()"
+        >
+          Lưu
+        </button>
+        <button
+          (click)="onHide()"
+          id="closeModalButton"
+          class="btn btn-secondary"
+          data-dismiss="modal"
+        >
+          Đóng
+        </button>
+      </div>
+    </div>
+    <!--// -->
+
+    <!-- Display -->
+    <div class="modal-content" *ngIf="functionCode == FunctionCode.DISPLAY">
+      <div class="modal-header justify-content-between align-items-center">
+        <h5 class="modal-title">Chi tiết Menu</h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          (click)="onHide()"
+        >
+          <i class="anticon anticon-close"></i>
+        </button>
+      </div>
+      <div class="modal-body scrollable">
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="Name"
+              >Tên
+              <i
+                *ngIf="model.IsDefault"
+                class="anticon anticon-check-circle"
+                data-toggle="tooltip"
+                data-placement="top"
+                title="Menu mặc định của hệ thống"
+              ></i
+            ></label>
+            <input
+              type="text"
+              class="form-control"
+              id="Name"
+              [(ngModel)]="model.Name"
+              readonly
+            />
+          </div>
+          <div class="form-group col-md-6">
+            <label for="ParentId">Menu cha</label>
+            <input
+              type="text"
+              class="form-control"
+              id="ParentId"
+              [(ngModel)]="model.ParentName"
+              readonly
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="Url" class="form-label">Thứ tự</label>
+            <input
+              type="text"
+              class="form-control"
+              id="Url"
+              [(ngModel)]="model.NO"
+              readonly
+            />
+          </div>
+          <div class="form-group col-md-6">
+            <label for="IsActive">Trạng thái</label>
+            <input
+              type="text"
+              class="form-control"
+              id="IsActive"
+              [(ngModel)]="dislayIsActive"
+              readonly
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="RefTypeId">Nghiệp vụ</label>
+            <input
+              type="text"
+              class="form-control"
+              id="RefTypeId"
+              [(ngModel)]="model.RefTypeName"
+              readonly
+            />
+          </div>
+          <div class="form-group col-md-6">
+            <label for="OnMobile">Trên Mobile</label>
+            <input
+              type="text"
+              class="form-control"
+              id="OnMobile"
+              [(ngModel)]="dislayOnMobile"
+              readonly
+            />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="Url" class="form-label">Url</label>
+            <input
+              type="text"
+              class="form-control"
+              id="Url"
+              [(ngModel)]="model.Url"
+              readonly
+            />
+          </div>
+
+          <div class="form-group col-md-6">
+            <label for="Icon" class="form-label">Icon</label>
+            <input
+              type="text"
+              class="form-control"
+              id="Icon"
+              [(ngModel)]="model.Icon"
+              readonly
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-md-12">
+            <label for="txtNote" class="form-label">Ghi chú</label>
+            <textarea
+              rows="3"
+              class="form-control"
+              id="txtNote"
+              [(ngModel)]="model.Note"
+              maxlength="1000"
+              readonly
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="form-row" *ngIf="model.IsDefault || model.RefTypeId">
+          <div class="form-group col-md-12">
+            <label class="form-label font-weight-bold"
+              >Danh sách chức năng</label
+            >
+            <div class="dataTables_wrapper dt-bootstrap4 no-footer">
+              <div class="table-responsive">
+                <table
+                  class="table table-hover table-bordered e-commerce-table"
+                >
+                  <thead>
+                    <tr>
+                      <th
+                        scope="col"
+                        class="text-center align-middle"
+                        [width]="'30px'"
+                      >
+                        STT
+                      </th>
+                      <th scope="col" class="align-middle">Mã</th>
+                      <th scope="col" class="align-middle">Tên</th>
+                      <th scope="col" class="align-middle">Quyền dữ liệu</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr
+                      *ngFor="
+                        let featureFunction of model.FeatureFunctions;
+                        let indexOfelement = index
+                      "
+                    >
+                      <td class="text-center">
+                        {{ indexOfelement + 1 }}
+                      </td>
+                      <td>
+                        {{ featureFunction.FunctionCode }}
+                      </td>
+                      <td>
+                        {{ featureFunction.FunctionName }}
+                      </td>
+                      <td>
+                        {{ featureFunction.RuleName }}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button
+          *ngIf="lstFunctionCode && lstFunctionCode.includes(FunctionCode.EDIT)"
+          class="btn btn-primary"
+          (click)="onEdit()"
+        >
+          Sửa
+        </button>
+        <button
+          *ngIf="
+            lstFunctionCode && lstFunctionCode.includes(FunctionCode.DELETE)
+          "
+          class="btn btn-danger btn-delete-left"
+          (click)="onDelete()"
+        >
+          Xóa
+        </button>
+        <button
+          (click)="onHide()"
+          id="closeModalButton"
+          class="btn btn-secondary"
+          data-dismiss="modal"
+        >
+          Đóng
+        </button>
+      </div>
+    </div>
+    <!--// -->
+  </div>
+</div>

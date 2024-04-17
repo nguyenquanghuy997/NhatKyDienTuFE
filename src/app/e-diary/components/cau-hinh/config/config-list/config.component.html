@@ -1,0 +1,107 @@
+<app-error-page [isNotPermission]="
+    lstFunctionCode && !lstFunctionCode?.includes(FunctionCode.VIEW)
+  "></app-error-page>
+<div *ngIf="lstFunctionCode && lstFunctionCode.includes(FunctionCode.VIEW)" class="card">
+  <div *ngIf="loading">
+    <div class="loading-overlay">
+      <div class="loading-spinner"></div>
+    </div>
+  </div>
+  <div class="card-body">
+    <!-- Filter - BEGIN -->
+    <div class="row m-b-5">
+      <div class="col-lg-8">
+        <form nz-form [formGroup]="searchForm">
+          <div class="form-group row">
+            <div class="col-md-3">
+              <label for="Name">Tên</label>
+              <input type="text" class="form-control" placeholder="Tên cấu hình" id="Name" formControlName="Name" />
+            </div>
+            <div class="col-md-3">
+              <label for="Code">Mã</label>
+              <input type="text" class="form-control" placeholder="Mã cấu hình" id="Code" formControlName="Code" />
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+              <button class="btn btn-primary" (click)="onSearchData()">
+                <i class="anticon anticon-search m-r-5"></i>
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="col-lg-4 form-group" *ngIf="lstFunctionCode.includes(FunctionCode.CREATE)">
+        <div class="h-100 d-flex align-items-end justify-content-end">
+          <button class="btn btn-primary" (click)="onOpenModalCreate()">
+            <i class="anticon anticon-plus-circle m-r-5"></i>
+            <span>Thêm mới</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- Filter - END -->
+
+    <!-- Table - BEGIN -->
+    <div class="dataTables_wrapper dt-bootstrap4 no-footer">
+      <div class="table-responsive">
+        <table id="dtDynamicVerticalScroll" class="table table-hover table-bordered e-commerce-table">
+          <thead>
+            <tr>
+              <th class="text-center align-middle" [width]="'5%'">STT</th>
+              <th class="text-center align-middle" [width]="'30%'">Tên</th>
+              <th class="text-left align-middle" [width]="'10%'">Mã</th>
+              <th class="text-left align-middle" [width]="'20%'">Giá trị</th>
+              <th class="text-left align-middle" [width]="'29%'">Ghi chú</th>
+              <th class="text-left align-middle" [width]="'6%'">Thao tác</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of lstItem; let indexOfelement = index">
+              <td class="text-center">
+                {{ (pageIndex - 1) * pageSize + indexOfelement + 1 }}
+              </td>
+              <td class="text-left">
+                <a href="javascript:void({{ item.Id }})" class="text-primary" (click)="onOpenModalDisplay(item.Id)">
+                  {{ item.Name }}
+                </a>
+              </td>
+              <td class="text-left">
+                {{ item.Code }}
+              </td>
+              <td class="text-left text-nowrap" data-toggle="tooltip" title="{{ item.Value }}" style="
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    max-width: 200px;
+                  ">
+                {{ item.Value }}
+              </td>
+              <td class="text-left">
+                {{ item.Note }}
+              </td>
+              <td class="text-center">
+                <button class="btn btn-icon btn-hover btn-sm btn-rounded pull-right" data-toggle="tooltip" title="Sửa"
+                  *ngIf="lstFunctionCode.includes(FunctionCode.EDIT)" (click)="onOpenModalEdit(item.Id)">
+                  <i class="anticon anticon-edit"></i>
+                </button>
+                <button class="btn btn-icon btn-hover btn-sm btn-rounded" (click)="onDeleteModal(item)"
+                  data-toggle="tooltip" title="Xóa" *ngIf="lstFunctionCode.includes(FunctionCode.DELETE)">
+                  <i class="anticon anticon-delete"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Paging - BEGIN -->
+      <app-pagination [pageIndex]="pageIndex" [totalItem]="totalItem" [pageSize]="pageSize" [pageCount]="pageCount"
+        (onChangePagination)="onChangePagination($event)">
+      </app-pagination>
+      <!-- Paging - END -->
+      <app-nodata-info [totalItem]="totalItem"> </app-nodata-info>
+    </div>
+    <!-- Table - END -->
+  </div>
+</div>
+<app-config-modal #popup [model]="respone" [functionCode]="functionCode" [lstFunctionCode]="lstFunctionCodePopup"
+  (onSubmitModal)="onSubmitModal($event)" (onSwitchEdit)="onSwitchEdit()" (onConfirmDel)="onDeleteModal($event)">
+</app-config-modal>

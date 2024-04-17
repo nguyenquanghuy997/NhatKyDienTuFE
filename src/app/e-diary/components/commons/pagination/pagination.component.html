@@ -1,0 +1,135 @@
+<div class="row">
+    <div class="col-sm-12 col-md-5">
+        <div class="dataTables_info p-t-0" id="DataTables_Table_0_info" role="status" aria-live="polite">
+            <div class="form-row">
+                <div class="col-auto p-t-10">Số lượng: </div>
+                <div class="col-auto">
+                    <select class="form-control form-control-xs" [(ngModel)]="pageSize"
+                        (ngModelChange)="changePageSize()">
+                        <option selected="true" [ngValue]="10">10</option>
+                        <option [ngValue]="25">25</option>
+                        <option [ngValue]="50">50</option>
+                        <option [ngValue]="100">100</option>
+                    </select>
+                </div>
+                <div class="col-auto p-t-10">
+                    bản ghi/trang.
+                </div>
+                <div class="col-auto p-t-10">
+                    Hiển thị từ {{ totalItem == 0 ? 0 : ((pageIndex - 1) * pageSize + 1) }}
+                    đến {{ (pageIndex * pageSize) < totalItem ? (pageIndex * pageSize) : totalItem}} của {{ totalItem }}
+                        bản ghi </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12 col-md-7">
+            <div class="dataTables_paginate paging_simple_numbers" id="DataTables_Table_0_paginate">
+                <ul class="pagination">
+
+                    <li [class]="'paginate_button page-item previous ' + (pageIndex == 1 ? 'disabled': '')"
+                        id="DataTables_Table_0_previous">
+                        <a style="cursor: pointer;" (click)="changePagination(pageIndex-1)"
+                            aria-controls="DataTables_Table_0" data-dt-idx="0" tabindex="0" class="page-link">Trước</a>
+                    </li>
+
+                    <!-- pageCount <= 7 thì build từ 1 đến 7 -->
+                    <ng-container *ngIf="pageCount.length <= 7">
+                        <ng-container *ngFor="let page of pageCount; let i=index;">
+                            <li [class]="'paginate_button page-item ' + (pageIndex === (i + 1) ? 'active' : '' )">
+                                <a style="cursor: pointer;" (click)="changePagination(i+1)"
+                                    aria-controls="DataTables_Table_0" tabindex="0" class="page-link">{{ i + 1 }}</a>
+                            </li>
+                        </ng-container>
+                    </ng-container>
+
+                    <!-- pageCount > 8 thì build từ 1 .. cuối -->
+                    <ng-container *ngIf="pageCount.length > 7">
+
+                        <!-- Đang ở đầu [1,2,3,4,5 ... cuối]-->
+                        <ng-container *ngIf="pageIndex <= 4">
+                            <ng-container *ngFor="let page of pageCount; let i=index;">
+                                <li [class]="'paginate_button page-item ' + (pageIndex === (i + 1) ? 'active' : '' )"
+                                    *ngIf="i <= 4">
+                                    <a style="cursor: pointer;" (click)="changePagination(i+1)"
+                                        aria-controls="DataTables_Table_0" tabindex="0" class="page-link">{{ i + 1
+                                        }}</a>
+                                </li>
+                            </ng-container>
+
+                            <li [class]="'paginate_button page-item '">
+                                <a aria-controls="DataTables_Table_0" tabindex="0" class="page-link">...</a>
+                            </li>
+
+                            <li
+                                [class]="'paginate_button page-item ' + (pageIndex === pageCount.length ? 'active' : '' )">
+                                <a style="cursor: pointer;" (click)="changePagination(pageCount.length)"
+                                    aria-controls="DataTables_Table_0" tabindex="0" class="page-link">{{
+                                    pageCount.length }}</a>
+                            </li>
+                        </ng-container>
+
+                        <!-- Đang ở cuối [1 ... cuối - 4, cuối - 3, cuối - 2,  cuối - 1, cuối] -->
+                        <ng-container *ngIf="pageIndex >= pageCount.length - 3">
+                            <li [class]="'paginate_button page-item ' + (pageIndex === 1 ? 'active' : '' )">
+                                <a style="cursor: pointer;" (click)="changePagination(1)"
+                                    aria-controls="DataTables_Table_0" tabindex="0" class="page-link">{{ 1 }}</a>
+                            </li>
+
+                            <li [class]="'paginate_button page-item '">
+                                <a aria-controls="DataTables_Table_0" tabindex="0" class="page-link">...</a>
+                            </li>
+
+                            <ng-container *ngFor="let page of pageCount; let i=index;">
+                                <li [class]="'paginate_button page-item ' + (pageIndex === (i + 1) ? 'active' : '' )"
+                                    *ngIf="i >= pageCount.length - 5">
+                                    <a style="cursor: pointer;" (click)="changePagination(i+1)"
+                                        aria-controls="DataTables_Table_0" tabindex="0" class="page-link">{{ i + 1
+                                        }}</a>
+                                </li>
+                            </ng-container>
+                        </ng-container>
+
+                        <!-- Đang ở giữa [1 ... gần giữa, giữa, giữa ... cuối] -->
+                        <ng-container *ngIf="pageIndex > 4 && pageIndex < pageCount.length - 3">
+                            <li [class]="'paginate_button page-item ' + (pageIndex === 1 ? 'active' : '' )">
+                                <a style="cursor: pointer;" (click)="changePagination(1)"
+                                    aria-controls="DataTables_Table_0" tabindex="0" class="page-link">{{ 1 }}</a>
+                            </li>
+
+                            <li [class]="'paginate_button page-item '">
+                                <a aria-controls="DataTables_Table_0" tabindex="0" class="page-link">...</a>
+                            </li>
+
+                            <ng-container *ngFor="let page of pageCount; let i=index;">
+                                <li [class]="'paginate_button page-item ' + (pageIndex === (i + 1) ? 'active' : '' )"
+                                    *ngIf=" i >= pageIndex-2 && i <= pageIndex">
+                                    <a style="cursor: pointer;" (click)="changePagination(i+1)"
+                                        aria-controls="DataTables_Table_0" tabindex="0" class="page-link">{{ i + 1
+                                        }}</a>
+                                </li>
+                            </ng-container>
+
+                            <li [class]="'paginate_button page-item '">
+                                <a aria-controls="DataTables_Table_0" tabindex="0" class="page-link">...</a>
+                            </li>
+
+                            <li
+                                [class]="'paginate_button page-item ' + (pageIndex === pageCount.length ? 'active' : '' )">
+                                <a style="cursor: pointer;" (click)="changePagination(pageCount.length)"
+                                    aria-controls="DataTables_Table_0" tabindex="0" class="page-link">{{
+                                    pageCount.length }}</a>
+                            </li>
+                        </ng-container>
+
+                    </ng-container>
+
+                    <li [class]="'paginate_button page-item next ' + ((pageIndex) == pageCount.length ? 'disabled': '')"
+                        id="DataTables_Table_0_next">
+                        <a style="cursor: pointer;" (click)="changePagination(pageIndex+1)"
+                            aria-controls="DataTables_Table_0" data-dt-idx="3" tabindex="0" class="page-link">Sau</a>
+                    </li>
+
+                </ul>
+            </div>
+        </div>
+    </div>

@@ -1,0 +1,44 @@
+<div *ngIf="menuItems && menuItems.length > 0">
+  <li
+    [ngClass]="
+      item.SubFeature.length > 0 ? 'nav-item dropdown' : 'nav-item alone'
+    "
+    *ngFor="let item of menuItems"
+    [routerLinkActive]="item.SubFeature.length > 0 ? 'open' : 'active'"
+    [routerLinkActiveOptions]="{ exact: true }"
+  >
+    <a
+      href="javascript:void({{ item.Id }});"
+      class="dropdown-toggle"
+      *ngIf="item.SubFeature.length > 0"
+    >
+      <span class="icon-holder">
+        <i
+          class="m-r-10"
+          [ngClass]="['outline', item.Icon == null ? '' : item.Icon]"
+        ></i>
+      </span>
+      <span class="title">{{ item.Name }}</span>
+      <span class="arrow">
+        <i class="arrow-icon"></i>
+      </span>
+    </a>
+    <a
+      [routerLink]="item.Url"
+      (click)="checkHiddenMenuOnMobile()"
+      *ngIf="item.SubFeature.length === 0"
+    >
+      <span class="icon-holder">
+        <i
+          class="m-r-10"
+          [ngClass]="['outline', item.Icon == null ? '' : item.Icon]"
+        ></i>
+      </span>
+      <span class="title">{{ item.Name }}</span>
+    </a>
+
+    <ul class="dropdown-menu" *ngIf="item.SubFeature.length > 0">
+      <app-item-menu [menuItems]="item.SubFeature"></app-item-menu>
+    </ul>
+  </li>
+</div>

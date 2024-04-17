@@ -1,0 +1,16 @@
+.modal .modal-dialog {
+  width: 80%;
+  max-width: 100%;
+  /* margin: auto; */
+}
+.chart-wrapper {
+  width: 100%;
+  position: relative;
+  height: 20vh;
+  max-height: 40vh;
+}
+
+.modal-body .table-data {
+  max-height: calc(100vh - 300px);
+  overflow-y: auto;
+}

@@ -1,0 +1,88 @@
+<div class="modal" id="UserLogModal" #UserLogModal>
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content" *ngIf="functionCode == FunctionCode.DISPLAY">
+      <div class="modal-header justify-content-between align-items-center">
+        <h5 class="modal-title">Chi tiết hành động</h5>
+        <button type="button" class="close" (click)="onHide()">
+          <i class="anticon anticon-close"></i>
+        </button>
+      </div>
+      <div class="modal-body scrollable">
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label>Tên nhân viên</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="model.Username"
+              readonly
+            />
+          </div>
+          <div class="form-group col-md-6">
+            <label>Thời gian</label>
+            <input
+              type="text"
+              class="form-control"
+              [ngModel]="model.ActionTime | date : 'dd/MM/yyyy HH:mm:ss'"
+              readonly
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label class="form-label">Đối tượng</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="model.FeatureName"
+              readonly
+            />
+          </div>
+          <div class="form-group col-md-6">
+            <label>Thao tác</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="model.FunctionCode + ' - ' + model.FunctionName"
+              readonly
+            />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group col-md-12">
+            <label class="form-label">Đường dẫn</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="model.ActionPath"
+              readonly
+            />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group col-md-12">
+            <label class="form-label">Dữ liệu truyền vào</label>
+            <textarea
+              rows="15"
+              cols="50"
+              class="form-control"
+              placeholder="Dữ liệu truyền vào"
+              readonly
+              >{{ ActionParams | json }}</textarea
+            >
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button
+          (click)="onHide()"
+          id="closeModalButton"
+          class="btn btn-secondary"
+        >
+          Đóng
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,114 @@
+<!-- Modal -->
+<div
+  *ngIf="
+    lstFunctionCode &&
+    (lstFunctionCode.includes(FunctionCode.SUBMIT) ||
+      lstFunctionCode.includes(FunctionCode.APPROVE) ||
+      lstFunctionCode.includes(FunctionCode.REJECT))
+  "
+  class="modal fade"
+  id="flowModal"
+>
+  <button
+    id="openModalButton"
+    [hidden]="true"
+    data-toggle="modal"
+    data-target="#flowModal"
+  >
+    Open Modal
+  </button>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">
+          <p
+            *ngIf="
+              lstFunctionCode.includes(FunctionCode.SUBMIT) &&
+              functionCode == FunctionCode.SUBMIT
+            "
+          >
+            Trình phê duyệt
+          </p>
+          <p
+            *ngIf="
+              lstFunctionCode.includes(FunctionCode.APPROVE) &&
+              functionCode == FunctionCode.APPROVE
+            "
+          >
+            Phê duyệt
+          </p>
+          <p
+            *ngIf="
+              lstFunctionCode.includes(FunctionCode.REJECT) &&
+              functionCode == FunctionCode.REJECT
+            "
+          >
+            Từ chối
+          </p>
+        </h5>
+        <button type="button" class="close" data-dismiss="modal">
+          <i class="anticon anticon-close"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="popupForm" (ngSubmit)="onSubmit()">
+          <div class="form-row">
+            <div class="form-group col-md-12 m-b-0">
+              <label for="txtNote">Ghi chú</label>
+
+              <textarea
+                rows="3"
+                formControlName="Note"
+                class="form-control"
+                id="txtNote"
+                placeholder="Ghi chú"
+                [(ngModel)]="model.SubmittedNote"
+                maxlength="1000"
+                [ngClass]="{ 'is-invalid': submitted && f.Note.errors }"
+              ></textarea>
+              <div *ngIf="submitted && f.Note.errors" class="invalid-feedback">
+                <div *ngIf="f.Note.errors?.[maxlength]">Tối đa 1000 ký tự</div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-primary" (click)="onSubmit()">
+          <span
+            *ngIf="
+              lstFunctionCode.includes(FunctionCode.SUBMIT) &&
+              functionCode == FunctionCode.SUBMIT
+            "
+          >
+            Trình phê duyệt
+          </span>
+          <span
+            *ngIf="
+              lstFunctionCode.includes(FunctionCode.APPROVE) &&
+              functionCode == FunctionCode.APPROVE
+            "
+          >
+            Phê duyệt
+          </span>
+          <span
+            *ngIf="
+              lstFunctionCode.includes(FunctionCode.REJECT) &&
+              functionCode == FunctionCode.REJECT
+            "
+          >
+            Từ chối
+          </span>
+        </button>
+        <button
+          id="closeFlowModalButton"
+          type="button"
+          class="btn btn-default"
+          data-dismiss="modal"
+        >
+          Đóng
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,494 @@
+<div class="modal fade show" id="ShiftCategoryModal">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header justify-content-between align-items-center">
+        <h5 class="modal-title">
+          {{
+          functionCode == FunctionCode.CREATE ||
+          functionCode == FunctionCode.EDIT
+          ? !model.Id
+          ? "Thêm mới "
+          : "Cấu hình "
+          : "Chi tiết "
+          }}
+          mẫu ca trực
+        </h5>
+        <button type="button" class="close" data-dismiss="modal" (click)="onHide()">
+          <i class="anticon anticon-close"></i>
+        </button>
+      </div>
+      <div class="modal-body scrollable">
+        <form [formGroup]="popupForm" (ngSubmit)="onSubmit()" [attr.class]="
+            functionCode == FunctionCode.DISPLAY ? 'modalDetail' : undefined
+          ">
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="Name">Tên <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="Name" maxlength="100" placeholder="Nhập tên"
+                formControlName="Name" [attr.readonly]="
+                  functionCode == FunctionCode.DISPLAY ? true : undefined
+                " [ngClass]="{
+                  'is-invalid':
+                    f.Name.errors && (f.Name.touched || f.Name.dirty)
+                }" required />
+              <div *ngIf="f.Name.errors && (f.Name.touched || f.Name.dirty)" class="invalid-feedback">
+                <div *ngIf="f.Name.errors.required">Tên không được trống</div>
+                <div *ngIf="f.Name.errors.maxLength">
+                  Tên không quá 100 ký tự
+                </div>
+              </div>
+            </div>
+            <div class="form-group col-md-6">
+              <label for="ShiftCategoryId">Loại ca trực <span class="text-danger">*</span></label>
+              <ng-select [searchable]="true" dropdownPosition="bottom" formControlName="ShiftCategoryId"
+                id="ShiftCategoryId" placeholder="Chọn loại ca trực" notFoundText="{{ ngSelectMessage.NotFound }}"
+                [appendTo]="'body'" (change)="onChangeSelect($event)" *ngIf="functionCode != FunctionCode.DISPLAY"
+                [ngClass]="{
+                  'is-invalid':
+                    f.ShiftCategoryId.errors &&
+                    (f.ShiftCategoryId.touched || f.ShiftCategoryId.dirty)
+                }">
+                <ng-option *ngFor="let item of lstShiftCategory" [value]="item.Id">
+                  {{ item.Name }}
+                </ng-option>
+              </ng-select>
+              <input type="text" class="form-control" formControlName="ShiftCategoryName"
+                *ngIf="functionCode == FunctionCode.DISPLAY" readonly />
+              <div *ngIf="
+                  f.ShiftCategoryId.errors &&
+                  (f.ShiftCategoryId.touched || f.ShiftCategoryId.dirty)
+                " class="error-feedback">
+                <div *ngIf="f.ShiftCategoryId.errors.required">
+                  Loại ca trực không được trống
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="Note" class="form-label">Ghi chú</label>
+              <textarea rows="2" formControlName="Note" class="form-control" id="Note" placeholder="Ghi chú"
+                maxlength="1000" [attr.readonly]="
+                  functionCode == FunctionCode.DISPLAY ? true : undefined
+                " [ngClass]="{
+                  'is-invalid':
+                    f.Note.errors && (f.Note.touched || f.Note.dirty)
+                }"></textarea>
+              <div *ngIf="f.Note.errors && (f.Note.touched || f.Note.dirty)" class="invalid-feedback">
+                <div *ngIf="f.Note.errors?.[maxlength]">Tối đa 1000 ký tự</div>
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <label for="IsActive">Trạng thái</label>
+              <input *ngIf="functionCode == FunctionCode.DISPLAY" type="text" class="form-control"
+                formControlName="IsActiveName" readonly />
+              <select *ngIf="functionCode != FunctionCode.DISPLAY" class="form-select form-control"
+                aria-label=".form-select-lg" id="IsActive" formControlName="IsActive" [ngClass]="{
+                  'is-invalid':
+                    (f.IsActive.touched || f.IsActive.dirty) &&
+                    f.IsActive.errors
+                }">
+                <option [ngValue]="true" selected>Hoạt động</option>
+                <option [ngValue]="false">Không hoạt động</option>
+              </select>
+              <div *ngIf="
+                  (f.IsActive.touched || f.IsActive.dirty) && f.IsActive.errors
+                " class="invalid-feedback">
+                <div *ngIf="f.IsActive.errors.required">Không được trống</div>
+              </div>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">Màu hiển thị <span class="text-danger">*</span></label>
+              <div style="width: fit-content">
+                <ngx-colors *ngIf="functionCode != FunctionCode.DISPLAY" ngx-colors-trigger
+                  [formControl]="popupForm.controls['Color']" [format]="'hex'" [hideTextInput]="true"
+                  [hideColorPicker]="true">
+                </ngx-colors>
+                <div *ngIf="functionCode == FunctionCode.DISPLAY" class="previewNgxColors">
+                  <div class="background">
+                    <div class="circle" [style.background]="f.Color.value"></div>
+                  </div>
+                </div>
+              </div>
+              <div *ngIf="f.Color.errors" class="error-feedback">
+                <div *ngIf="f.Color.errors.required">
+                  Màu hiển thị không để trống
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="accordion" id="accordion-default">
+            <div class="card">
+              <div class="card-header">
+                <h5 class="card-title d-flex align-items-center justify-content-between"
+                  style="background-color: #fafafa">
+                  <a data-toggle="collapse" class="flex-fill" href="#collapseOneDefault">
+                    <span>Thành phần <span class="text-danger">*</span>
+                      <span *ngIf="shiftComponents.errors" class="m-l-5 error-feedback">
+                        <span *ngIf="shiftComponents.errors.duplicate">Thành phần không được trùng
+                        </span>
+                      </span>
+                    </span>
+                  </a>
+                  <button *ngIf="functionCode != FunctionCode.DISPLAY" type="button" data-toggle="tooltip"
+                    data-placement="top" title="Thêm" class="btn btn-primary btn-sm float-right m-r-10"
+                    (click)="onAddShiftComponent()">
+                    <i class="anticon anticon-plus-circle"></i>
+                    Thêm
+                  </button>
+                </h5>
+              </div>
+              <div id="collapseOneDefault" class="accordion-collapse collapse show" data-parent="#accordion-default">
+                <div class="dataTables_wrapper dt-bootstrap4 no-footer">
+                  <div class="table-responsive">
+                    <ng-container formArrayName="ShiftComponents" style="max-height: 50vh;">
+                      <div class="table-responsive" style="max-height: 50vh;">
+                        <table class="table table-hover table-bordered e-commerce-table">
+                          <thead>
+                            <tr>
+                              <th scope="col" class="text-center align-middle" [width]="'5%'">
+                                STT
+                              </th>
+                              <th scope="col" class="align-middle" [width]="'40%'">
+                                Chức danh
+                              </th>
+                              <th scope="col" class="align-middle" [width]="'45%'">
+                                Nghiệp vụ
+                              </th>
+                              <th scope="col" class="align-middle text-center" [width]="'10%'"
+                                *ngIf="functionCode != FunctionCode.DISPLAY">
+                                Tác vụ
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr *ngFor="
+                              let item of shiftComponents.controls;
+                              let i = index
+                            " [formGroupName]="i">
+                              <td class="text-center">{{ i + 1 }}</td>
+                              <td>
+                                <ng-select [searchable]="true" formControlName="JobTitleId" id="JobTitleId"
+                                  placeholder="Chọn thành phần" dropdownPosition="bottom"
+                                  notFoundText="{{ ngSelectMessage.NotFound }}" [appendTo]="'body'"
+                                  *ngIf="functionCode != FunctionCode.DISPLAY" [ngClass]="{
+                                  'is-invalid':
+                                    shiftComponents.controls[i].controls
+                                      .JobTitleId.errors &&
+                                    (shiftComponents.controls[i].controls
+                                      .JobTitleId.touched ||
+                                      shiftComponents.controls[i].controls
+                                        .JobTitleId.dirty)
+                                }">
+                                  <ng-option *ngFor="let item of lstJobTitle" [value]="item.Id">
+                                    {{ item.Name }}
+                                  </ng-option>
+                                </ng-select>
+                                <input type="text" class="form-control" formControlName="JobTitleName"
+                                  *ngIf="functionCode == FunctionCode.DISPLAY" readonly />
+                                <div *ngIf="
+                                  shiftComponents.controls[i].controls
+                                    .JobTitleId.errors &&
+                                  (shiftComponents.controls[i].controls
+                                    .JobTitleId.touched ||
+                                    shiftComponents.controls[i].controls
+                                      .JobTitleId.dirty)
+                                " class="error-feedback">
+                                  <div *ngIf="
+                                    shiftComponents.controls[i].controls
+                                      .JobTitleId.errors.required
+                                  ">
+                                    Thành phần không được trống
+                                  </div>
+                                </div>
+                              </td>
+                              <td>
+                                <ng-select [searchable]="true" formControlName="RefTypeIds" id="RefTypeIds"
+                                  placeholder="Chọn nghiệp vụ" dropdownPosition="bottom" [multiple]="true"
+                                  notFoundText="{{ ngSelectMessage.NotFound }}" [appendTo]="'body'"
+                                  *ngIf="functionCode != FunctionCode.DISPLAY" [ngClass]="{
+                                  'is-invalid':
+                                    shiftComponents.controls[i].controls
+                                      .RefTypeIds.errors &&
+                                    (shiftComponents.controls[i].controls
+                                      .RefTypeIds.touched ||
+                                      shiftComponents.controls[i].controls
+                                        .RefTypeIds.dirty)
+                                }">
+                                  <ng-option *ngFor="let item of lstRefType" [value]="item.Id">
+                                    {{ item.Name }}
+                                  </ng-option>
+                                </ng-select>
+                                <div *ngIf="
+                                  functionCode == FunctionCode.DISPLAY &&
+                                  shiftComponents.controls[i].controls
+                                    .RefTypeNames.value
+                                ">
+                                  <div *ngFor="
+                                    let m of shiftComponents.controls[i]
+                                      .controls.RefTypeNames.value
+                                  ">
+                                    {{ m }}
+                                  </div>
+                                </div>
+                                <div *ngIf="
+                                  shiftComponents.controls[i].controls
+                                    .RefTypeIds.errors &&
+                                  (shiftComponents.controls[i].controls
+                                    .RefTypeIds.touched ||
+                                    shiftComponents.controls[i].controls
+                                      .RefTypeIds.dirty)
+                                " class="error-feedback">
+                                  <div *ngIf="
+                                    shiftComponents.controls[i].controls
+                                      .RefTypeIds.errors.required
+                                  ">
+                                    Nghiệp vụ không được trống
+                                  </div>
+                                </div>
+                              </td>
+                              <td class="text-center align-middle" *ngIf="functionCode != FunctionCode.DISPLAY">
+                                <button type="button" *ngIf="shiftComponents.controls.length > 1" data-toggle="tooltip"
+                                  data-placement="top" title="Xóa" class="btn btn-icon btn-hover btn-sm btn-rounded"
+                                  (click)="onDeleteShiftComponent(i)">
+                                  <i class="anticon anticon-delete"></i>
+                                </button>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </ng-container>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="accordion" id="accordion-default2">
+            <div class="card">
+              <div class="card-header">
+                <h5 class="card-title d-flex align-items-center justify-content-between"
+                  style="background-color: #fafafa">
+                  <a class="collapsed" class="flex-fill" data-toggle="collapse" href="#collapseTwoDefault">
+                    <span>Danh sách ca trực <span class="text-danger">*</span>
+                      <span *ngIf="shifts.errors" class="m-l-5 error-feedback">
+                        <span *ngIf="shifts.errors.exceedTime">Tổng thời gian các ca phải đủ 24 giờ
+                        </span>
+                        <span *ngIf="shifts.errors.duplicate">Tên, Mã không được trùng nhau
+                        </span>
+                      </span>
+                    </span>
+                  </a>
+                  <button *ngIf="functionCode != FunctionCode.DISPLAY" type="button" data-toggle="tooltip"
+                    data-placement="top" title="Thêm" class="btn btn-primary btn-sm float-right m-r-10"
+                    (click)="onAddShift()">
+                    <i class="anticon anticon-plus-circle"></i>
+                    Thêm
+                  </button>
+                </h5>
+              </div>
+              <div id="collapseTwoDefault" class="accordion-collapse collapse show" data-parent="#accordion-default2">
+                <div class="dataTables_wrapper dt-bootstrap4 no-footer">
+                  <ng-container formArrayName="Shifts">
+                    <div class="table-responsive" style="max-height: 50vh;">
+                      <table class="table table-hover table-bordered e-commerce-table">
+                        <thead>
+                          <tr>
+                            <th scope="col" class="text-center align-middle" [width]="'30px'">
+                              STT
+                            </th>
+                            <th scope="col" class="align-middle">Tên ca trực</th>
+                            <th scope="col" class="align-middle">
+                              Thời gian bắt đầu
+                            </th>
+                            <th scope="col" class="align-middle">
+                              Thời gian kết thúc
+                            </th>
+                            <th scope="col" class="align-middle">Ghi chú</th>
+                            <th scope="col" class="text-center align-middle" [width]="'90px'"
+                              *ngIf="functionCode != FunctionCode.DISPLAY">
+                              Tác vụ
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr *ngFor="let item of shifts.controls; let i = index" [formGroupName]="i">
+                            <td class="text-center">{{ i + 1 }}</td>
+                            <td>
+                              <input type="text" placeholder="Nhập tên" class="w-100 form-control" maxlength="100"
+                                formControlName="Name" [attr.readonly]="
+                                functionCode == FunctionCode.DISPLAY
+                                  ? true
+                                  : undefined
+                              " [ngClass]="{
+                                'is-invalid':
+                                  shifts.controls[i].controls.Name.errors &&
+                                  (shifts.controls[i].controls.Name.touched ||
+                                    shifts.controls[i].controls.Name.dirty)
+                              }" />
+                              <div *ngIf="
+                                shifts.controls[i].controls.Name.errors &&
+                                (shifts.controls[i].controls.Name.touched ||
+                                  shifts.controls[i].controls.Name.dirty)
+                              " class="invalid-feedback">
+                                <div *ngIf="
+                                  shifts.controls[i].controls.Name.errors
+                                    .required
+                                ">
+                                  Tên không được trống
+                                </div>
+                                <div *ngIf="
+                                  shifts.controls[i].controls.Name.errors
+                                    .maxLength
+                                ">
+                                  Tên không quá 100 ký tự
+                                </div>
+                              </div>
+                            </td>
+                            <td>
+                              <input type="text" placeholder="HH:MM" class="w-100 form-control"
+                                formControlName="StartTime" [maxLength]="5" [cleave]="{
+                                time: true,
+                                timePattern: ['h', 'm']
+                              }" [attr.readonly]="
+                                functionCode == FunctionCode.DISPLAY
+                                  ? true
+                                  : undefined
+                              " [ngClass]="{
+                                'is-invalid':
+                                  shifts.controls[i].controls.StartTime
+                                    .errors &&
+                                  (shifts.controls[i].controls.StartTime
+                                    .touched ||
+                                    shifts.controls[i].controls.StartTime.dirty)
+                              }" />
+                              <div *ngIf="
+                                shifts.controls[i].controls.StartTime.errors &&
+                                (shifts.controls[i].controls.StartTime
+                                  .touched ||
+                                  shifts.controls[i].controls.StartTime.dirty)
+                              " class="invalid-feedback">
+                                <div *ngIf="
+                                  shifts.controls[i].controls.StartTime.errors
+                                    .required
+                                ">
+                                  Thời gian không được trống
+                                </div>
+                                <div *ngIf="
+                                  shifts.controls[i].controls.StartTime.errors
+                                    .errorFormat
+                                ">
+                                  Không đúng định dạng
+                                </div>
+                                <div *ngIf="
+                                  shifts.controls[i].controls.StartTime.errors
+                                    .notEqual &&
+                                  functionCode != FunctionCode.DISPLAY
+                                ">
+                                  Phải bắt đầu lúc kết thúc ca
+                                </div>
+                              </div>
+                            </td>
+                            <td>
+                              <input type="text" placeholder="HH:MM" [maxLength]="5" class="w-100 form-control"
+                                formControlName="EndTime" [cleave]="{
+                                time: true,
+                                timePattern: ['h', 'm']
+                              }" [attr.readonly]="
+                                functionCode == FunctionCode.DISPLAY
+                                  ? true
+                                  : undefined
+                              " [ngClass]="{
+                                'is-invalid':
+                                  shifts.controls[i].controls.EndTime.errors &&
+                                  (shifts.controls[i].controls.EndTime
+                                    .touched ||
+                                    shifts.controls[i].controls.EndTime.dirty)
+                              }" />
+                              <div *ngIf="
+                                shifts.controls[i].controls.EndTime.errors &&
+                                (shifts.controls[i].controls.EndTime.touched ||
+                                  shifts.controls[i].controls.EndTime.dirty)
+                              " class="invalid-feedback">
+                                <div *ngIf="
+                                  shifts.controls[i].controls.EndTime.errors
+                                    .required
+                                ">
+                                  Thời gian không được trống
+                                </div>
+                                <div *ngIf="
+                                  shifts.controls[i].controls.EndTime.errors
+                                    .errorFormat
+                                ">
+                                  Không đúng định dạng
+                                </div>
+                              </div>
+                            </td>
+                            <td>
+                              <input type="text" placeholder="Nhập ghi chú" class="w-100 form-control" maxlength="1000"
+                                formControlName="Note" [attr.readonly]="
+                                functionCode == FunctionCode.DISPLAY
+                                  ? true
+                                  : undefined
+                              " [ngClass]="{
+                                'is-invalid':
+                                  shifts.controls[i].controls.Note.errors &&
+                                  (shifts.controls[i].controls.Note.touched ||
+                                    shifts.controls[i].controls.Note.dirty)
+                              }" />
+                              <div *ngIf="
+                                shifts.controls[i].controls.Note.errors &&
+                                (shifts.controls[i].controls.Note.touched ||
+                                  shifts.controls[i].controls.Note.dirty)
+                              " class="invalid-feedback">
+                                <div *ngIf="shifts.controls[i].controls.Note.errors?.[maxlength]">
+                                  Tối đa 1000 ký tự
+                                </div>
+                              </div>
+                            </td>
+                            <td class="text-center align-middle" *ngIf="functionCode != FunctionCode.DISPLAY">
+                              <button type="button" *ngIf="shifts.controls.length > 1" data-toggle="tooltip"
+                                data-placement="top" title="Xóa" class="btn btn-icon btn-hover btn-sm btn-rounded"
+                                (click)="onDeleteShift(i)">
+                                <i class="anticon anticon-delete"></i>
+                              </button>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </ng-container>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button *ngIf="
+            lstFunctionCode &&
+            lstFunctionCode.includes(FunctionCode.EDIT) &&
+            functionCode == FunctionCode.DISPLAY
+          " class="btn btn-primary" (click)="onConfig()">
+          Cấu hình
+        </button>
+        <button *ngIf="
+            lstFunctionCode &&
+            lstFunctionCode.includes(FunctionCode.DELETE) &&
+            functionCode == FunctionCode.DISPLAY
+          " class="btn btn-danger btn-delete-left" (click)="onDelete()">
+          Xóa
+        </button>
+        <button type="submit" *ngIf="
+            lstFunctionCode &&
+            lstFunctionCode.includes(functionCode) &&
+            functionCode != FunctionCode.DISPLAY
+          " class="btn btn-primary" (click)="onSubmit()">
+          Lưu
+        </button>
+        <button (click)="onHide()" class="btn btn-secondary">Đóng</button>
+      </div>
+    </div>
+  </div>
+</div>

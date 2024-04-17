@@ -1,0 +1,395 @@
+<div class="modal fade" id="OrgModal" #OrgModal>
+  <div class="modal-dialog modal-lg">
+    <!-- Create & Edit -->
+    <div
+      class="modal-content"
+      *ngIf="
+        functionCode == FunctionCode.CREATE || functionCode == FunctionCode.EDIT
+      "
+    >
+      <div class="modal-header justify-content-between align-items-center">
+        <h5 class="modal-title">
+          {{ !model || !model.Id ? "Thêm mới " : "Cập nhật " }} phòng ban/tổ
+          chức
+        </h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          (click)="onHide()"
+        >
+          <i class="anticon anticon-close"></i>
+        </button>
+      </div>
+      <div class="modal-body scrollable">
+        <form [formGroup]="popupForm" (ngSubmit)="onSubmit()">
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="Name">Tên <span class="text-danger">*</span></label>
+              <input
+                type="text"
+                class="form-control"
+                id="Name"
+                placeholder="Nhập tên"
+                formControlName="Name"
+                maxlength="100"
+                [attr.readonly]="
+                  functionCode == FunctionCode.DISPLAY ? true : undefined
+                "
+                [ngClass]="{
+                  'is-invalid':
+                    f.Name.errors && (f.Name.touched || f.Name.dirty)
+                }"
+                required
+              />
+              <div
+                *ngIf="f.Name.errors && (f.Name.touched || f.Name.dirty)"
+                class="invalid-feedback"
+              >
+                <div *ngIf="f.Name.errors.required">Tên không được trống</div>
+                <div *ngIf="f.Name.errors.maxLength">
+                  Tên không quá 100 ký tự
+                </div>
+              </div>
+            </div>
+            <div class="form-group col-md-6">
+              <label for="SearchEquipment" class="form-label"
+                >Thuộc đơn vị
+              </label>
+              <ng-select
+                [items]="lstOrgParent"
+                [searchable]="true"
+                bindLabel="BreadcrumbName"
+                bindValue="Id"
+                formControlName="ParentId"
+                dropdownPosition="bottom"
+                (change)="onSelectChangeOrg($event)"
+                (clear)="onClearOrg()"
+                placeholder="Chọn đơn vị"
+                notFoundText="{{ ngSelectMessage.NotFound }}"
+              >
+                >
+              </ng-select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="Type" class="form-label"
+                >Loại đơn vị <span class="text-danger">*</span></label
+              >
+              <ng-select
+                [searchable]="true"
+                id="Type"
+                formControlName="Type"
+                (change)="onSelectChangeTypeOrg($event)"
+                (clear)="onClearTypeOrg()"
+                placeholder="Chọn loại đơn vị"
+                dropdownPosition="bottom"
+                notFoundText="{{ ngSelectMessage.NotFound }}"
+                *ngIf="functionCode != FunctionCode.DISPLAY"
+                [ngClass]="{
+                  'is-invalid':
+                    f.Type.errors && (f.Type.touched || f.Type.dirty)
+                }"
+              >
+                >
+                <ng-option
+                  *ngFor="let option of typeOrgOptions"
+                  [value]="option.value"
+                  [disabled]="option.disabled"
+                >
+                  {{ option.label }}
+                </ng-option>
+              </ng-select>
+              <div
+                *ngIf="f.Type.errors && (f.Type.touched || f.Type.dirty)"
+                class="error-feedback"
+              >
+                <div *ngIf="f.Type.errors.required">
+                  Loại đơn vị không được trống
+                </div>
+              </div>
+            </div>
+            <div class="form-group col-md-6">
+              <label for="IsActive">Trạng thái</label>
+              <select
+                class="form-select form-control"
+                aria-label=".form-select-lg"
+                id="IsActive"
+                formControlName="IsActive"
+                [ngClass]="{
+                  'is-invalid':
+                    f.IsActive.errors &&
+                    (f.IsActive.touched || f.IsActive.dirty)
+                }"
+              >
+                <option [ngValue]="true" selected>Hoạt động</option>
+                <option [ngValue]="false">Không hoạt động</option>
+              </select>
+              <div
+                *ngIf="
+                  f.IsActive.errors && (f.IsActive.touched || f.IsActive.dirty)
+                "
+                class="error-feedback"
+              >
+                <div *ngIf="f.IsActive.errors.required">
+                  Trạng thái không được trống
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-12">
+              <label for="txtNote" class="form-label">Ghi chú</label>
+              <textarea
+                rows="2"
+                formControlName="Note"
+                class="form-control"
+                id="txtNote"
+                placeholder="Ghi chú"
+                maxlength="1000"
+                [attr.readonly]="
+                  functionCode == FunctionCode.DISPLAY ? true : undefined
+                "
+                [ngClass]="{
+                  'is-invalid':
+                    f.Note.errors && (f.Note.touched || f.Note.dirty)
+                }"
+              ></textarea>
+              <div
+                *ngIf="f.Note.errors && (f.Note.touched || f.Note.dirty)"
+                class="invalid-feedback"
+              >
+                <div *ngIf="f.Note.errors?.[maxlength]">Tối đa 1000 ký tự</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion" id="accordion-default">
+            <div class="card">
+              <div class="card-header">
+                <h5
+                  class="card-title d-flex align-items-center justify-content-between"
+                  style="background-color: #fafafa"
+                >
+                  <a
+                    data-toggle="collapse"
+                    class="flex-fill"
+                    href="#collapseOneDefault"
+                  >
+                    <span
+                      >Nhân viên <span class="text-danger">*</span>
+                      <span *ngIf="userLst.errors" class="m-l-5 error-feedback">
+                        <span *ngIf="userLst.errors.duplicate"
+                          >Nhân viên không được trùng
+                        </span>
+                      </span>
+                    </span>
+                  </a>
+                  <button
+                    *ngIf="functionCode != FunctionCode.DISPLAY"
+                    type="button"
+                    data-toggle="tooltip"
+                    data-placement="top"
+                    title="Thêm"
+                    class="btn btn-primary btn-sm float-right"
+                    (click)="onAddUserComponent()"
+                  >
+                    <i class="anticon anticon-plus-circle"></i>
+                    Thêm
+                  </button>
+                </h5>
+              </div>
+              <div
+                id="collapseOneDefault"
+                class="accordion-collapse collapse show"
+                data-parent="#accordion-default"
+              >
+                <div class="dataTables_wrapper dt-bootstrap4 no-footer">
+                  <ng-container formArrayName="UserLstComponents">
+                    <div class="table-responsive" style="max-height: 50vh;">
+                      <table
+                        class="table table-hover table-bordered e-commerce-table"
+                      >
+                        <thead>
+                          <tr>
+                            <th
+                              scope="col"
+                              class="text-center align-middle"
+                              [width]="'5%'"
+                            >
+                              STT
+                            </th>
+                            <th
+                              scope="col"
+                              class="align-middle"
+                              [width]="'35%'"
+                            >
+                              Tên nhân viên
+                            </th>
+                            <th
+                              scope="col"
+                              class="align-middle"
+                              [width]="'30%'"
+                            >
+                              Tên đăng nhập
+                            </th>
+                            <th
+                              scope="col"
+                              class="align-middle"
+                              [width]="'15%'"
+                            >
+                              Ngày sinh
+                            </th>
+                            <th
+                              scope="col"
+                              class="align-middle text-nowrap"
+                              [width]="'20%'"
+                            >
+                              Giới tính
+                            </th>
+                            <th
+                              scope="col"
+                              class="align-middle text-center"
+                              [width]="'10%'"
+                              *ngIf="functionCode != FunctionCode.DISPLAY"
+                            >
+                              Tác vụ
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr
+                            *ngFor="let item of userLst.controls; let i = index"
+                            [formGroupName]="i"
+                          >
+                            <td class="text-center">
+                              {{ i + 1 }}
+                            </td>
+                            <td>
+                              <ng-select
+                                [searchable]="true"
+                                id="selectUserId"
+                                formControlName="UserId"
+                                (change)="onchangeSelectUser(i, $event)"
+                                (clear)="onClearSelectUser(i, $event)"
+                                placeholder="Chọn nhân viên"
+                                dropdownPosition="bottom"
+                                notFoundText="{{ ngSelectMessage.NotFound }}"
+                                [appendTo]="'body'"
+                                *ngIf="functionCode != FunctionCode.DISPLAY"
+                                [ngClass]="{
+                                  'is-invalid':
+                                    userLst.controls[i].controls.UserId
+                                      .errors &&
+                                    (userLst.controls[i].controls.UserId
+                                      .touched ||
+                                      userLst.controls[i].controls.UserId.dirty)
+                                }"
+                              >
+                                <ng-option
+                                  *ngFor="let item of lstUser"
+                                  [value]="item.Id"
+                                >
+                                  {{ item.Name }}
+                                </ng-option>
+                              </ng-select>
+                              <input
+                                type="text"
+                                class="form-control"
+                                formControlName="Name"
+                                *ngIf="functionCode == FunctionCode.DISPLAY"
+                                readonly
+                              />
+                              <div
+                                *ngIf="
+                                  userLst.controls[i].controls.UserId.errors &&
+                                  (userLst.controls[i].controls.UserId
+                                    .touched ||
+                                    userLst.controls[i].controls.UserId.dirty)
+                                "
+                                class="error-feedback"
+                              >
+                                <div
+                                  *ngIf="
+                                    userLst.controls[i].controls.UserId.errors
+                                      .required
+                                  "
+                                >
+                                  Nhân viên không được trống
+                                </div>
+                              </div>
+                            </td>
+                            <td>
+                              <input
+                                type="text"
+                                class="form-control"
+                                formControlName="Username"
+                                [attr.readonly]="true"
+                              />
+                            </td>
+                            <td>
+                              <input
+                                type="text"
+                                class="form-control"
+                                formControlName="StringOfBirth"
+                                [attr.readonly]="true"
+                              />
+                            </td>
+                            <td>
+                              <input
+                                type="text"
+                                class="form-control"
+                                formControlName="GenderName"
+                                [attr.readonly]="true"
+                              />
+                            </td>
+                            <td
+                              class="text-center align-middle"
+                              *ngIf="functionCode != FunctionCode.DISPLAY"
+                            >
+                              <button
+                                type="button"
+                                *ngIf="userLst.controls.length > 0"
+                                data-toggle="tooltip"
+                                data-placement="top"
+                                title="Xóa"
+                                class="btn btn-icon btn-hover btn-sm btn-rounded"
+                                (click)="onDeleteUserComponent(i)"
+                              >
+                                <i class="anticon anticon-delete"></i>
+                              </button>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </ng-container>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="submit"
+          *ngIf="lstFunctionCode && lstFunctionCode.includes(functionCode)"
+          class="btn btn-primary"
+          (click)="onSubmit()"
+        >
+          Lưu
+        </button>
+        <button
+          (click)="onHide()"
+          id="closeModalButton"
+          class="btn btn-secondary"
+          data-dismiss="modal"
+        >
+          Đóng
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
